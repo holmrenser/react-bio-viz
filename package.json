@@ -1,73 +1,26 @@
 {
-  "name": "react-bio-viz",
-  "version": "0.0.17",
-  "description": "React components for biological data visualisation",
+  "name": "react-bio-viz-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for react-bio-viz: reusable, controllable React components for biological data visualization",
   "type": "module",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/genenotebook/react-bio-viz.git"
   },
-  "author": "rens holmer",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/genenotebook/react-bio-viz/issues"
-  },
-  "homepage": "https://github.com/genenotebook/react-bio-viz#readme",
-  "exports": {
-    ".": {
-      "module": "./dist/main.es.js",
-      "import": "./dist/main.cjs.js",
-      "default": "./dist/main.cjs.js"
-    }
-  },
-  "module": "./dist/main.es.js",
-  "main": "./dist/main.cjs.js",
-  "types": "./dist/main.d.ts",
-  "files": [
-    "./dist/*"
-  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "prepublishOnly": "npm run build",
-    "predocs": "npm run build",
-    "docs": "mkdir -p docs && api-extractor run --local --verbose && api-documenter markdown -i temp -o docs"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "build": "pnpm -r --filter=./packages/* build",
+    "test": "pnpm -r --filter=./packages/* test",
+    "typecheck": "pnpm -r --filter=./packages/* --filter=./apps/* typecheck",
+    "lint": "pnpm -r --filter=./packages/* --filter=./apps/* lint",
+    "dev": "pnpm --filter apps/demo dev",
+    "docs": "pnpm --filter @react-bio-viz/components docs"
   },
   "devDependencies": {
-    "@emotion/css": "^11.11.2",
-    "@microsoft/api-documenter": "^7.25.4",
-    "@microsoft/api-extractor": "^7.47.0",
-    "@types/color": "^3.0.6",
-    "@types/d3": "^7.4.3",
-    "@types/lodash": "^4.17.6",
-    "@types/node": "^20.14.9",
-    "@types/randomcolor": "^0.5.9",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "bulma": "^1.0.1",
-    "color": "^4.2.3",
-    "d3": "^7.9.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "immer": "^10.1.1",
-    "randomcolor": "^0.6.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-popper": "^2.3.0",
-    "sass": "^1.77.6",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.1",
-    "vite-plugin-dts": "^3.9.1",
-    "zustand": "^5.0.0-rc.2"
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

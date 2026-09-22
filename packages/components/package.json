@@ -1,0 +1,73 @@
+{
+  "name": "react-bio-viz",
+  "version": "0.1.0",
+  "description": "React components for biological data visualization",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genenotebook/react-bio-viz.git",
+    "directory": "packages/components"
+  },
+  "author": "rens holmer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/genenotebook/react-bio-viz/issues"
+  },
+  "homepage": "https://github.com/genenotebook/react-bio-viz#readme",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.es.js",
+      "default": "./dist/main.cjs.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "module": "./dist/main.es.js",
+  "main": "./dist/main.cjs.js",
+  "types": "./dist/main.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "docs": "mkdir -p ../../docs && api-extractor run --local --verbose && api-documenter markdown -i temp -o ../../docs"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "@react-bio-viz/core": "workspace:*",
+    "@emotion/css": "^11.11.2",
+    "color": "^4.2.3",
+    "d3": "^7.9.0",
+    "immer": "^10.1.1",
+    "lodash": "^4.17.21",
+    "randomcolor": "^0.6.2",
+    "react-popper": "^2.3.0",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "@microsoft/api-documenter": "^7.25.4",
+    "@microsoft/api-extractor": "^7.47.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/color": "^3.0.6",
+    "@types/d3": "^7.4.3",
+    "@types/lodash": "^4.17.6",
+    "@types/node": "^20.14.9",
+    "@types/randomcolor": "^0.5.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "jsdom": "^25.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^2.1.4"
+  }
+}
