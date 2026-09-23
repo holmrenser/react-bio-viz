@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-export declare function PhyloTree({ tree, height, width, cladogram, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, }: PhyloTreeProps): JSX.Element;
+export declare function PhyloTree(input: PhyloTreeProps): JSX.Element;
 ```
 
 ## Parameters
@@ -30,7 +30,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ tree, height, width, cladogram, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, }
+{ tree, height, width, cladogram, layout, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
 
 
 </td><td>
@@ -43,6 +57,7 @@ Description
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 JSX.Element

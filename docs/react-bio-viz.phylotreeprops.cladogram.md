@@ -4,6 +4,11 @@
 
 ## PhyloTreeProps.cladogram property
 
+> Warning: This API is now obsolete.
+> 
+> Use `layout="cladogram"` instead.
+> 
+
 **Signature:**
 
 ```typescript

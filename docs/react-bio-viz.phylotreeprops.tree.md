@@ -4,6 +4,8 @@
 
 ## PhyloTreeProps.tree property
 
+Recursively defined tree object: `children` of a Tree are also a Tree.
+
 **Signature:**
 
 ```typescript

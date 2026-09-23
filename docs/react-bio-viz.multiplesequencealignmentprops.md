@@ -36,7 +36,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[colWidth?](./react-bio-viz.multiplesequencealignmentprops.colwidth.md)
+[defaultViewport?](./react-bio-viz.multiplesequencealignmentprops.defaultviewport.md)
 
 
 </td><td>
@@ -44,12 +44,12 @@ Description
 
 </td><td>
 
-number
+[Viewport](./core.viewport.md)
 
 
 </td><td>
 
-_(Optional)_ Width in pixels of individual columns in the MSA visualization (default = 10)
+_(Optional)_ Seeds the visible column/row window when uncontrolled. Defaults to fitting the widget's pixel area.
 
 
 </td></tr>
@@ -68,7 +68,7 @@ number
 
 </td><td>
 
-_(Optional)_ Maximum height of the HTML element, if the MSA is higher a scroll bar appears (default = num\_sequences \* rowHeight)
+_(Optional)_ Pixel height of the whole widget.
 
 
 </td></tr>
@@ -82,18 +82,18 @@ _(Optional)_ Maximum height of the HTML element, if the MSA is higher a scroll b
 
 </td><td>
 
-[MSA](./react-bio-viz.msa.md)
+[AlignedSequences](./react-bio-viz.alignedsequences.md)
 
 
 </td><td>
 
-JSON formated multiple sequence alignment
+The alignment to render.
 
 
 </td></tr>
 <tr><td>
 
-[palette?](./react-bio-viz.multiplesequencealignmentprops.palette.md)
+[onViewportChange?](./react-bio-viz.multiplesequencealignmentprops.onviewportchange.md)
 
 
 </td><td>
@@ -101,18 +101,18 @@ JSON formated multiple sequence alignment
 
 </td><td>
 
-[PaletteName](./react-bio-viz.palettename.md)
+(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
 
-_(Optional)_ Color palette for coloring different residue types (default = 'individual')
+_(Optional)_ Called on every pan/zoom, whether user- or programmatically-driven.
 
 
 </td></tr>
 <tr><td>
 
-[rowHeaderWidth?](./react-bio-viz.multiplesequencealignmentprops.rowheaderwidth.md)
+[options?](./react-bio-viz.multiplesequencealignmentprops.options.md)
 
 
 </td><td>
@@ -120,18 +120,18 @@ _(Optional)_ Color palette for coloring different residue types (default = 'indi
 
 </td><td>
 
-number
+[MSADrawOptions](./react-bio-viz.msadrawoptions.md)
 
 
 </td><td>
 
-_(Optional)_ Maximum width in pixels of the sequence name field (default = 100)
+_(Optional)_ Rendering toggles — see [MSADrawOptions](./react-bio-viz.msadrawoptions.md)<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[rowHeight?](./react-bio-viz.multiplesequencealignmentprops.rowheight.md)
+[viewport?](./react-bio-viz.multiplesequencealignmentprops.viewport.md)
 
 
 </td><td>
@@ -139,18 +139,18 @@ _(Optional)_ Maximum width in pixels of the sequence name field (default = 100)
 
 </td><td>
 
-number
+[Viewport](./core.viewport.md)
 
 
 </td><td>
 
-_(Optional)_ Height in pixels of indivual rows in the MSA visualization (default = 10)
+_(Optional)_ The visible column/row window, fully controlled.
 
 
 </td></tr>
 <tr><td>
 
-[showRowHeader?](./react-bio-viz.multiplesequencealignmentprops.showrowheader.md)
+[viewportStore?](./react-bio-viz.multiplesequencealignmentprops.viewportstore.md)
 
 
 </td><td>
@@ -158,31 +158,12 @@ _(Optional)_ Height in pixels of indivual rows in the MSA visualization (default
 
 </td><td>
 
-boolean
+[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
 
 
 </td><td>
 
-_(Optional)_ Whether or not to show sequence names (default = true)
-
-
-</td></tr>
-<tr><td>
-
-[showText?](./react-bio-viz.multiplesequencealignmentprops.showtext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-_(Optional)_ Whether or not to show letters for individual residues in the alignment
+_(Optional)_ Delegates viewport state to an external store (e.g. a consumer's Zustand store) instead of local state.
 
 
 </td></tr>
@@ -201,8 +182,9 @@ number
 
 </td><td>
 
-_(Optional)_ Maximum width of the HTML element, if the MSA is wider a scroll bar appears (default = num\_columns \* colWidth)
+_(Optional)_ Pixel width of the whole widget.
 
 
 </td></tr>
 </tbody></table>
+

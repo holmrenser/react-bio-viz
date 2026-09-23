@@ -4,10 +4,15 @@
 
 ## MultipleSequenceAlignmentProps.height property
 
-Maximum height of the HTML element, if the MSA is higher a scroll bar appears (default = num\_sequences \* rowHeight)
+Pixel height of the whole widget.
 
 **Signature:**
 
 ```typescript
 height?: number;
 ```
+
+## Default Value
+
+400
+

@@ -4,10 +4,10 @@
 
 ## MultipleSequenceAlignmentProps.msa property
 
-JSON formated multiple sequence alignment
+The alignment to render.
 
 **Signature:**
 
 ```typescript
-msa: MSA;
+msa: AlignedSequences;
 ```

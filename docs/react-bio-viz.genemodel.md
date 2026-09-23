@@ -4,12 +4,12 @@
 
 ## GeneModel() function
 
-GeneModel component, genome browser style. Visualizes gene, mRNA, CDS and exon relationships. Exons have popover menu's that display additional information.
+GeneModel component, genome browser style. Visualizes gene, mRNA, CDS and exon relationships. Exons have popovers that display additional information. Pan/zoom over the genomic coordinate window is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
 
 **Signature:**
 
 ```typescript
-export declare function GeneModel({ gene, width, colorSeed, showScale, exonPopoverFn, panMin, panMax, }: GeneModelProps): JSX.Element;
+export declare function GeneModel(input: GeneModelProps): JSX.Element;
 ```
 
 ## Parameters
@@ -32,7 +32,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ gene, width, colorSeed, showScale, exonPopoverFn, panMin, panMax, }
+{ gene, width, colorSeed, showScale, exonPopoverFn, panMin, panMax, viewport, defaultViewport, onViewportChange, viewportStore, }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
 
 
 </td><td>
@@ -45,11 +59,12 @@ Description
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 JSX.Element
 
-SVG visualation of a (potentially spliced) gene model containing mRNA, exons, and CDSs
+SVG visualisation of a (potentially spliced) gene model containing mRNA, exons, and CDSs
 
 ## Example 1
 
@@ -62,24 +77,10 @@ import { GeneModel } from 'react-bio-viz';
 
 ## Example 2
 
-Dynamically observing resize events using `react-resize-detector`<!-- -->:
+Zooming in on the left-most half of the gene, fully controlled:
 
 ```typescript
 import { GeneModel } from 'react-bio-viz';
-import ReactResizeDetector from 'react-resize-detector';
-<ReactResizeDetector handleWidth>
- ({width}) => (
-   <GeneModel gene={gene} width={width} />
- )
-</ReactResizeDetector>
-```
-
-## Example 3
-
-Zooming in on the left-most half of the gene
-
-```typescript
-import { GeneModel } from 'react-bio-viz';
-<GeneModel gene={gene} panMin={0} panMax={50} />
+<GeneModel gene={gene} viewport={viewport} onViewportChange={setViewport} />
 ```
 

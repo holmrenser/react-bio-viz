@@ -4,6 +4,8 @@
 
 ## GeneModelProps.gene property
 
+Recursively defined gene model object: SequenceInterval children are also SequenceIntervals.
+
 **Signature:**
 
 ```typescript

@@ -19,13 +19,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[@react-bio-viz/core](./core.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [react-bio-viz](./react-bio-viz.md)
 
 
 </td><td>
 
-React components for biological data visualization
-
 
 </td></tr>
 </tbody></table>
+

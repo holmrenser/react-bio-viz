@@ -4,8 +4,6 @@
 
 ## react-bio-viz package
 
-React components for biological data visualization
-
 ## Functions
 
 <table><thead><tr><th>
@@ -21,27 +19,55 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[GeneModel({ gene, width, colorSeed, showScale, exonPopoverFn, panMin, panMax, })](./react-bio-viz.genemodel.md)
+[BlastHitDistribution({ hits, queryLength, queryName, width, showScale, metric, defaultMetric, onMetricChange, hitPopoverFn, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, }, input)](./react-bio-viz.blasthitdistribution.md)
 
 
 </td><td>
 
-GeneModel component, genome browser style. Visualizes gene, mRNA, CDS and exon relationships. Exons have popover menu's that display additional information.
+Overlaid BLAST hits along a single query sequence, row-stacked to avoid overlap and colored by a chosen metric. Clicking a hit toggles it in `selection.selectedHitIds` — brush-to-select (`selection.brushRange`<!-- -->) is reserved for a future enhancement, not implemented here.
 
 
 </td></tr>
 <tr><td>
 
-[MultipleSequenceAlignment({ msa, width, height, palette, rowHeight, rowHeaderWidth, showRowHeader, colWidth, showText, })](./react-bio-viz.multiplesequencealignment.md)
+[GeneModel({ gene, width, colorSeed, showScale, exonPopoverFn, panMin, panMax, viewport, defaultViewport, onViewportChange, viewportStore, }, input)](./react-bio-viz.genemodel.md)
 
 
 </td><td>
+
+GeneModel component, genome browser style. Visualizes gene, mRNA, CDS and exon relationships. Exons have popovers that display additional information. Pan/zoom over the genomic coordinate window is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
 
 
 </td></tr>
 <tr><td>
 
-[PhyloTree({ tree, height, width, cladogram, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, })](./react-bio-viz.phylotree.md)
+[GenomeBrowser({ tracks, referenceLength, referenceName, width, showScale, trackRenderers, viewport, defaultViewport, onViewportChange, viewportStore, }, input)](./react-bio-viz.genomebrowser.md)
+
+
+</td><td>
+
+A multi-track genome browser: a shared genomic-coordinate viewport (pan/zoom, controllable like every other stateful prop in this library) with `"feature"`<!-- -->, `"coverage"`<!-- -->, and `"genemodel"` tracks stacked underneath a position ruler. `trackRenderers` lets a consumer add a custom track kind or override a built-in one — see the `bio-viz-conventions` project skill.
+
+
+</td></tr>
+<tr><td>
+
+[MultipleSequenceAlignment({ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, }, input)](./react-bio-viz.multiplesequencealignment.md)
+
+
+</td><td>
+
+Renders a multiple sequence alignment as a dual-canvas viewport (an off-screen full-resolution source image, cropped/scaled on-screen for the visible window) with drag-to-pan, wheel-to-zoom, a pan/zoom toolbar, a column ruler, an interactive minimap, an optional consensus row, residue search highlighting, and a hover tooltip/position badge.
+
+Colors come from the shared scheme set (ClustalX/Zappo/Taylor for protein, two nucleotide schemes) plus column-analysis styles; the default is picked from the alignment's own alphabet.
+
+Pan/zoom is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
+
+
+</td></tr>
+<tr><td>
+
+[PhyloTree({ tree, height, width, cladogram, layout, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, }, input)](./react-bio-viz.phylotree.md)
 
 
 </td><td>
@@ -65,11 +91,141 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[BlastHit](./react-bio-viz.blasthit.md)
+
+
+</td><td>
+
+One row of tabular BLAST output (e.g. `outfmt 6`<!-- -->), keyed against a single query sequence.
+
+
+</td></tr>
+<tr><td>
+
+[BlastHitDistributionProps](./react-bio-viz.blasthitdistributionprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ColumnAnalysis](./react-bio-viz.columnanalysis.md)
+
+
+</td><td>
+
+Which columns fall into each of the classic alignment-analysis categories.
+
+
+</td></tr>
+<tr><td>
+
+[ColumnStat](./react-bio-viz.columnstat.md)
+
+
+</td><td>
+
+Per-column summary produced in a single pass over the alignment.
+
+
+</td></tr>
+<tr><td>
+
+[CoveragePoint](./react-bio-viz.coveragepoint.md)
+
+
+</td><td>
+
+One sample in a `"coverage"` track's depth/signal profile.
+
+
+</td></tr>
+<tr><td>
+
+[CoverageTrack](./react-bio-viz.coveragetrack.md)
+
+
+</td><td>
+
+A depth/signal profile drawn as a filled line chart.
+
+
+</td></tr>
+<tr><td>
+
+[FeatureTrack](./react-bio-viz.featuretrack.md)
+
+
+</td><td>
+
+A row of non-overlapping-when-possible interval features (auto-stacked when they overlap).
+
+
+</td></tr>
+<tr><td>
+
 [GeneModelProps](./react-bio-viz.genemodelprops.md)
 
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[GeneModelTrack](./react-bio-viz.genemodeltrack.md)
+
+
+</td><td>
+
+A gene model (reuses `GeneModel`<!-- -->'s own `Transcript`<!-- -->/`Exon` rendering).
+
+
+</td></tr>
+<tr><td>
+
+[GenomeBrowserProps](./react-bio-viz.genomebrowserprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GenomeFeature](./react-bio-viz.genomefeature.md)
+
+
+</td><td>
+
+A single interval feature on a `"feature"` track (e.g. a BED/GFF-style annotation).
+
+
+</td></tr>
+<tr><td>
+
+[HitSelection](./react-bio-viz.hitselection.md)
+
+
+</td><td>
+
+Which hits are selected, and (reserved for a future brush-to-select interaction) a selected range along the query axis. Controllable like every other stateful prop in this library — see `selection`<!-- -->/`defaultSelection`<!-- -->/`onSelectionChange`<!-- -->/`selectionStore`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[MSADrawOptions](./react-bio-viz.msadrawoptions.md)
+
+
+</td><td>
+
+Rendering toggles for [MultipleSequenceAlignment()](./react-bio-viz.multiplesequencealignment.md)<!-- -->, consolidated into one options object per the `bio-viz-conventions` project skill (rather than a growing pile of boolean props).
 
 
 </td></tr>
@@ -93,6 +249,65 @@ Description
 
 
 </td></tr>
+<tr><td>
+
+[TrackRenderProps](./react-bio-viz.trackrenderprops.md)
+
+
+</td><td>
+
+Props every built-in and custom track renderer receives.
+
+
+</td></tr>
+<tr><td>
+
+[TreeSelection](./react-bio-viz.treeselection.md)
+
+
+</td><td>
+
+Which node the tree is rerooted at, and which internal nodes have their subtrees collapsed. Controllable like every other stateful prop in this library — see `selection`<!-- -->/ `defaultSelection`<!-- -->/`onSelectionChange`<!-- -->/`selectionStore`<!-- -->.
+
+
+</td></tr>
+</tbody></table>
+
+## Variables
+
+<table><thead><tr><th>
+
+Variable
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[COLOR\_STYLE\_GROUPS](./react-bio-viz.color_style_groups.md)
+
+
+</td><td>
+
+The color styles grouped for a picker: which alphabet each group applies to (`null` for the analysis group, which works on any alignment).
+
+
+</td></tr>
+<tr><td>
+
+[COLOR\_STYLES](./react-bio-viz.color_styles.md)
+
+
+</td><td>
+
+All color styles, in the order the picker lists them.
+
+
+</td></tr>
 </tbody></table>
 
 ## Type Aliases
@@ -110,6 +325,27 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[AlignedSequences](./react-bio-viz.alignedsequences.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[BlastMetric](./react-bio-viz.blastmetric.md)
+
+
+</td><td>
+
+Which `BlastHit` field the color scale is driven by.
+
+
+</td></tr>
+<tr><td>
+
 [ColorFn](./react-bio-viz.colorfn.md)
 
 
@@ -120,27 +356,59 @@ Description
 </td></tr>
 <tr><td>
 
+[ColorStyle](./react-bio-viz.colorstyle.md)
+
+
+</td><td>
+
+Every color style [MultipleSequenceAlignment()](./react-bio-viz.multiplesequencealignment.md) accepts.
+
+
+</td></tr>
+<tr><td>
+
+[ColumnColorStyle](./react-bio-viz.columncolorstyle.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GenomeTrack](./react-bio-viz.genometrack.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)
+
+
+</td><td>
+
+A node in the laid-out tree: wraps the source `Tree` data with parent/children links, a stable `id` for addressing it from [TreeSelection](./react-bio-viz.treeselection.md)<!-- -->, and the `x`<!-- -->/`y` pixel position a layout produces. Named to match d3-hierarchy's `HierarchyPointNode` (which this used to be, directly) so the public `LeafFn`<!-- -->/`ColorFn` API shape stays the same even though layout is computed locally instead of via d3 — see the `bio-viz-conventions` project skill.
+
+
+</td></tr>
+<tr><td>
+
+[LayoutMode](./react-bio-viz.layoutmode.md)
+
+
+</td><td>
+
+`rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a typed placeholder for a future circular layout — selecting it currently falls back to `rectangular` with a console warning.
+
+
+</td></tr>
+<tr><td>
+
 [LeafFn](./react-bio-viz.leaffn.md)
-
-
-</td><td>
-
-
-
-</td></tr>
-<tr><td>
-
-[MSA](./react-bio-viz.msa.md)
-
-
-</td><td>
-
-
-
-</td></tr>
-<tr><td>
-
-[PaletteName](./react-bio-viz.palettename.md)
 
 
 </td><td>
@@ -171,6 +439,17 @@ Sequence interval object based on gff3 field specs. Recursively defined: Sequenc
 </td></tr>
 <tr><td>
 
+[TrackRenderer](./react-bio-viz.trackrenderer.md)
+
+
+</td><td>
+
+A render function for one track kind — the extensibility seam for custom track types.
+
+
+</td></tr>
+<tr><td>
+
 [Tree](./react-bio-viz.tree.md)
 
 
@@ -180,3 +459,4 @@ Sequence interval object based on gff3 field specs. Recursively defined: Sequenc
 
 </td></tr>
 </tbody></table>
+

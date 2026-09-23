@@ -49,7 +49,26 @@ string
 
 </td><td>
 
-_(Optional)_ Seed string for random color generation
+_(Optional)_ Seed string for the gene's color scheme.
+
+
+</td></tr>
+<tr><td>
+
+[defaultViewport?](./react-bio-viz.genemodelprops.defaultviewport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[Viewport](./core.viewport.md)
+
+
+</td><td>
+
+_(Optional)_ Seeds the visible window when uncontrolled. Defaults to the full padded gene extent.
 
 
 </td></tr>
@@ -68,7 +87,7 @@ _(Optional)_ Seed string for random color generation
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Popover content for a clicked exon/CDS.
 
 
 </td></tr>
@@ -86,6 +105,27 @@ _(Optional)_
 
 
 </td><td>
+
+Recursively defined gene model object: SequenceInterval children are also SequenceIntervals.
+
+
+</td></tr>
+<tr><td>
+
+[onViewportChange?](./react-bio-viz.genemodelprops.onviewportchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called on every pan/zoom, whether user- or programmatically-driven.
 
 
 </td></tr>
@@ -142,7 +182,45 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Show a scalebar indicating genomic position.
+
+
+</td></tr>
+<tr><td>
+
+[viewport?](./react-bio-viz.genemodelprops.viewport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[Viewport](./core.viewport.md)
+
+
+</td><td>
+
+_(Optional)_ The visible genomic-coordinate window, fully controlled.
+
+
+</td></tr>
+<tr><td>
+
+[viewportStore?](./react-bio-viz.genemodelprops.viewportstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates viewport state to an external store instead of local state.
 
 
 </td></tr>
@@ -161,8 +239,9 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Width in pixels of the rendered SVG element.
 
 
 </td></tr>
 </tbody></table>
+

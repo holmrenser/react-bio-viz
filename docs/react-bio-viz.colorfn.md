@@ -10,5 +10,5 @@
 ```typescript
 export type ColorFn = (node: HierarchyPointNode<Tree>) => string;
 ```
-**References:** [Tree](./react-bio-viz.tree.md)
+**References:** [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->, [Tree](./react-bio-viz.tree.md)
 

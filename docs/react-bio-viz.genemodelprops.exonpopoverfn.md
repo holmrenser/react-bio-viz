@@ -4,8 +4,15 @@
 
 ## GeneModelProps.exonPopoverFn property
 
+Popover content for a clicked exon/CDS.
+
 **Signature:**
 
 ```typescript
 exonPopoverFn?: (arg0: SequenceInterval) => JSX.Element;
 ```
+
+## Default Value
+
+shows all gff3 fields.
+

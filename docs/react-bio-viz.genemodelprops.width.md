@@ -4,8 +4,15 @@
 
 ## GeneModelProps.width property
 
+Width in pixels of the rendered SVG element.
+
 **Signature:**
 
 ```typescript
 width?: number;
 ```
+
+## Default Value
+
+500
+

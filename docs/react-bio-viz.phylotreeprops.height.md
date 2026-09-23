@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.height property
 
+Maximum height in pixels.
+
 **Signature:**
 
 ```typescript
 height?: number;
 ```
+
+## Default Value
+
+900
+

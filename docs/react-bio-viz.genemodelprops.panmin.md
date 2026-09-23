@@ -4,6 +4,11 @@
 
 ## GeneModelProps.panMin property
 
+> Warning: This API is now obsolete.
+> 
+> Use `viewport`<!-- -->/`defaultViewport` instead. Percentage (0-100) along the x-axis where the visualization should start; seeds `defaultViewport` when neither is given.
+> 
+
 **Signature:**
 
 ```typescript

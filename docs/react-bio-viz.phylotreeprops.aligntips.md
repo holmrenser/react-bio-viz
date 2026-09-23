@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.alignTips property
 
+Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch.
+
 **Signature:**
 
 ```typescript
 alignTips?: boolean;
 ```
+
+## Default Value
+
+true
+

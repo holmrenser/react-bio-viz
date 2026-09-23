@@ -4,10 +4,15 @@
 
 ## MultipleSequenceAlignmentProps.width property
 
-Maximum width of the HTML element, if the MSA is wider a scroll bar appears (default = num\_columns \* colWidth)
+Pixel width of the whole widget.
 
 **Signature:**
 
 ```typescript
 width?: number;
 ```
+
+## Default Value
+
+650
+

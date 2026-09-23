@@ -4,10 +4,16 @@
 
 ## MultipleSequenceAlignment() function
 
+Renders a multiple sequence alignment as a dual-canvas viewport (an off-screen full-resolution source image, cropped/scaled on-screen for the visible window) with drag-to-pan, wheel-to-zoom, a pan/zoom toolbar, a column ruler, an interactive minimap, an optional consensus row, residue search highlighting, and a hover tooltip/position badge.
+
+Colors come from the shared scheme set (ClustalX/Zappo/Taylor for protein, two nucleotide schemes) plus column-analysis styles; the default is picked from the alignment's own alphabet.
+
+Pan/zoom is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
+
 **Signature:**
 
 ```typescript
-export declare function MultipleSequenceAlignment({ msa, width, height, palette, rowHeight, rowHeaderWidth, showRowHeader, colWidth, showText, }: MultipleSequenceAlignmentProps): JSX.Element;
+export declare function MultipleSequenceAlignment(input: MultipleSequenceAlignmentProps): React.JSX.Element;
 ```
 
 ## Parameters
@@ -30,7 +36,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ msa, width, height, palette, rowHeight, rowHeaderWidth, showRowHeader, colWidth, showText, }
+{ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
 
 
 </td><td>
@@ -43,8 +63,8 @@ Description
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
-JSX.Element
-
+React.JSX.Element
 

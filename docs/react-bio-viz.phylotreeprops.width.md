@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.width property
 
+Maximum width in pixels.
+
 **Signature:**
 
 ```typescript
 width?: number;
 ```
+
+## Default Value
+
+1000
+

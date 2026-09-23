@@ -4,8 +4,15 @@
 
 ## GeneModelProps.showScale property
 
+Show a scalebar indicating genomic position.
+
 **Signature:**
 
 ```typescript
 showScale?: boolean;
 ```
+
+## Default Value
+
+true
+

@@ -4,10 +4,15 @@
 
 ## GeneModelProps.colorSeed property
 
-Seed string for random color generation
+Seed string for the gene's color scheme.
 
 **Signature:**
 
 ```typescript
 colorSeed?: string;
 ```
+
+## Default Value
+
+"42"
+

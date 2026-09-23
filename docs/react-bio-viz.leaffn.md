@@ -13,5 +13,5 @@ export type LeafFn = (arg0: {
     fontSize?: number;
 }) => JSX.Element;
 ```
-**References:** [Tree](./react-bio-viz.tree.md)
+**References:** [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->, [Tree](./react-bio-viz.tree.md)
 

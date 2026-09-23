@@ -49,7 +49,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch.
 
 
 </td></tr>
@@ -93,6 +93,44 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
+[defaultSelection?](./react-bio-viz.phylotreeprops.defaultselection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TreeSelection](./react-bio-viz.treeselection.md)
+
+
+</td><td>
+
+_(Optional)_ Seeds the selection when uncontrolled. Defaults to no reroot, nothing collapsed.
+
+
+</td></tr>
+<tr><td>
+
+[defaultViewport?](./react-bio-viz.phylotreeprops.defaultviewport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[Viewport](./core.viewport.md)
+
+
+</td><td>
+
+_(Optional)_ Seeds the visible window when uncontrolled. Defaults to fitting the whole tree.
+
+
+</td></tr>
+<tr><td>
+
 [fontSize?](./react-bio-viz.phylotreeprops.fontsize.md)
 
 
@@ -125,7 +163,45 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Maximum height in pixels.
+
+
+</td></tr>
+<tr><td>
+
+[interactive?](./react-bio-viz.phylotreeprops.interactive.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Render a clickable marker on internal nodes that toggles `selection.collapsed`<!-- -->, and let leaves be dragged vertically to reorder them among their siblings (writes to `selection.order`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[layout?](./react-bio-viz.phylotreeprops.layout.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[LayoutMode](./react-bio-viz.layoutmode.md)
+
+
+</td><td>
+
+_(Optional)_ Tree layout mode — see [LayoutMode](./react-bio-viz.layoutmode.md)<!-- -->.
 
 
 </td></tr>
@@ -150,6 +226,120 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
+[onSelectionChange?](./react-bio-viz.phylotreeprops.onselectionchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: [TreeSelection](./react-bio-viz.treeselection.md)<!-- -->) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called on every reroot/collapse change.
+
+
+</td></tr>
+<tr><td>
+
+[onViewportChange?](./react-bio-viz.phylotreeprops.onviewportchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called on every pan/zoom, whether user- or programmatically-driven.
+
+
+</td></tr>
+<tr><td>
+
+[searchQuery?](./react-bio-viz.phylotreeprops.searchquery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Bold leaves whose name matches this text (case-insensitive substring) or, with `searchUseRegex`<!-- -->, this regular expression; dims non-matches. An invalid regex matches nothing rather than throwing.
+
+
+</td></tr>
+<tr><td>
+
+[searchUseRegex?](./react-bio-viz.phylotreeprops.searchuseregex.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Treat `searchQuery` as a regular expression instead of a plain substring.
+
+
+</td></tr>
+<tr><td>
+
+[selection?](./react-bio-viz.phylotreeprops.selection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TreeSelection](./react-bio-viz.treeselection.md)
+
+
+</td><td>
+
+_(Optional)_ The reroot/collapse selection, fully controlled.
+
+
+</td></tr>
+<tr><td>
+
+[selectionStore?](./react-bio-viz.phylotreeprops.selectionstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./core.storecontroller.md)<!-- -->&lt;[TreeSelection](./react-bio-viz.treeselection.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates selection state to an external store instead of local state.
+
+
+</td></tr>
+<tr><td>
+
 [shadeBranchBySupport?](./react-bio-viz.phylotreeprops.shadebranchbysupport.md)
 
 
@@ -164,6 +354,25 @@ boolean
 </td><td>
 
 _(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[showScaleBar?](./react-bio-viz.phylotreeprops.showscalebar.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Show a branch-length scale bar below the tree (only meaningful in `"rectangular"` layout).
 
 
 </td></tr>
@@ -201,6 +410,46 @@ _(Optional)_
 
 </td><td>
 
+Recursively defined tree object: `children` of a Tree are also a Tree.
+
+
+</td></tr>
+<tr><td>
+
+[viewport?](./react-bio-viz.phylotreeprops.viewport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[Viewport](./core.viewport.md)
+
+
+</td><td>
+
+_(Optional)_ The visible pan/zoom window over the rendered tree, fully controlled.
+
+
+</td></tr>
+<tr><td>
+
+[viewportStore?](./react-bio-viz.phylotreeprops.viewportstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates viewport state to an external store instead of local state.
+
 
 </td></tr>
 <tr><td>
@@ -218,8 +467,9 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Maximum width in pixels.
 
 
 </td></tr>
 </tbody></table>
+
