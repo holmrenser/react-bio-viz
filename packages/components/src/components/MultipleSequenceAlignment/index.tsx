@@ -1,523 +1,301 @@
-import React, { useEffect, useContext, createContext, useRef } from "react";
-import { aaColors, ColorMap, PaletteName, BioLetter } from "../util";
-import { css } from "@emotion/css";
-import { createStore, useStore } from "zustand";
-// import { getConsensus } from "./computations";
-import { ZoomBox } from "./zoombox";
-import { getConsensus } from "./computations";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { css, cx } from "@emotion/css";
+import {
+  DEFAULT_COLOR_STYLE,
+  detectSequenceType,
+  useDarkMode,
+  useDragPan,
+  useViewport,
+  useWheelZoom,
+  ViewportToolbar,
+} from "@react-bio-viz/core";
 
-const BLOCKSIZE = 20;
+import { AlignmentCanvas } from "./components/AlignmentCanvas";
+import { CursorPositionBadge } from "./components/CursorPositionBadge";
+import { CursorTooltip, type HoverCell } from "./components/CursorTooltip";
+import { Minimap } from "./components/Minimap";
+import { MSALabels } from "./components/MSALabels";
+import { OffscreenCanvas } from "./components/OffscreenCanvas";
+import { Scalebar } from "./components/Scalebar";
+import { CELL_SIZE, LABEL_WIDTH, MINIMAP_HEIGHT, SCALEBAR_HEIGHT } from "./constants";
+import type { MSADrawOptions, MultipleSequenceAlignmentProps } from "./types";
+import type { ColorStyle, ColumnColorContext } from "./utils/colorStyle";
+import { analyseColumns, computeColumnStats, computeConsensus } from "./utils/msaAnalysis";
 
-/** @public */
-export type Sequence = {
-  // Sequence identifier (e.g. from fasta header)
-  header: string;
-  // Arbitrary biological sequence (nucleotide, amino acid, etc.)
-  sequence: string;
+export type { AlignedSequences, MSADrawOptions, MultipleSequenceAlignmentProps, Sequence } from "./types";
+export type { HoverCell } from "./components/CursorTooltip";
+export type { ColorStyle, ColumnColorStyle } from "./utils/colorStyle";
+export { COLOR_STYLES, COLOR_STYLE_GROUPS } from "./utils/colorStyle";
+export type { ColumnAnalysis, ColumnStat } from "./utils/msaAnalysis";
+
+type ResolvedMSAOptions = Required<Omit<MSADrawOptions, "colorStyle" | "highlightPattern">> & {
+  colorStyle: ColorStyle | undefined;
+  highlightPattern: string | undefined;
 };
 
-/** @public */
-export type AlignedSequences = Sequence[];
-
-function RowNames({
-  msa,
-  height,
-  width,
-  rowHeight,
-}: {
-  msa: AlignedSequences;
-  height: number;
-  width: number;
-  rowHeight: number;
-}): JSX.Element {
-  return (
-    <ul
-      className={css({
-        width,
-        height,
-        marginBlock: 0,
-        paddingInline: 0,
-        paddingRight: ".5em",
-        overflow: "visible",
-        zIndex: 2,
-        fontFamily: "helvetica; arial; monospace",
-      })}
-    >
-      {msa.map(({ header }) => (
-        <li
-          key={header}
-          className={css({
-            overflow: "hidden",
-            height: rowHeight,
-            fontSize: 8,
-            whiteSpace: "nowrap",
-            "&:hover": {
-              overflow: "visible",
-            },
-          })}
-        >
-          <span
-            className={css({
-              backgroundColor: "white",
-              display: "inline-block",
-              zIndex: 2,
-              paddingRight: ".25em",
-              fontWeight: header === "Consensus" ? 800 : 500,
-            })}
-          >
-            {header}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** @public */
-export interface MSABlockProps {
-  /**JSON formated multiple sequence alignment */
-  msa: AlignedSequences;
-  /**Maximum width of the HTML element, if the MSA is wider a scroll bar appears (default = num_columns * colWidth) */
-  width?: number;
-  /**Maximum height of the HTML element, if the MSA is higher a scroll bar appears (default = num_sequences * rowHeight)*/
-  height?: number;
-  /**Color palette for coloring different residue types (default = 'individual') */
-  palette?: PaletteName;
-  /**Show sequence names (default = true)*/
-  showRowHeader?: boolean;
-  /**Maximum width in pixels of the sequence name field (default = 100) */
-  rowHeaderWidth?: number;
-  /**Show letters for individual residues in the alignment */
-  showText?: boolean;
-  /** */
-  overview?: boolean;
-}
-
-function OffscreenMSACanvas({
-  msa,
-  offScreenCanvasRef,
-  colorMap,
-  showText,
-}: {
-  msa: AlignedSequences;
-  offScreenCanvasRef: React.RefObject<HTMLCanvasElement>;
-  colorMap: ColorMap;
-  showText: boolean;
-}) {
-  const numColumns = msa[0].sequence.length;
-  const numSeqs = msa.length;
-  useEffect(() => {
-    if (offScreenCanvasRef && offScreenCanvasRef.current) {
-      const canvas = offScreenCanvasRef.current;
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.font = `${BLOCKSIZE * 0.9}px monospace`;
-        msa.forEach(({ sequence }, seq_i) => {
-          // individual nucl/aa
-          sequence.split("").forEach((letter, char_i) => {
-            // draw a square
-            context.fillStyle = colorMap.get(letter as BioLetter) || "#000000";
-            context.fillRect(
-              char_i * BLOCKSIZE, // x
-              seq_i * BLOCKSIZE, // y
-              BLOCKSIZE,
-              BLOCKSIZE
-            );
-            // add the letter
-            if (showText) {
-              context.fillStyle = "black";
-              context.textAlign = "center";
-              context.fillText(
-                letter, // text
-                (char_i + 0.5) * BLOCKSIZE, // x
-                (seq_i + 0.8) * BLOCKSIZE // y
-              );
-            }
-          });
-        });
-      }
-    }
-  }, [msa]);
-  return (
-    <canvas
-      className={`off-screen-canvas ${css({ display: "None" })}`}
-      ref={offScreenCanvasRef}
-      height={numSeqs * BLOCKSIZE}
-      width={numColumns * BLOCKSIZE}
-    />
-  );
-}
-
-function OnscreenMSACanvas({
-  msa,
-  maxWidth,
-  maxHeight,
-  onScreenCanvasRef,
-  offScreenCanvasRef,
-  overview,
-}: {
-  msa: AlignedSequences;
-  maxWidth: number;
-  maxHeight: number;
-  onScreenCanvasRef: React.RefObject<HTMLCanvasElement>;
-  offScreenCanvasRef: React.RefObject<HTMLCanvasElement>;
-  overview: boolean;
-}) {
-  const numColumns = msa[0].sequence.length;
-  const numSeqs = msa.length;
-
-  const zoomStore = useContext(ZoomContext);
-  if (!zoomStore) throw new Error("Missing ZoomContext.Provider in react tree");
-  const zoomBox: ZoomBox = useStore(zoomStore, ({ zoomBox }) => zoomBox);
-  console.log(zoomBox);
-  useEffect(() => {
-    if (
-      offScreenCanvasRef &&
-      offScreenCanvasRef.current &&
-      onScreenCanvasRef &&
-      onScreenCanvasRef.current
-    ) {
-      const canvas = onScreenCanvasRef.current;
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.drawImage(
-          offScreenCanvasRef.current,
-          overview ? 0 : zoomBox.x0 * BLOCKSIZE, // source x
-          overview ? 0 : zoomBox.y0 * BLOCKSIZE, // source y
-          overview ? numColumns * BLOCKSIZE : zoomBox.width * BLOCKSIZE, // source width
-          overview ? numSeqs * BLOCKSIZE : zoomBox.height * BLOCKSIZE, // source height
-          0, // destination x
-          0, // destination y
-          maxWidth, // destination width
-          maxHeight // destination height
-        );
-      }
-    }
-  }, [msa, zoomBox]);
-  return (
-    <canvas
-      className={`on-screen-canvas ${css({
-        zIndex: 1,
-      })}`}
-      ref={onScreenCanvasRef}
-      height={maxHeight}
-      width={maxWidth}
-    />
-  );
-}
-
-function ZoomboxOverview({
-  maxWidth,
-  maxHeight,
-}: {
-  maxWidth: number;
-  maxHeight: number;
-}) {
-  const zoomStore = useContext(ZoomContext);
-  if (!zoomStore) throw new Error("Missing ZoomContext.Provider in react tree");
-  const zoomBox: ZoomBox = useStore(zoomStore, ({ zoomBox }) => zoomBox);
-  return (
-    <span
-      className={`zoombox-overview ${css({
-        position: "absolute",
-        left: (zoomBox.x0 / zoomBox.xMax) * maxWidth,
-        top: (zoomBox.y0 / zoomBox.yMax) * maxHeight,
-        width: (zoomBox.width / zoomBox.xMax) * maxWidth,
-        height: (zoomBox.height / zoomBox.yMax) * maxHeight,
-        backgroundColor: "rgba(90,90,90,0.5)",
-        borderColor: "black",
-        borderWidth: "4px",
-        zIndex: 100,
-      })}`}
-    />
-  );
-}
-
-function MSABlock({
-  msa,
-  width,
-  height,
-  palette = "individual",
-  rowHeaderWidth = 100,
-  showRowHeader = true,
-  showText = true,
-  overview = false,
-}: MSABlockProps): JSX.Element {
-  const numColumns = msa[0].sequence.length;
-  const numSeqs = msa.length;
-
-  const colorMap: ColorMap = aaColors.has(palette as PaletteName)
-    ? (aaColors.get(palette as PaletteName) as ColorMap)
-    : (aaColors.get("polarity") as ColorMap);
-
-  const onScreenCanvasRef = useRef<HTMLCanvasElement>(null);
-  const offScreenCanvasRef = useRef<HTMLCanvasElement>(null);
-
-  const canvasWidth = numColumns * BLOCKSIZE;
-  const maxWidth = typeof width === "undefined" ? canvasWidth : width;
-
-  const canvasHeight = numSeqs * BLOCKSIZE;
-  const maxHeight = typeof height === "undefined" ? canvasHeight : height;
-
-  return (
-    <div
-      className={`multiple-sequence-alignment ${css({
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "nowrap",
-        maxHeight,
-        maxWidth,
-        position: "relative",
-      })}`}
-    >
-      {showRowHeader && (
-        <RowNames
-          msa={msa}
-          height={maxHeight}
-          width={rowHeaderWidth}
-          rowHeight={BLOCKSIZE}
-        />
-      )}
-      <div
-        className={css({
-          maxWidth: maxWidth - rowHeaderWidth,
-          marginBottom: -BLOCKSIZE,
-          overflowX: "hidden",
-          overflowY: "hidden",
-        })}
-      >
-        <OffscreenMSACanvas
-          msa={msa}
-          offScreenCanvasRef={offScreenCanvasRef}
-          colorMap={colorMap}
-          showText={showText}
-        />
-        <OnscreenMSACanvas
-          msa={msa}
-          maxWidth={maxWidth - rowHeaderWidth}
-          maxHeight={maxHeight}
-          onScreenCanvasRef={onScreenCanvasRef}
-          offScreenCanvasRef={offScreenCanvasRef}
-          overview={overview}
-        />
-
-        {overview && (
-          <ZoomboxOverview
-            maxWidth={maxWidth - rowHeaderWidth}
-            maxHeight={maxHeight}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** @public */
-export interface MultipleSequenceAlignmentProps {
-  /**JSON formated multiple sequence alignment */
-  msa: AlignedSequences;
-  /**Maximum width of the HTML element, if the MSA is wider a scroll bar appears (default = num_columns * colWidth) */
-  width?: number;
-  /**Width in pixels of individual columns in the MSA visualization (default = 10)*/
-  height?: number;
-  /**Height in pixels of indivual rows in the MSA visualization (default = 10) */
-  palette?: PaletteName;
-  /**Show sequence names (default = true)*/
-  showRowHeader?: boolean;
-  /**Maximum width in pixels of the sequence name field (default = 100) */
-  rowHeaderWidth?: number;
-  /**Add consensus sequence at the top of the alignment */
-  showConsensus?: boolean;
-  /** Add a zoomed out overview above the main MSA viewer*/
-  showOverview?: boolean;
-}
-
-type ZoomState = {
-  zoomBox: ZoomBox;
+const DEFAULT_OPTIONS: Omit<ResolvedMSAOptions, "darkMode"> = {
+  cellSize: CELL_SIZE,
+  colorStyle: undefined,
+  showLetters: true,
+  showLabels: true,
+  labelWidth: LABEL_WIDTH,
+  showConsensus: true,
+  showMinimap: true,
+  showScalebar: true,
+  highlightPattern: undefined,
+  highlightUseRegex: false,
+  showOnlyDifferences: false,
+  conservationThreshold: 0.9,
 };
 
-type ZoomAction = {
-  panLeft: (stepsize?: number) => void;
-  panRight: (stepsize?: number) => void;
-  panUp: (stepsize?: number) => void;
-  panDown: (stepsize?: number) => void;
-};
-
-type ZoomStore = ReturnType<typeof createZoomStore>;
-
-const createZoomStore = (initZoom?: Partial<ZoomState>) => {
-  const DEFAULT_ZOOM: ZoomState = {
-    zoomBox: new ZoomBox({ x0: 0, xMax: 0, yMax: 0 }),
-  };
-  return createStore<ZoomState & ZoomAction>()((set) => ({
-    ...DEFAULT_ZOOM,
-    ...initZoom,
-    panLeft: (stepSize = 100) =>
-      set((state) => ({ zoomBox: state.zoomBox.panLeft(stepSize) })),
-    panRight: (stepSize = 100) =>
-      set((state) => ({ zoomBox: state.zoomBox.panRight(stepSize) })),
-    panUp: (stepSize = 100) =>
-      set((state) => ({ zoomBox: state.zoomBox.panUp(stepSize) })),
-    panDown: (stepSize = 100) =>
-      set((state) => ({ zoomBox: state.zoomBox.panDown(stepSize) })),
-  }));
-};
-
-const ZoomContext = createContext<ZoomStore | null>(null);
-
-function ZoomableMSA({
-  msa,
-  width,
-  height,
-  palette,
-  showConsensus,
-  showOverview,
-  rowHeaderWidth,
-}: Required<MultipleSequenceAlignmentProps>): React.JSX.Element {
-  const zoomStore = useContext(ZoomContext);
-  if (!zoomStore) throw new Error("Missing ZoomContext.Provider in react tree");
-  const state = useStore(zoomStore);
-  return (
-    <>
-      <div
-        className="buttons has-addons"
-        style={{ display: "inline-block", marginRight: "1em" }}
-      >
-        <button
-          className="button is-small"
-          onClick={() => state.panLeft()}
-          disabled={state.zoomBox.x0 <= 0.001}
-        >
-          &larr;
-        </button>
-        <button
-          className="button is-small"
-          onClick={() => state.panRight()}
-          disabled={
-            state.zoomBox.x1 - state.zoomBox.width >= state.zoomBox.xMax
-          }
-        >
-          &rarr;
-        </button>
-      </div>
-      <div
-        className="buttons has-addons"
-        style={{ display: "inline-block", marginRight: "1em" }}
-      >
-        <button
-          className="button is-small"
-          onClick={() => state.panUp()}
-          //disabled={zoomBox.y0 <= 0.001}
-        >
-          &uarr;
-        </button>
-        <button
-          className="button is-small"
-          onClick={() => state.panDown()}
-          //disabled={zoomBox.y1 >= 1}
-        >
-          &darr;
-        </button>
-      </div>
-      <div
-        className="buttons has-addons"
-        style={{ display: "inline-block", marginRight: "1em" }}
-      >
-        <button
-          className="button is-small"
-          //onClick={() => dispatch({ type: "zoomIn" })}
-          // disabled={zoomBox.y0 <= 0.001}
-        >
-          +
-        </button>
-        <button
-          className="button is-small"
-          //onClick={() => dispatch({ type: "zoomOut" })}
-          // disabled={zoomBox.y1 >= 1}
-        >
-          -
-        </button>
-      </div>
-      {showOverview && (
-        <>
-          <h2 className="subtitle">Overview</h2>
-          <div className="msa-overview" style={{ marginLeft: rowHeaderWidth }}>
-            <MSABlock
-              msa={msa}
-              width={width}
-              rowHeaderWidth={rowHeaderWidth}
-              height={0.25 * height}
-              showRowHeader={false}
-              showText={false}
-              palette={palette}
-              overview={true}
-            />
-          </div>
-        </>
-      )}
-
-      {showConsensus && (
-        <>
-          <h2 className="subtitle">Consensus</h2>
-          <div className="msa-overview" style={{ marginLeft: rowHeaderWidth }}>
-            <MSABlock
-              msa={[getConsensus(msa)]}
-              width={width}
-              rowHeaderWidth={rowHeaderWidth}
-              height={BLOCKSIZE}
-              showRowHeader={false}
-              showText={false}
-              palette={palette}
-              overview={false}
-            />
-          </div>
-        </>
-      )}
-
-      <h2 className="subtitle">MSA</h2>
-      <MSABlock
-        msa={msa}
-        width={width}
-        rowHeaderWidth={rowHeaderWidth}
-        height={0.75 * height}
-        palette={palette}
-      />
-    </>
-  );
-}
-
+/**
+ * @public
+ * Renders a multiple sequence alignment as a dual-canvas viewport (an off-screen full-resolution
+ * source image, cropped/scaled on-screen for the visible window) with drag-to-pan,
+ * wheel-to-zoom, a pan/zoom toolbar, a column ruler, an interactive minimap, an optional consensus
+ * row, residue search highlighting, and a hover tooltip/position badge.
+ *
+ * Colors come from the shared scheme set (ClustalX/Zappo/Taylor for protein, two nucleotide
+ * schemes) plus column-analysis styles; the default is picked from the alignment's own alphabet.
+ *
+ * Pan/zoom is controllable like every other stateful prop in this library — see `viewport`/
+ * `defaultViewport`/`onViewportChange`/`viewportStore` and the `bio-viz-conventions` project skill.
+ */
 export function MultipleSequenceAlignment({
   msa,
   width = 650,
   height = 400,
-  palette = "individual",
-  showConsensus = true,
-  showOverview = true,
+  options,
+  viewport,
+  defaultViewport,
+  onViewportChange,
+  viewportStore,
 }: MultipleSequenceAlignmentProps): React.JSX.Element {
-  const numColumns = msa[0].sequence.length;
+  const systemDarkMode = useDarkMode();
+  const {
+    cellSize,
+    colorStyle,
+    showLetters,
+    showLabels,
+    labelWidth,
+    showConsensus,
+    showMinimap,
+    showScalebar,
+    highlightPattern,
+    highlightUseRegex,
+    showOnlyDifferences,
+    conservationThreshold,
+    darkMode,
+  } = { ...DEFAULT_OPTIONS, darkMode: systemDarkMode, ...options };
+
+  const numColumns = msa[0]?.sequence.length ?? 0;
   const numSeqs = msa.length;
-  const zoomStore = useRef(
-    createZoomStore({
-      zoomBox: new ZoomBox({
-        x1: 150,
-        y1: 150 * (height / width),
-        xMax: numColumns,
-        yMax: numSeqs,
-      }),
-    })
-  ).current;
+
+  const columnStats = useMemo(() => computeColumnStats(msa), [msa]);
+  const analysis = useMemo(() => analyseColumns(msa), [msa]);
+  const consensusSequence = useMemo(() => computeConsensus(msa, columnStats), [msa, columnStats]);
+  const colorContext: ColumnColorContext = useMemo(
+    () => ({ analysis, columnStats, conservationThreshold }),
+    [analysis, columnStats, conservationThreshold]
+  );
+  // Default the scheme to whichever alphabet the alignment looks like, rather than forcing the
+  // caller to know — matching acacia's `detectSequenceType` + `DEFAULT_COLOR_SCHEME` pairing.
+  const effectiveColorStyle: ColorStyle = useMemo(
+    () => colorStyle ?? DEFAULT_COLOR_STYLE[detectSequenceType(msa)],
+    [colorStyle, msa]
+  );
+
+  const labelSpace = showLabels ? labelWidth : 0;
+  const minimapHeight = showMinimap ? MINIMAP_HEIGHT : 0;
+  const scalebarHeight = showScalebar ? SCALEBAR_HEIGHT : 0;
+  const consensusHeight = showConsensus ? cellSize : 0;
+  const mainWidth = Math.max(cellSize, width - labelSpace);
+  const mainHeight = Math.max(
+    cellSize,
+    height - minimapHeight - scalebarHeight - consensusHeight - (showMinimap ? cellSize : 0) - (showConsensus ? cellSize : 0)
+  );
+
+  const extent = useMemo(() => ({ xMin: 0, xMax: numColumns, yMin: 0, yMax: numSeqs }), [numColumns, numSeqs]);
+
+  const computedDefaultViewport = useMemo(() => {
+    const visibleCols = Math.max(1, Math.min(numColumns, Math.floor(mainWidth / cellSize)));
+    const visibleRows = Math.max(1, Math.min(numSeqs, Math.floor(mainHeight / cellSize)));
+    return { x0: 0, x1: visibleCols, y0: 0, y1: visibleRows, ...extent };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numColumns, numSeqs, mainWidth, mainHeight, cellSize]);
+
+  const {
+    viewport: currentViewport,
+    setViewport,
+    panBy,
+    zoomBy,
+    zoomAt,
+    reset,
+  } = useViewport({
+    extent,
+    viewport,
+    defaultViewport: defaultViewport ?? computedDefaultViewport,
+    onViewportChange,
+    viewportStore,
+  });
+
+  const offscreenCanvasRef = useRef<HTMLCanvasElement>(null);
+  const consensusOffscreenCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Fresh identity exactly when the offscreen canvases repaint, so the on-screen crops know to
+  // re-copy — see `AlignmentCanvas`'s `sourceRevision`. Deps mirror `OffscreenCanvas`'s effect.
+  const sourceRevision = useMemo(
+    () => ({}),
+    [
+      msa,
+      effectiveColorStyle,
+      colorContext,
+      darkMode,
+      showLetters,
+      cellSize,
+      highlightPattern,
+      highlightUseRegex,
+      showOnlyDifferences,
+      consensusSequence,
+    ]
+  );
+
+  const spanX = currentViewport.x1 - currentViewport.x0;
+  const spanY = currentViewport.y1 - currentViewport.y0;
+  const pixelsPerColumn = spanX > 0 ? mainWidth / spanX : cellSize;
+
+  const dragHandlers = useDragPan({
+    onPan: (dx, dy) => panBy(dx, dy),
+    scaleX: mainWidth > 0 ? spanX / mainWidth : 0,
+    scaleY: mainHeight > 0 ? spanY / mainHeight : 0,
+  });
+
+  const wheelHandlers = useWheelZoom({
+    onZoom: (point, factor) => zoomAt(point, factor),
+    toDataPoint: (pixelX, pixelY) => ({
+      x: currentViewport.x0 + (mainWidth > 0 ? (pixelX / mainWidth) * spanX : 0),
+      y: currentViewport.y0 + (mainHeight > 0 ? (pixelY / mainHeight) * spanY : 0),
+    }),
+  });
+
+  const [hover, setHover] = useState<HoverCell | null>(null);
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLCanvasElement>) => {
+      dragHandlers.onPointerMove(event);
+      const rect = event.currentTarget.getBoundingClientRect();
+      const localX = event.clientX - rect.left;
+      const localY = event.clientY - rect.top;
+      const col = Math.floor(currentViewport.x0 + (mainWidth > 0 ? (localX / mainWidth) * spanX : 0));
+      const row = Math.floor(currentViewport.y0 + (mainHeight > 0 ? (localY / mainHeight) * spanY : 0));
+      if (col >= 0 && col < numColumns && row >= 0 && row < numSeqs) {
+        setHover({ row, col, clientX: event.clientX, clientY: event.clientY });
+      } else {
+        setHover(null);
+      }
+    },
+    [dragHandlers, currentViewport.x0, currentViewport.y0, mainWidth, mainHeight, spanX, spanY, numColumns, numSeqs]
+  );
+
+  const handlePointerLeave = useCallback(() => setHover(null), []);
+
   return (
-    <ZoomContext.Provider value={zoomStore}>
-      <ZoomableMSA
+    <div className={cx("text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
+      <ViewportToolbar viewport={currentViewport} panBy={panBy} zoomBy={zoomBy} reset={reset} axes="both" />
+      <CursorPositionBadge hover={hover} msa={msa} />
+
+      <OffscreenCanvas
         msa={msa}
-        width={width}
-        height={height}
-        palette={palette}
-        showConsensus={showConsensus}
-        showOverview={showOverview}
-        rowHeaderWidth={150}
-        showRowHeader
+        colorStyle={effectiveColorStyle}
+        colorContext={colorContext}
+        darkMode={darkMode}
+        showLetters={showLetters}
+        cellSize={cellSize}
+        canvasRef={offscreenCanvasRef}
+        highlightPattern={highlightPattern}
+        highlightUseRegex={highlightUseRegex}
+        showOnlyDifferences={showOnlyDifferences}
+        referenceSequence={consensusSequence.sequence}
       />
-    </ZoomContext.Provider>
+      {showConsensus && (
+        <OffscreenCanvas
+          msa={[consensusSequence]}
+          colorStyle={effectiveColorStyle}
+          colorContext={colorContext}
+          darkMode={darkMode}
+          showLetters={showLetters}
+          cellSize={cellSize}
+          canvasRef={consensusOffscreenCanvasRef}
+          highlightPattern={highlightPattern}
+          highlightUseRegex={highlightUseRegex}
+        />
+      )}
+
+      {showMinimap && (
+        <div className={css({ display: "flex", marginBottom: "0.5em" })} style={{ marginLeft: labelSpace }}>
+          <Minimap
+            offscreenCanvasRef={offscreenCanvasRef}
+            numColumns={numColumns}
+            numSeqs={numSeqs}
+            cellSize={cellSize}
+            pixelWidth={mainWidth}
+            pixelHeight={minimapHeight}
+            sourceRevision={sourceRevision}
+            viewport={currentViewport}
+            setViewport={setViewport}
+            panBy={panBy}
+          />
+        </div>
+      )}
+
+      {showScalebar && (
+        <div className={css({ display: "flex" })} style={{ marginLeft: labelSpace }}>
+          <Scalebar
+            width={mainWidth}
+            columnCount={numColumns}
+            x0={currentViewport.x0}
+            pixelsPerColumn={pixelsPerColumn}
+            hoverCol={hover?.col ?? null}
+          />
+        </div>
+      )}
+
+      {showConsensus && (
+        <div className={css({ display: "flex", marginBottom: "0.25em" })}>
+          {showLabels && (
+            <MSALabels msa={[consensusSequence]} width={labelSpace} height={cellSize} cellSize={cellSize} y0={0} />
+          )}
+          <AlignmentCanvas
+            offscreenCanvasRef={consensusOffscreenCanvasRef}
+            sourceWindow={{ x0: currentViewport.x0, x1: currentViewport.x1, y0: 0, y1: 1 }}
+            sourceRevision={sourceRevision}
+            cellSize={cellSize}
+            pixelWidth={mainWidth}
+            pixelHeight={cellSize}
+          />
+        </div>
+      )}
+
+      <div className={css({ display: "flex" })}>
+        {showLabels && (
+          <MSALabels msa={msa} width={labelSpace} height={mainHeight} cellSize={cellSize} y0={currentViewport.y0} />
+        )}
+        <AlignmentCanvas
+          offscreenCanvasRef={offscreenCanvasRef}
+          sourceWindow={currentViewport}
+          sourceRevision={sourceRevision}
+          cellSize={cellSize}
+          pixelWidth={mainWidth}
+          pixelHeight={mainHeight}
+          interaction={{
+            ...dragHandlers,
+            ...wheelHandlers,
+            onPointerMove: handlePointerMove,
+            onPointerLeave: handlePointerLeave,
+          }}
+        />
+      </div>
+      <CursorTooltip hover={hover} msa={msa} />
+    </div>
   );
 }

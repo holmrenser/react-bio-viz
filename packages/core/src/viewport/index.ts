@@ -13,3 +13,5 @@ export { useDragPan } from "./useDragPan";
 export type { UseDragPanOptions, UseDragPanHandlers } from "./useDragPan";
 export { useWheelZoom } from "./useWheelZoom";
 export type { UseWheelZoomOptions, UseWheelZoomHandlers } from "./useWheelZoom";
+export { ViewportToolbar } from "./ViewportToolbar";
+export type { ViewportToolbarProps } from "./ViewportToolbar";

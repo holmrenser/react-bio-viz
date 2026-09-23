@@ -11,7 +11,12 @@ export interface UseViewportOptions {
   viewport?: Viewport;
   defaultViewport?: Viewport;
   onViewportChange?: (next: Viewport) => void;
-  store?: StoreController<Viewport>;
+  /**
+   * Delegates the viewport to an external store. Named for its domain, not just `store`, so it
+   * reads the same on a component that also has a `selectionStore` — see the naming rule in the
+   * `bio-viz-conventions` project skill.
+   */
+  viewportStore?: StoreController<Viewport>;
 }
 
 /** @public */
@@ -33,13 +38,13 @@ export interface UseViewportResult {
  * like every other stateful prop in this library — see the `bio-viz-conventions` project skill.
  */
 export function useViewport(options: UseViewportOptions): UseViewportResult {
-  const { extent, viewport, defaultViewport, onViewportChange, store } = options;
+  const { extent, viewport, defaultViewport, onViewportChange, viewportStore } = options;
 
   const [value, setValue] = useControllableState<Viewport>({
     value: viewport,
     defaultValue: defaultViewport ?? fitToExtent(extent),
     onChange: onViewportChange,
-    store,
+    store: viewportStore,
   });
 
   const doPanBy = useCallback(

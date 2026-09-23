@@ -67,7 +67,9 @@
    *
    *   "bundledPackages": [ "@my-company/*" ],
    */
-  "bundledPackages": ["d3"],
+  // `@react-bio-viz/core` is documented as its own package rather than inlined here, so a
+  // `Viewport` or `StoreController` in a component's props links to the core reference.
+  "bundledPackages": [],
 
   /**
    * Specifies what type of newlines API Extractor should use when writing output files.  By default, the output files
@@ -202,7 +204,10 @@
     /**
      * (REQUIRED) Whether to generate a doc model file.
      */
-    "enabled": true
+    "enabled": true,
+
+    // Shared with packages/core so one api-documenter run covers both packages.
+    "apiJsonFilePath": "<projectFolder>/../../temp/<unscopedPackageName>.api.json"
 
     /**
      * The output path for the doc model file.  The file extension should be ".api.json".

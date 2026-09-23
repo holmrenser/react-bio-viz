@@ -6,5 +6,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    setupFiles: ["./vitest.setup.ts", "vitest-canvas-mock"],
+    environmentOptions: {
+      jsdom: { resources: "usable" },
+    },
   },
 });

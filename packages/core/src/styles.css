@@ -130,6 +130,16 @@
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.625rem;
+
+    /*
+     * Visualization accent: the blue every interactive affordance on a data surface shares —
+     * hover outlines on exons/features/hits, the MSA cursor cross-hair, selected elements. The
+     * shadcn palette above is deliberately monochrome, so a hover drawn in `--ring` would be
+     * invisible against the data; this is the one saturated colour the library reserves for
+     * "you can interact with this". Lightened in dark mode, where the base blue reads too dark.
+     */
+    --rbv-accent: rgb(48, 92, 222);
+    --rbv-accent-rgb: 48, 92, 222;
 }
 
 .dark {
@@ -156,6 +166,8 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
+    --rbv-accent: rgb(125, 163, 255);
+    --rbv-accent-rgb: 125, 163, 255;
 }
 
 @layer base {

@@ -14,10 +14,11 @@
     "test": "pnpm -r --filter=./packages/* test",
     "typecheck": "pnpm -r --filter=./packages/* --filter=./apps/* typecheck",
     "lint": "pnpm -r --filter=./packages/* --filter=./apps/* lint",
-    "dev": "pnpm --filter apps/demo dev",
-    "docs": "pnpm --filter @react-bio-viz/components docs"
+    "dev": "pnpm --filter ./apps/demo dev",
+    "docs": "pnpm build && pnpm -r --filter=./packages/* docs:extract && api-documenter markdown -i temp -o docs"
   },
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.25.0",
     "typescript": "^5.6.3"
   },
   "engines": {

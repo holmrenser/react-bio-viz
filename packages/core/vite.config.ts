@@ -8,7 +8,11 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    dts({ include: ["src"], tsconfigPath: "./tsconfig.json" }),
+    dts({
+      include: ["src"],
+      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      tsconfigPath: "./tsconfig.json",
+    }),
   ],
   resolve: {
     alias: {

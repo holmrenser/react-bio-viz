@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+
+  "mainEntryPointFilePath": "<projectFolder>/dist/main.d.ts",
+
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.json"
+  },
+
+  "apiReport": {
+    "enabled": true,
+    "reportFolder": "<projectFolder>/temp/"
+  },
+
+  "docModel": {
+    "enabled": true,
+    // Both packages write their doc model into one shared folder so a single api-documenter run
+    // covers the whole library and can cross-link between them — a `Viewport` referenced from a
+    // component's props resolves to its page in the core docs.
+    "apiJsonFilePath": "<projectFolder>/../../temp/<unscopedPackageName>.api.json"
+  },
+
+  "dtsRollup": {
+    "enabled": true
+  },
+
+  "messages": {
+    "compilerMessageReporting": {
+      "default": { "logLevel": "warning" }
+    },
+    "extractorMessageReporting": {
+      "default": { "logLevel": "warning" },
+
+      // The shadcn/ui primitives under `src/components/ui/` are vendored: the `shadcn` CLI
+      // generates and regenerates them, so any `@public` tag added there would be silently lost
+      // on the next `shadcn add`. They are re-exported as public chrome regardless (api-extractor
+      // treats an untagged export as public), so this would be 24 permanent warnings that drown
+      // out real ones. Hand-written core primitives are still expected to carry a release tag —
+      // see AGENTS.md — and `packages/components` keeps this check enabled.
+      "ae-missing-release-tag": { "logLevel": "none" }
+    },
+    "tsdocMessageReporting": {
+      "default": { "logLevel": "warning" }
+    }
+  }
+}

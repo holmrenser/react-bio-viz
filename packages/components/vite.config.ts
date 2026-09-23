@@ -4,7 +4,14 @@ import react from "@vitejs/plugin-react-swc";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
-  plugins: [react(), dts({ include: ["src"], tsconfigPath: "./tsconfig.json" })],
+  plugins: [
+    react(),
+    dts({
+      include: ["src"],
+      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      tsconfigPath: "./tsconfig.json",
+    }),
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, "src/main.ts"),

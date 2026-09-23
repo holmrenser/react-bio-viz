@@ -1,51 +1,119 @@
 # react-bio-viz
 
-React components for biological data visualization
+React components for biological data visualization.
 
-- Gene model
-- Multiple Sequence Alignment
-- Phylogenetic tree
+- **MultipleSequenceAlignment** — canvas-rendered alignment with pan/zoom, column ruler, minimap,
+  consensus row, residue search and the standard colour schemes (ClustalX, Zappo, Taylor).
+- **PhyloTree** — rectangular, cladogram and radial layouts, with reroot, collapse, drag-to-reorder
+  and search.
+- **GeneModel** — transcripts, exons and CDSs over a genomic axis.
+- **GenomeBrowser** — stacked feature/coverage/gene-model tracks sharing one viewport.
+- **BlastHitDistribution** — BLAST hits along a query, row-stacked and coloured by e-value, bit
+  score or percent identity.
 
-To install
+![showcase](showcase.png 'react-bio-viz examples')
 
-```
+## Install
+
+```bash
 npm install react-bio-viz
 ```
 
-To use
+## Use
 
 ```jsx
-import React from 'react';
+import { GeneModel, MultipleSequenceAlignment, PhyloTree } from 'react-bio-viz';
+// Ships the component chrome and theme tokens; import it once, anywhere in your app.
+import 'react-bio-viz/style.css';
 
-import { GeneModel, MultipleSequenceAlignment, Tree } from 'react-bio-viz'
-
-import { genemodel, msa, tree } from './src/data'
-
-function App(): JSX.Element {
+function App() {
   return (
-    <div className='react-bio-viz'>
+    <div>
       <GeneModel gene={gene} />
 
       <MultipleSequenceAlignment
         msa={msa}
-        colWidth={1}
-        rowHeight={5}
-        showRowHeader={false}
+        options={{ cellSize: 16, showLabels: true, colorStyle: 'AA ClustalX' }}
       />
 
-      <Tree tree={tree} />
+      <PhyloTree tree={tree} layout="radial" interactive />
     </div>
-  )
+  );
 }
 ```
 
-To see examples, start a development server (loading is currently slow)
+## Controllable state
+
+Every piece of interactive state — a viewport, a tree selection, a set of selected BLAST hits —
+follows one contract, so learning it once covers every component. Each is a group of four props
+named for its domain (`viewport` / `defaultViewport` / `onViewportChange` / `viewportStore`;
+`selection` / `defaultSelection` / `onSelectionChange` / `selectionStore`) supporting three modes:
+
+```jsx
+// Uncontrolled: the component owns the state, but you can still observe every change.
+<MultipleSequenceAlignment msa={msa} onViewportChange={console.log} />
+
+// Controlled: you own it, exactly like a controlled <input>.
+<MultipleSequenceAlignment msa={msa} viewport={viewport} onViewportChange={setViewport} />
+
+// External store: hand the state to your own store (Zustand, or anything implementing
+// StoreController) and the component reads and writes it directly.
+<MultipleSequenceAlignment msa={msa} viewportStore={createZustandStoreController(appStore, ...)} />
+```
+
+The same `StoreController` seam is what the Jupyter bindings below plug into — a notebook is just
+another external-store consumer, so no component contains any Jupyter-specific code.
+
+## Python / Jupyter
+
+The same components are published to PyPI as Jupyter widgets, where each piece of interactive
+state is a synced traitlet:
+
+```bash
+pip install react-bio-viz
+```
+
+```python
+from react_bio_viz import MSA
+
+widget = MSA(msa=[{"header": "seq1", "sequence": "MKTAYIAKQRQISFVK"}])
+widget.observe(lambda change: print(change["new"]), names="viewport")
+widget
+```
+
+See [`packages/python/README.md`](packages/python/README.md).
+
+## API reference
+
+Generated from the source with api-extractor: [`docs/index.md`](docs/index.md), covering both
+`react-bio-viz` (the components) and `@react-bio-viz/core` (the shared state, viewport, colour,
+scale and layout primitives).
+
+## Development
+
+This is a pnpm workspace monorepo:
 
 ```
-git clone https://github.com/genenotebook/react-bio-viz
-cd react-bio-viz
-npm install
-npm run dev
+packages/core/         @react-bio-viz/core   shared primitives + shadcn/ui chrome
+packages/components/   react-bio-viz         the components
+packages/python/       react-bio-viz (PyPI)  anywidget/Jupyter bindings
+apps/demo/                                   Vite playground
 ```
 
-![showcase](showcase.png 'react-bio-viz examples')
+```bash
+pnpm install
+pnpm build          # core -> components -> the Python widget bundle
+pnpm dev            # the demo playground
+pnpm test           # Vitest across packages
+pnpm typecheck
+pnpm docs           # regenerate docs/ from the TSDoc comments
+```
+
+For the Python package, from `packages/python`: `uv pip install -e ".[dev]"` then `pytest`.
+
+Conventions for contributors (and AI agents) live in [`AGENTS.md`](AGENTS.md) and
+`.claude/skills/bio-viz-conventions/SKILL.md`.
+
+## License
+
+MIT

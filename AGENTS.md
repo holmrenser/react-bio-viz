@@ -30,6 +30,25 @@ and `react-bio-viz` respectively as **built** workspace dependencies (via `dist/
 the demo app or a dependent package to pick up source changes — there is no live cross-package
 source HMR in this setup.
 
+## Module layout
+
+Every component in `packages/components/src/components/` follows the same internal structure,
+matching the reference project `wur-bioinformatics/acacia`:
+
+```
+ComponentName/
+  index.tsx        public API: the root component, plus re-exported public types
+  types.ts         all TypeScript types for the module
+  constants.ts     module-level constants — no magic numbers inline in components
+  components/      React sub-components (PascalCase.tsx)
+  hooks/           custom hooks (useCamelCase.ts)
+  utils/           pure functions, with co-located *.test.ts
+  layouts/         (PhyloTree) or tracks/ (GenomeBrowser) — pluggable renderers
+```
+
+Pure logic belongs in `utils/` with a co-located test, not inline in a component. Anything shared
+by more than one component moves up into `packages/core` instead of being imported sideways.
+
 ## The controllable-state convention (read before adding or touching any stateful prop)
 
 Every component prop that represents interactive UI state (a viewport/pan/zoom position, a
@@ -37,11 +56,15 @@ selection, a reroot target) is built on `useControllableState` from `@react-bio-
 under a domain-specific name following this exact shape:
 
 ```ts
-someState?: T;                 // controlled
-defaultSomeState?: T;          // uncontrolled seed
+someState?: T;                     // controlled
+defaultSomeState?: T;              // uncontrolled seed
 onSomeStateChange?: (next: T) => void;
-store?: StoreController<T>;    // external-store seam (e.g. a consumer's Zustand store)
+someStateStore?: StoreController<T>;  // external-store seam (e.g. a consumer's Zustand store)
 ```
+
+All four are named for the state, the store included — `viewportStore`, `selectionStore`, never a
+bare `store`, even on a component that has only one. That uniformity is what lets the Python
+bridge bind a trait to its prop by name alone.
 
 Do not invent a different shape (no bare `onChange` without `value`/`defaultValue`, no prop-only
 state with no callback, no component-private store that can't be observed or seeded from outside).
@@ -59,15 +82,32 @@ worked example — load that skill before implementing a new stateful component 
 - shadcn/ui components are Tailwind-styled; Tailwind is compiled at `packages/core`'s build time
   into a single shipped stylesheet (`@react-bio-viz/core/style.css`) so consuming apps never need
   Tailwind configured themselves. Don't add a Tailwind config requirement to any other package.
+- **Consumers must import that stylesheet once** (`import "react-bio-viz/style.css"`) — Vite's
+  library build emits it beside the JS rather than importing it from there. Without it the chrome
+  is unstyled and the theme tokens (`--foreground`, `--rbv-accent`, …) are undefined. `apps/demo`
+  does this in `src/main.tsx`.
+- **Colors**: prefer `currentColor` and theme tokens (`text-foreground`, `text-muted-foreground`,
+  `bg-background`, `var(--background)`) over literal colors, so components follow the host's
+  light/dark theme. The one reserved saturated color is `--rbv-accent`, for interactive
+  affordances (hover outlines, selection strokes, the MSA cursor). Canvas can't read CSS custom
+  properties, so canvas rendering takes an explicit `darkMode` value — default it from
+  `useDarkMode()` in `@react-bio-viz/core`, which tracks the `dark` class on `<html>`.
 
 ## Commands
 
 - `pnpm install` — install all workspace dependencies.
-- `pnpm build` — build `packages/core` and `packages/components` (dependency order handled by pnpm).
+- `pnpm build` — build every package in dependency order (`core` → `components` → the `python`
+  widget bundle).
 - `pnpm --filter apps/demo dev` — run the Vite playground (rebuild dependent packages first).
 - `pnpm test` — run Vitest across packages.
 - `pnpm typecheck` — `tsc` (noEmit) across packages.
 - `pnpm --filter react-bio-viz docs` — regenerate the api-extractor/api-documenter reference docs into `/docs`.
+
+Python package (`packages/python`, PyPI name `react-bio-viz`):
+
+- `pnpm --filter @react-bio-viz/python-widgets build` — bundle the widget JS into
+  `src/react_bio_viz/static/` (also run by `pnpm build`).
+- `uv pip install -e ".[dev]"` then `pytest` — from `packages/python`.
 
 ## Where things live
 
@@ -75,7 +115,13 @@ worked example — load that skill before implementing a new stateful component 
 - Components (`MultipleSequenceAlignment`, `PhyloTree`, `GeneModel`, `GenomeBrowser`,
   `BlastHitDistribution`): `packages/components/src/components/`, barrel-exported from
   `packages/components/src/main.ts`.
-- Python/anywidget bindings: `packages/python/`.
+- Python/anywidget bindings: `packages/python/` — one `AnyWidget` subclass per component in
+  `src/react_bio_viz/`, the JS bridge in `js/` (`widget.tsx` dispatches on a `_component` trait so
+  all five widgets share one bundle; `_storeAdapter.ts` wraps a synced trait as a
+  `StoreController`). Adding a prop means: a snake_case trait on the Python class, its name in
+  that component's `props` list in `js/widget.tsx`, and a test. Interactive state goes in `stores`
+  instead, and must be seeded in the widget's `__init__` — a `None` store snapshot reaches the
+  component as a null viewport/selection and crashes it.
 
 For the full architectural rationale (why `useControllableState` looks the way it does, the
 `StoreController` external-store adapter design, the viewport pan/zoom primitive, the color

@@ -1,0 +1,50 @@
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #222;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.section {
+  padding: 1.5rem 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem;
+  color: #555;
+}
+
+.buttons {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.button {
+  font: inherit;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: #f2f2f2;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

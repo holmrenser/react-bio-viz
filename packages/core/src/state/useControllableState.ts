@@ -20,7 +20,7 @@ const getEmptySnapshot = () => EMPTY_SNAPSHOT;
  *
  * See the `bio-viz-conventions` project skill for the full contract and the convention every
  * component follows for wrapping this under a domain-specific prop name (e.g. `viewport`/
- * `defaultViewport`/`onViewportChange`/`store`).
+ * `defaultViewport`/`onViewportChange`/`viewportStore`).
  */
 export function useControllableState<T>(
   options: ControllableStateOptions<T>

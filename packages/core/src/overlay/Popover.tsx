@@ -27,12 +27,20 @@ export interface PopoverBodyProps {
 /**
  * @public
  * The popover's floating content. Framework-agnostic replacement for the old Bulma-styled
- * `Popover`/`PopoverTrigger`/`PopoverBody` — same call shape (`<Popover><PopoverTrigger>…
- * </PopoverTrigger><PopoverBody header={…}>…</PopoverBody></Popover>`), now built on Radix +
- * Tailwind (compiled away at build time, see the `bio-viz-conventions` skill) instead of
- * `react-popper` + Bulma classes, and with `renderHeader`/`renderBody` override slots so
- * GeneModel/GenomeBrowser/BlastHitDistribution can each customize presentation without a new
- * implementation.
+ * popover: built on Radix + Tailwind (compiled away at build time, see the `bio-viz-conventions`
+ * skill) instead of `react-popper` + Bulma classes, and with `renderHeader`/`renderBody` override
+ * slots so GeneModel/GenomeBrowser/BlastHitDistribution can each customize presentation without a
+ * new implementation.
+ *
+ * @example
+ * ```tsx
+ * <Popover>
+ *   <PopoverTrigger asChild>
+ *     <rect data-pan-ignore />
+ *   </PopoverTrigger>
+ *   <PopoverBody header={feature.id}>{details}</PopoverBody>
+ * </Popover>
+ * ```
  */
 export function PopoverBody({ header, renderHeader, renderBody, children }: PopoverBodyProps) {
   return (

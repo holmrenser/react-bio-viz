@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { scaleLinear, type ScaleLinear } from "d3-scale";
 
 import type { Viewport } from "../viewport/Viewport";
+import { createLinearScale, type LinearScale } from "./linearScale";
 
 /** @public */
 export interface UseCoordinateScaleOptions {
@@ -17,8 +17,8 @@ export interface UseCoordinateScaleOptions {
 
 /** @public */
 export interface CoordinateScale {
-  x: ScaleLinear<number, number>;
-  y: ScaleLinear<number, number>;
+  x: LinearScale;
+  y: LinearScale;
   /** `window.devicePixelRatio`, clamped to a minimum of 1 (and 1 outside the browser). */
   devicePixelRatio: number;
 }
@@ -35,12 +35,19 @@ export function useCoordinateScale(options: UseCoordinateScaleOptions): Coordina
   const { x0, x1, y0, y1 } = viewport;
 
   return useMemo(() => {
-    const x = scaleLinear().domain([x0, x1]).range([0, width]);
-    const y = scaleLinear().domain([y0, y1]).range(flipY ? [height, 0] : [0, height]);
-    const devicePixelRatio =
-      typeof window !== "undefined" && window.devicePixelRatio ? Math.max(1, window.devicePixelRatio) : 1;
-    return { x, y, devicePixelRatio };
+    const x = createLinearScale([x0, x1], [0, width]);
+    const y = createLinearScale([y0, y1], flipY ? [height, 0] : [0, height]);
+    return { x, y, devicePixelRatio: getDevicePixelRatio() };
   }, [x0, x1, y0, y1, width, height, flipY]);
+}
+
+/**
+ * @public
+ * `window.devicePixelRatio`, clamped to a minimum of 1 (and 1 outside the browser). Useful on its
+ * own when a component needs HiDPI-aware canvas sizing without the rest of {@link useCoordinateScale}.
+ */
+export function getDevicePixelRatio(): number {
+  return typeof window !== "undefined" && window.devicePixelRatio ? Math.max(1, window.devicePixelRatio) : 1;
 }
 
 /**

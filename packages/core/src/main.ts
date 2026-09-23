@@ -11,4 +11,6 @@ export * from "./viewport";
 export * from "./color";
 export * from "./scale";
 export * from "./overlay";
+export * from "./layout";
+export * from "./theme";
 export * from "./components/ui";
