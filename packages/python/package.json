@@ -1,0 +1,23 @@
+{
+  "name": "@react-bio-viz/python-widgets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "esbuild bundle of the react-bio-viz components for the anywidget/Jupyter package (not published to npm; the artifact ships inside the PyPI wheel)",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@react-bio-viz/core": "workspace:*",
+    "react-bio-viz": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.6.3"
+  }
+}

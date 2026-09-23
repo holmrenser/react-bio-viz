@@ -1,0 +1,11 @@
+# Built by `pnpm --filter @react-bio-viz/python-widgets build` (and by the hatchling build hook
+# when packaging). Ships inside the wheel/sdist; not tracked in git.
+src/react_bio_viz/static/widget.js
+src/react_bio_viz/static/widget.css
+
+node_modules/
+.venv/
+dist/
+*.egg-info/
+__pycache__/
+.pytest_cache/

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "react-bio-viz"
+version = "0.1.0"
+description = "Jupyter widgets for biological data visualization: multiple sequence alignments, phylogenetic trees, gene models, genome browser tracks, and BLAST hit distributions"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["jupyter", "widget", "bioinformatics", "visualization", "msa", "phylogenetics"]
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab :: 3",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = ["anywidget>=0.9"]
+
+[project.urls]
+Homepage = "https://github.com/genenotebook/react-bio-viz"
+Repository = "https://github.com/genenotebook/react-bio-viz"
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "anywidget[dev]>=0.9"]
+
+[tool.hatch.build]
+# The bundle is gitignored (it is generated), but it has to travel in both the wheel and the sdist:
+# building a wheel from an sdist has no `node_modules` to rebuild it from, and requiring the npm
+# workspace to install from source would make `pip install react-bio-viz` need a Node toolchain.
+artifacts = [
+    "src/react_bio_viz/static/widget.js",
+    "src/react_bio_viz/static/widget.css",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/react_bio_viz"]
+
+[tool.hatch.build.targets.sdist]
+# The JS sources travel too, so the bundle can be rebuilt/audited from the sdist alone.
+include = ["src", "js", "build.mjs", "hatch_build.py", "package.json", "README.md", "pyproject.toml"]
+# `include` still descends into the workspace symlinks pnpm leaves in `node_modules`.
+exclude = ["node_modules", ".venv", "dist"]
+
+# Bundles the widget JavaScript before packaging. Skipped when `static/widget.js` is already
+# present, so building from an sdist (or from a checkout where `pnpm build` has run) needs no
+# Node toolchain.
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
