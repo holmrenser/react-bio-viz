@@ -20,7 +20,7 @@ class PhyloTree(BioVizWidget):
     :param branch_styles: ``{node_id: {"color": ...}}`` for the branch above each node.
     :param leaf_order: Read-only: leaf names in display order, updated as the user rearranges.
 
-    >>> w = PhyloTree(tree=newick_dict, interactive=True)
+    >>> w = PhyloTree(tree=newick_dict, tree_layout="radial", interactive=True)
     >>> w.observe(lambda c: print(c["new"]["collapsed"]), names="selection")
     >>> w.on_node_click(lambda node: print(node["id"], node["leafNames"]))
     """
@@ -30,7 +30,9 @@ class PhyloTree(BioVizWidget):
     tree = traitlets.Dict(default_value={}).tag(sync=True)
     width = traitlets.Int(1000).tag(sync=True)
     height = traitlets.Int(900).tag(sync=True)
-    layout = traitlets.Enum(
+    #: ``"rectangular"``, ``"cladogram"`` or ``"radial"``. Not called ``layout``: every ipywidgets
+    #: widget already has a ``layout`` trait (its CSS layout), and shadowing it breaks the view.
+    tree_layout = traitlets.Enum(
         ["rectangular", "cladogram", "radial"], default_value="rectangular"
     ).tag(sync=True)
     show_support_values = traitlets.Bool(True).tag(sync=True)
@@ -57,6 +59,10 @@ class PhyloTree(BioVizWidget):
     selection = traitlets.Dict(allow_none=True, default_value=None).tag(sync=True)
 
     def __init__(self, **kwargs: Any) -> None:
+        # Accept the React prop's name as a convenience; a string can only mean the tree layout
+        # (ipywidgets' own `layout` takes a Layout widget or a dict).
+        if isinstance(kwargs.get("layout"), str):
+            kwargs["tree_layout"] = kwargs.pop("layout")
         super().__init__(**kwargs)
         if self.selection is None:
             self.selection = {"collapsed": []}

@@ -23,7 +23,12 @@ import { createAnywidgetStoreController, type AnyModel } from "./_storeAdapter";
  */
 interface WidgetSpec {
   render: (props: Record<string, unknown>) => ReactElement;
-  props: string[];
+  /**
+   * Plain data/display traits, bound to the camelCased prop of the same name — or, as a
+   * `[trait, prop]` pair, to a differently named prop (a trait can't take a name ipywidgets already
+   * uses, such as `layout`).
+   */
+  props: (string | [string, string])[];
   /** Synced traits bound as controllable state; each binds to the `<trait>Store` prop (camelCased). */
   stores: string[];
   /**
@@ -80,7 +85,7 @@ const SPECS: Record<string, WidgetSpec> = {
       "tree",
       "width",
       "height",
-      "layout",
+      ["tree_layout", "layout"],
       "show_support_values",
       "support_threshold",
       "shade_branch_by_support",
@@ -136,11 +141,12 @@ const SPECS: Record<string, WidgetSpec> = {
 function buildProps(model: AnyModel, spec: WidgetSpec): Record<string, unknown> {
   const props: Record<string, unknown> = {};
 
-  for (const trait of spec.props) {
+  for (const entry of spec.props) {
+    const [trait, prop] = typeof entry === "string" ? [entry, toPropName(entry)] : entry;
     const value = model.get(trait);
     // A `None` trait means "not set" — leave the prop off so the component's own default applies,
     // rather than overriding it with null.
-    if (value !== null && value !== undefined) props[toPropName(trait)] = value;
+    if (value !== null && value !== undefined) props[prop] = value;
   }
 
   for (const trait of spec.stores) {
@@ -169,7 +175,7 @@ function render({ model, el }: { model: AnyModel; el: HTMLElement }) {
 
   // Store-backed traits re-render through `useSyncExternalStore`, so only the plain data/display
   // traits need to force a re-render from out here.
-  const watched = spec.props.map((trait) => `change:${trait}`);
+  const watched = spec.props.map((entry) => `change:${typeof entry === "string" ? entry : entry[0]}`);
   for (const event of watched) model.on(event, draw);
 
   return () => {

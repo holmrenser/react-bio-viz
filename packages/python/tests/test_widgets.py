@@ -338,7 +338,7 @@ def test_js_bridge_binds_every_store_trait_by_its_camel_cased_name():
 
 def test_phylotree_rejects_an_unknown_layout():
     with pytest.raises(Exception):
-        PhyloTree(tree=TREE_DATA, layout="spiral")
+        PhyloTree(tree=TREE_DATA, tree_layout="spiral")
 
 
 def test_blast_rejects_an_unknown_metric():
@@ -348,7 +348,26 @@ def test_blast_rejects_an_unknown_metric():
 
 @pytest.mark.parametrize("layout", ["rectangular", "cladogram", "radial"])
 def test_phylotree_accepts_every_implemented_layout(layout):
-    assert PhyloTree(tree=TREE_DATA, layout=layout).layout == layout
+    assert PhyloTree(tree=TREE_DATA, tree_layout=layout).tree_layout == layout
+
+
+def test_phylotree_accepts_the_react_prop_name_for_the_layout():
+    widget = PhyloTree(tree=TREE_DATA, layout="radial")
+    assert widget.tree_layout == "radial"
+    # ipywidgets' own layout is untouched: still a Layout widget.
+    assert not isinstance(widget.layout, str)
+
+
+@pytest.mark.parametrize("cls,kwargs", ALL_WIDGETS, ids=lambda v: getattr(v, "__name__", ""))
+def test_no_widget_shadows_an_ipywidgets_trait(cls, kwargs):
+    """A trait named like one ipywidgets defines (`layout`, `tooltip`, …) breaks the frontend view:
+    PhyloTree's `layout = "rectangular"` made the Layout view fail to build."""
+    import anywidget
+
+    base = set(anywidget.AnyWidget.class_trait_names())
+    shadowed = {name for klass in cls.__mro__ if klass.__module__.startswith("react_bio_viz")
+                for name in vars(klass) if name in base and not name.startswith("_")}
+    assert shadowed == set()
 
 
 # ---------------------------------------------------------------------------
