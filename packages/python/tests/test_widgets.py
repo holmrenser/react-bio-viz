@@ -17,6 +17,7 @@ from react_bio_viz import (
     MSA,
     BioVizWidget,
     BlastHitDistribution,
+    DistanceMatrix,
     GeneModel,
     GenomeBrowser,
     PhyloTree,
@@ -71,6 +72,7 @@ ALL_WIDGETS = [
     (GeneModel, {"gene": GENE_DATA}),
     (GenomeBrowser, {"tracks": [], "reference_length": 5000}),
     (BlastHitDistribution, {"hits": HITS, "query_length": 2000}),
+    (DistanceMatrix, {"labels": ["a", "b"], "matrix": [[0, 0.1], [0.1, 0]]}),
 ]
 
 
@@ -228,6 +230,108 @@ def test_explicit_selection_is_not_overwritten():
 
 
 # ---------------------------------------------------------------------------
+# MSA and DistanceMatrix: selection, row order and panel sizes
+# ---------------------------------------------------------------------------
+
+
+def test_msa_seeds_its_other_controllable_state():
+    widget = MSA(msa=MSA_DATA)
+    assert widget.selection == {"rows": [], "columns": []}
+    assert widget.row_order == []
+    assert set(widget.panel_sizes) == {"labelWidth", "trackHeight", "minimapHeight"}
+
+
+@pytest.mark.parametrize("trait", ["selection", "row_order", "panel_sizes"])
+def test_msa_state_traits_are_synced(trait):
+    assert MSA(msa=MSA_DATA).trait_metadata(trait, "sync") is True
+
+
+def test_row_order_is_observable_and_shared_in_shape():
+    """MSA and DistanceMatrix use the same row-order shape, so one can drive the other."""
+    msa = MSA(msa=MSA_DATA)
+    matrix = DistanceMatrix(labels=["seq1", "seq2", "seq3"], matrix=[[0, 1, 2], [1, 0, 1], [2, 1, 0]])
+    msa.observe(lambda change: setattr(matrix, "row_order", change["new"]), names="row_order")
+    msa.row_order = ["seq3", "seq1", "seq2"]
+    assert matrix.row_order == ["seq3", "seq1", "seq2"]
+
+
+def test_distance_matrix_extent_is_square():
+    viewport = DistanceMatrix(labels=["a", "b", "c"], matrix=[[0] * 3] * 3).viewport
+    assert (viewport["xMax"], viewport["yMax"]) == (3, 3)
+
+
+# ---------------------------------------------------------------------------
+# Events: user actions that are not state arrive as custom messages
+# ---------------------------------------------------------------------------
+
+
+def _send_from_browser(widget, content):
+    """What anywidget does when the component calls ``model.send(content)``."""
+    widget._handle_custom_msg(content, [])
+
+
+def test_msa_edit_events_reach_their_callbacks():
+    widget = MSA(msa=MSA_DATA)
+    renames, row_removals, column_removals = [], [], []
+    widget.on_rename_row(lambda row_id, name: renames.append((row_id, name)))
+    widget.on_remove_rows(row_removals.append)
+    widget.on_remove_columns(column_removals.append)
+
+    _send_from_browser(widget, {"event": "rename_row", "row_id": "seq1", "name": "first"})
+    _send_from_browser(widget, {"event": "remove_rows", "row_ids": ["seq2"]})
+    _send_from_browser(widget, {"event": "remove_columns", "columns": [0, 3]})
+
+    assert renames == [("seq1", "first")]
+    assert row_removals == [["seq2"]]
+    assert column_removals == [[0, 3]]
+
+
+def test_events_only_reach_the_matching_callback():
+    widget = MSA(msa=MSA_DATA)
+    renames = []
+    widget.on_rename_row(lambda row_id, name: renames.append(row_id))
+    _send_from_browser(widget, {"event": "remove_rows", "row_ids": ["seq2"]})
+    _send_from_browser(widget, "not a dict")
+    assert renames == []
+
+
+def test_phylotree_click_events_reach_their_callbacks():
+    widget = PhyloTree(tree=TREE_DATA, interactive=True)
+    nodes, branches = [], []
+    widget.on_node_click(nodes.append)
+    widget.on_branch_click(branches.append)
+    _send_from_browser(widget, {"event": "node_click", "node": {"id": "0.0", "leafNames": ["A"]}})
+    _send_from_browser(widget, {"event": "branch_click", "node": {"id": "0.1"}})
+    assert nodes == [{"id": "0.0", "leafNames": ["A"]}]
+    assert branches == [{"id": "0.1"}]
+
+
+def test_phylotree_display_traits_are_synced():
+    widget = PhyloTree(tree=TREE_DATA)
+    for name in (
+        "show_branch_lengths",
+        "support_threshold",
+        "drag_enabled",
+        "branch_width",
+        "node_radius",
+        "label_font_size",
+        "leaf_spacing",
+        "leaf_marker_color",
+        "node_styles",
+        "branch_styles",
+        "active_node_id",
+        "leaf_order",
+    ):
+        assert widget.trait_metadata(name, "sync") is True, name
+
+
+def test_js_bridge_binds_every_store_trait_by_its_camel_cased_name():
+    """A store trait like ``row_order`` must bind to ``rowOrderStore``, not ``row_orderStore``."""
+    source = (pathlib.Path(__file__).parents[1] / "js" / "widget.tsx").read_text()
+    assert "props[`${toPropName(trait)}Store`]" in source
+
+
+# ---------------------------------------------------------------------------
 # Trait validation
 # ---------------------------------------------------------------------------
 
@@ -289,4 +393,11 @@ def test_every_widget_shares_one_bundle():
 def test_each_widget_selects_a_distinct_component():
     names = [cls(**kwargs)._component for cls, kwargs in ALL_WIDGETS]
     assert sorted(names) == sorted(set(names))
-    assert set(names) == {"msa", "phylotree", "genemodel", "genomebrowser", "blasthitdistribution"}
+    assert set(names) == {
+        "msa",
+        "phylotree",
+        "distancematrix",
+        "genemodel",
+        "genomebrowser",
+        "blasthitdistribution",
+    }

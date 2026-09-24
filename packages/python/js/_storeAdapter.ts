@@ -11,6 +11,8 @@ export interface AnyModel {
   save_changes(): void;
   on(event: string, callback: () => void): void;
   off(event: string, callback: () => void): void;
+  /** Sends a custom message to the kernel (received by `widget.on_msg` in Python). */
+  send(content: Record<string, unknown>): void;
 }
 
 /**

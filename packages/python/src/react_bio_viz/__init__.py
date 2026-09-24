@@ -17,6 +17,7 @@ code.
 
 from ._base import BioVizWidget, fit_to_extent
 from .blasthitdistribution import BlastHitDistribution
+from .distancematrix import DistanceMatrix
 from .genemodel import GeneModel
 from .genomebrowser import GenomeBrowser
 from .msa import MSA
@@ -27,6 +28,7 @@ __version__ = "0.1.0"
 __all__ = [
     "BioVizWidget",
     "BlastHitDistribution",
+    "DistanceMatrix",
     "GeneModel",
     "GenomeBrowser",
     "MSA",

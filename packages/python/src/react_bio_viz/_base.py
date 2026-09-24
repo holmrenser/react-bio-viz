@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 import anywidget
 import traitlets
@@ -68,3 +68,16 @@ class BioVizWidget(anywidget.AnyWidget):
     def _default_extent(self) -> dict[str, float] | None:
         """The data extent this widget's viewport spans, or ``None`` if it has no viewport."""
         return None
+
+    def _on_event(self, event: str, callback: Callable[..., None], *fields: str) -> None:
+        """Calls ``callback`` with ``fields`` of every ``event`` message the component sends.
+
+        User actions that aren't state (a rename, a click) arrive as anywidget custom messages
+        rather than traits: they are one-off events, and a trait would drop two identical ones.
+        """
+
+        def handler(_widget: Any, content: Mapping[str, Any], _buffers: Any) -> None:
+            if isinstance(content, Mapping) and content.get("event") == event:
+                callback(*(content.get(field) for field in fields))
+
+        self.on_msg(handler)

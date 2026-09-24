@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 import traitlets
 
@@ -13,12 +13,16 @@ class PhyloTree(BioVizWidget):
     """A phylogenetic tree in rectangular, cladogram or radial layout.
 
     :param tree: Recursively nested ``{"name": ..., "length": ..., "children": [...]}``.
-    :param selection: Which node the tree is rerooted at and which subtrees are collapsed —
-        ``{"rerootedAt": str | None, "collapsed": [str], "order": {...}}``. Writable from the
-        kernel and written back when the user collapses a clade or drags a leaf.
+    :param selection: Where the tree is rooted and how it is arranged —
+        ``{"rerootedAt": str | None, "rerootPosition": float, "collapsed": [str], "order": {...}}``.
+        Writable from the kernel and written back when the user collapses, drags or reroots.
+    :param node_styles: ``{node_id: {"color": ..., "bold": ...}}``.
+    :param branch_styles: ``{node_id: {"color": ...}}`` for the branch above each node.
+    :param leaf_order: Read-only: leaf names in display order, updated as the user rearranges.
 
     >>> w = PhyloTree(tree=newick_dict, interactive=True)
     >>> w.observe(lambda c: print(c["new"]["collapsed"]), names="selection")
+    >>> w.on_node_click(lambda node: print(node["id"], node["leafNames"]))
     """
 
     _component = traitlets.Unicode("phylotree").tag(sync=True)
@@ -37,6 +41,18 @@ class PhyloTree(BioVizWidget):
     search_query = traitlets.Unicode(allow_none=True, default_value=None).tag(sync=True)
     search_use_regex = traitlets.Bool(False).tag(sync=True)
     show_scale_bar = traitlets.Bool(True).tag(sync=True)
+    show_branch_lengths = traitlets.Bool(False).tag(sync=True)
+    support_threshold = traitlets.Float(0).tag(sync=True)
+    drag_enabled = traitlets.Bool(allow_none=True, default_value=None).tag(sync=True)
+    branch_width = traitlets.Float(0.75).tag(sync=True)
+    node_radius = traitlets.Float(4).tag(sync=True)
+    label_font_size = traitlets.Float(11).tag(sync=True)
+    leaf_spacing = traitlets.Float(allow_none=True, default_value=None).tag(sync=True)
+    leaf_marker_color = traitlets.Unicode(allow_none=True, default_value=None).tag(sync=True)
+    node_styles = traitlets.Dict(default_value={}).tag(sync=True)
+    branch_styles = traitlets.Dict(default_value={}).tag(sync=True)
+    active_node_id = traitlets.Unicode(allow_none=True, default_value=None).tag(sync=True)
+    leaf_order = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
 
     selection = traitlets.Dict(allow_none=True, default_value=None).tag(sync=True)
 
@@ -44,6 +60,14 @@ class PhyloTree(BioVizWidget):
         super().__init__(**kwargs)
         if self.selection is None:
             self.selection = {"collapsed": []}
+
+    def on_node_click(self, callback: Callable[[dict[str, Any]], Any]) -> None:
+        """Calls ``callback(node)`` when a node marker is clicked (see ``TreeNodeInfo``)."""
+        self._on_event("node_click", callback, "node")
+
+    def on_branch_click(self, callback: Callable[[dict[str, Any]], Any]) -> None:
+        """Calls ``callback(node)`` — the node below the branch — when a branch is clicked."""
+        self._on_event("branch_click", callback, "node")
 
     def _default_extent(self) -> dict[str, float] | None:
         # The tree's pan/zoom is over the rendered pixel surface, not over data coordinates.

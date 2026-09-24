@@ -2,10 +2,12 @@ import { createElement, type ComponentType, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import {
   BlastHitDistribution,
+  DistanceMatrix,
   GeneModel,
   GenomeBrowser,
   MultipleSequenceAlignment,
   PhyloTree,
+  type TreeNodeInfo,
 } from "react-bio-viz";
 import "react-bio-viz/style.css";
 
@@ -22,8 +24,18 @@ import { createAnywidgetStoreController, type AnyModel } from "./_storeAdapter";
 interface WidgetSpec {
   render: (props: Record<string, unknown>) => ReactElement;
   props: string[];
-  /** Synced traits bound as controllable state; each binds to the `<trait>Store` prop. */
+  /** Synced traits bound as controllable state; each binds to the `<trait>Store` prop (camelCased). */
   stores: string[];
+  /**
+   * Callback props that report to the kernel: each builds the handler from the model, typically
+   * sending a custom message (`widget.on_msg`) or writing a read-only trait back.
+   */
+  events?: Record<string, (model: AnyModel) => (...args: never[]) => void>;
+}
+
+/** Node/branch click info without the screen coordinates, which mean nothing to the kernel. */
+function nodePayload({ clientX: _x, clientY: _y, ...info }: TreeNodeInfo) {
+  return info;
 }
 
 /**
@@ -55,7 +67,12 @@ const SPECS: Record<string, WidgetSpec> = {
   msa: {
     render: bridge(MultipleSequenceAlignment),
     props: ["msa", "width", "height", "options"],
-    stores: ["viewport"],
+    stores: ["viewport", "selection", "row_order", "panel_sizes"],
+    events: {
+      onRenameRow: (model) => (rowId: string, name: string) => model.send({ event: "rename_row", row_id: rowId, name }),
+      onRemoveRows: (model) => (rowIds: string[]) => model.send({ event: "remove_rows", row_ids: rowIds }),
+      onRemoveColumns: (model) => (columns: number[]) => model.send({ event: "remove_columns", columns }),
+    },
   },
   phylotree: {
     render: bridge(PhyloTree),
@@ -65,15 +82,39 @@ const SPECS: Record<string, WidgetSpec> = {
       "height",
       "layout",
       "show_support_values",
+      "support_threshold",
       "shade_branch_by_support",
       "font_size",
       "align_tips",
       "interactive",
+      "drag_enabled",
       "search_query",
       "search_use_regex",
       "show_scale_bar",
+      "show_branch_lengths",
+      "branch_width",
+      "node_radius",
+      "label_font_size",
+      "leaf_spacing",
+      "leaf_marker_color",
+      "node_styles",
+      "branch_styles",
+      "active_node_id",
     ],
     stores: ["viewport", "selection"],
+    events: {
+      onNodeClick: (model) => (info: TreeNodeInfo) => model.send({ event: "node_click", node: nodePayload(info) }),
+      onBranchClick: (model) => (info: TreeNodeInfo) => model.send({ event: "branch_click", node: nodePayload(info) }),
+      onLeafOrderChange: (model) => (leafNames: string[]) => {
+        model.set("leaf_order", leafNames);
+        model.save_changes();
+      },
+    },
+  },
+  distancematrix: {
+    render: bridge(DistanceMatrix),
+    props: ["labels", "matrix", "label_names", "width", "height", "options"],
+    stores: ["viewport", "row_order", "panel_sizes"],
   },
   genemodel: {
     render: bridge(GeneModel),
@@ -106,8 +147,10 @@ function buildProps(model: AnyModel, spec: WidgetSpec): Record<string, unknown> 
     // Python seeds these at construction; if one is somehow unset, fall back to leaving the
     // component uncontrolled rather than handing it a null viewport/selection.
     if (model.get(trait) === null || model.get(trait) === undefined) continue;
-    props[`${trait}Store`] = createAnywidgetStoreController(model, trait);
+    props[`${toPropName(trait)}Store`] = createAnywidgetStoreController(model, trait);
   }
+
+  for (const [prop, handler] of Object.entries(spec.events ?? {})) props[prop] = handler(model);
 
   return props;
 }
