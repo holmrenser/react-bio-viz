@@ -196,6 +196,15 @@ describe("PhyloTree selection", () => {
     expect(leafOrder(tree, next)[0]).toBe("deep-leaf-b");
   });
 
+  it("draws every branch from its own parent after a reorder (regression: stale parent links drew them from x = 0)", () => {
+    const { container } = render(<PhyloTree tree={tree} interactive selection={{ collapsed: [], order: { "0": ["clade", "shallow"] } }} />);
+    const marker = (id: string) => container.querySelector(`circle[data-node-id="${id}"]`)!;
+    const branch = container.querySelector('circle[data-node-id="deep-a"]') && Array.from(container.querySelectorAll("path")).find((p) => p.getAttribute("d")?.endsWith(`L${marker("deep-a").getAttribute("cx")},${marker("deep-a").getAttribute("cy")}`));
+    expect(branch).toBeTruthy();
+    // The elbow starts at its parent ("nested"): M<parent.y>,<parent.x> …
+    expect(branch!.getAttribute("d")!.startsWith(`M${marker("nested").getAttribute("cx")},${marker("nested").getAttribute("cy")}`)).toBe(true);
+  });
+
   it("drags internal nodes too", () => {
     const onSelectionChange = vi.fn();
     const { container } = render(<PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />);

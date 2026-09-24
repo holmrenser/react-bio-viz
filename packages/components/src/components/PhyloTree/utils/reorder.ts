@@ -17,8 +17,12 @@ export function computeReordered(order: string[], draggedId: string, targetIndex
 export function applyOrder(root: HierarchyPointNode<Tree>, order: Record<string, string[]>): HierarchyPointNode<Tree> {
   if (Object.keys(order).length === 0) return root;
 
-  function reorderNode(node: HierarchyPointNode<Tree>): HierarchyPointNode<Tree> {
-    if (!node.children) return node;
+  // Every node is copied with its `parent` pointing at the *copy* above it: layout writes positions
+  // onto the new nodes, and a branch is drawn from `node.parent` — a stale pointer to the original
+  // parent would draw it from wherever that (un-laid-out) object happens to sit.
+  function reorderNode(node: HierarchyPointNode<Tree>, parent: HierarchyPointNode<Tree> | null): HierarchyPointNode<Tree> {
+    const copy: HierarchyPointNode<Tree> = { ...node, parent };
+    if (!node.children) return copy;
     const desired = order[node.id];
     let children = node.children;
     if (desired) {
@@ -28,8 +32,10 @@ export function applyOrder(root: HierarchyPointNode<Tree>, order: Record<string,
       const remaining = children.filter((c) => !mentioned.has(c.id));
       children = [...ordered, ...remaining];
     }
-    return { ...node, children: children.map(reorderNode) };
+    copy.children = children.map((child) => reorderNode(child, copy));
+    copy.data = { ...node.data, children: copy.children.map((child) => child.data) };
+    return copy;
   }
 
-  return reorderNode(root);
+  return reorderNode(root, root.parent);
 }

@@ -60,3 +60,28 @@ describe("applyOrder", () => {
     expect(descendants(reordered).map((n) => n.id).sort()).toEqual(descendants(root).map((n) => n.id).sort());
   });
 });
+
+describe("applyOrder parent links", () => {
+  it("points every child at its parent in the reordered tree, not the original one", () => {
+    const tree: Tree = {
+      name: "root",
+      length: 0,
+      children: [
+        { ID: "a", name: "a", length: 1, children: [] },
+        {
+          ID: "bc",
+          name: "bc",
+          length: 1,
+          children: [
+            { ID: "b", name: "b", length: 1, children: [] },
+            { ID: "c", name: "c", length: 1, children: [] },
+          ],
+        },
+      ],
+    };
+    const reordered = applyOrder(buildHierarchy(tree), { "0": ["bc", "a"] });
+    for (const node of descendants(reordered)) {
+      for (const child of node.children ?? []) expect(child.parent).toBe(node);
+    }
+  });
+});
