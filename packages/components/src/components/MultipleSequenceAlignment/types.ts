@@ -142,7 +142,7 @@ export interface MultipleSequenceAlignmentProps {
   msa: AlignedSequences;
   /** Pixel width of the whole widget. @defaultValue 650 */
   width?: number;
-  /** Pixel height of the whole widget. @defaultValue 400 */
+  /** Maximum pixel height of the whole widget; an alignment with few rows takes less. @defaultValue 400 */
   height?: number;
   /** Rendering toggles — see {@link MSADrawOptions}. */
   options?: MSADrawOptions;

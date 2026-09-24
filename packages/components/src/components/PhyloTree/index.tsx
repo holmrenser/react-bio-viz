@@ -96,6 +96,7 @@ export function PhyloTree({
   supportThreshold = 0,
   shadeBranchBySupport = true,
   colorFunction = defaultColorFunction,
+  leafMarkerColor,
   fontSize = 10,
   alignTips = true,
   leafTextComponent = defaultLeafText,
@@ -287,6 +288,9 @@ export function PhyloTree({
       onPointerDown: (nodeId, event) => {
         if (event.button > 0) return;
         event.stopPropagation();
+        // Suppresses the compatibility mousedown, which would start a text selection across the
+        // leaf labels as the pointer is dragged.
+        event.preventDefault();
         pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, dragging: false };
         try {
           event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -440,7 +444,7 @@ export function PhyloTree({
           if (!isLeaf && !showInternalMarkers) return null;
           const styleColor = nodeStyles?.[node.id]?.color;
           const fill = isLeaf
-            ? (styleColor ?? randomColor({ seed: colorFunction(node) }))
+            ? (styleColor ?? leafMarkerColor ?? randomColor({ seed: colorFunction(node) }))
             : isCollapsed
               ? (styleColor ?? "currentColor")
               : "var(--background, white)";
@@ -492,6 +496,7 @@ export function PhyloTree({
       supportThreshold,
       showInternalMarkers,
       colorFunction,
+      leafMarkerColor,
       nodeRadius,
       activeNodeId,
       markersInteractive,
@@ -524,7 +529,7 @@ export function PhyloTree({
         width={width}
         height={height}
         viewBox={`${currentViewport.x0} ${currentViewport.y0} ${spanX} ${spanY}`}
-        style={{ touchAction: "none" }}
+        style={{ touchAction: "none", userSelect: "none" }}
         {...dragHandlers}
       >
         {body}

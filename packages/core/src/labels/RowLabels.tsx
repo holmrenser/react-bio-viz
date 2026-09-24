@@ -115,12 +115,9 @@ export function RowLabels({
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>, index: number) => {
     if (renaming || event.button > 0) return;
     const rowTop = offsetY + index * rowHeight + (containerRef.current?.getBoundingClientRect().top ?? 0);
+    // No pointer capture yet: capturing here would retarget the click/dblclick that follows a plain
+    // press to the container, and the label's double-click-to-rename would never fire.
     pendingRef.current = { index, x: event.clientX, y: event.clientY, grabOffset: event.clientY - rowTop };
-    try {
-      containerRef.current?.setPointerCapture?.(event.pointerId);
-    } catch {
-      // ignore
-    }
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -129,6 +126,12 @@ export function RowLabels({
       if (Math.hypot(event.clientX - pending.x, event.clientY - pending.y) < DRAG_THRESHOLD_PX) return;
       const next = { from: pending.index, to: pending.index, clientY: event.clientY, grabOffset: pending.grabOffset };
       pendingRef.current = null;
+      // Now it is a drag: keep receiving the pointer even if it leaves the column.
+      try {
+        containerRef.current?.setPointerCapture?.(event.pointerId);
+      } catch {
+        // ignore
+      }
       setDrag(next);
       onReorderPreview?.({ from: next.from, to: next.to });
       return;

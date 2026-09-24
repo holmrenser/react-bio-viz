@@ -115,7 +115,8 @@ export function DistanceMatrix({
 
   const labelSpace = showLabels ? panelSizes.labelWidth + DIVIDER_SIZE : 0;
   const gridWidth = Math.max(cellWidth, width - labelSpace);
-  const gridHeight = Math.max(cellHeight, height - (showToolbar ? TOOLBAR_HEIGHT : 0) - HEADER_HEIGHT);
+  // `height` is a maximum: a small matrix takes only the height its rows need.
+  const gridHeight = Math.max(cellHeight, Math.min(n * cellHeight, height - (showToolbar ? TOOLBAR_HEIGHT : 0) - HEADER_HEIGHT));
 
   // At least the grid at the default cell size, so a small matrix isn't stretched to fill it.
   const extent = useMemo(

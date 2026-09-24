@@ -46,7 +46,7 @@ export interface DistanceMatrixProps {
   labelNames?: Record<string, string>;
   /** @defaultValue 650 */
   width?: number;
-  /** @defaultValue 500 */
+  /** Maximum pixel height; a small matrix takes less. @defaultValue 500 */
   height?: number;
   options?: DistanceMatrixOptions;
 

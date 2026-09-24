@@ -69,6 +69,26 @@ describe("RowLabels", () => {
     expect(onReorderPreview).toHaveBeenLastCalledWith(null);
   });
 
+  it("captures the pointer only once a drag starts, so a plain press can still double-click to rename", () => {
+    // A captured pointer retargets the following click/dblclick to the capturing element in
+    // browsers, which swallowed rename; jsdom doesn't emulate that, so assert the capture itself.
+    const capture = vi.fn();
+    const original = Element.prototype.setPointerCapture;
+    Element.prototype.setPointerCapture = capture;
+    try {
+      render(<RowLabels {...base} onReorder={() => {}} onRename={() => {}} />);
+      const container = rowElement(0).parentElement!;
+      fireEvent.pointerDown(rowElement(0), { clientX: 5, clientY: 5 });
+      fireEvent.pointerUp(container, { clientX: 5, clientY: 5 });
+      expect(capture).not.toHaveBeenCalled();
+      fireEvent.pointerDown(rowElement(0), { clientX: 5, clientY: 5 });
+      fireEvent.pointerMove(container, { clientX: 5, clientY: 30 });
+      expect(capture).toHaveBeenCalledTimes(1);
+    } finally {
+      Element.prototype.setPointerCapture = original;
+    }
+  });
+
   it("hides label text when rows are too thin to read", () => {
     render(<RowLabels {...base} rowHeight={3} />);
     expect(screen.queryByText("alpha")).toBeNull();

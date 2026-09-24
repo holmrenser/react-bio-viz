@@ -222,15 +222,20 @@ export function MultipleSequenceAlignment({
   const minimapBlock = showMinimap ? panelSizes.minimapHeight + DIVIDER_SIZE : 0;
   const tracksBlock = tracks.length > 0 ? DIVIDER_SIZE + tracks.length * panelSizes.trackHeight : 0;
   const consensusHeight = showConsensus ? cellSize : 0;
+  // `height` is a maximum: an alignment with few rows takes only the height its rows need at the
+  // default cell size, rather than leaving an empty canvas above the tracks.
   const mainHeight = Math.max(
     cellSize,
-    height -
-      (showToolbar ? TOOLBAR_HEIGHT : 0) -
-      (showCursorBadge ? BADGE_HEIGHT : 0) -
-      minimapBlock -
-      (showScalebar ? SCALEBAR_HEIGHT : 0) -
-      consensusHeight -
-      tracksBlock
+    Math.min(
+      numSeqs * cellSize,
+      height -
+        (showToolbar ? TOOLBAR_HEIGHT : 0) -
+        (showCursorBadge ? BADGE_HEIGHT : 0) -
+        minimapBlock -
+        (showScalebar ? SCALEBAR_HEIGHT : 0) -
+        consensusHeight -
+        tracksBlock
+    )
   );
 
   // ---- viewport ----------------------------------------------------------------------------

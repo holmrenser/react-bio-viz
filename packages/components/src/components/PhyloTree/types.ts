@@ -156,6 +156,11 @@ export interface PhyloTreeProps {
   shadeBranchBySupport?: boolean;
   /** Seeds the default colour of each leaf's marker; `nodeStyles` overrides it. */
   colorFunction?: ColorFn;
+  /**
+   * One colour for every leaf marker (e.g. `"currentColor"` for neutral dots), instead of the
+   * per-leaf colours seeded by `colorFunction`. `nodeStyles` still overrides it.
+   */
+  leafMarkerColor?: string;
   /** Font size of support-value labels, in pixels. @defaultValue 10 */
   fontSize?: number;
   /** Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch. @defaultValue true */
