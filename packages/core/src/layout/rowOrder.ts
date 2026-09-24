@@ -1,4 +1,5 @@
 /**
+ * @public
  * The display order as indices into `msa`: `order`'s ids first (unknown ids ignored), then any rows
  * `order` doesn't mention, in their original order. So a stale or partial order — e.g. a tree's
  * leaf order that lacks some sequences — degrades gracefully instead of hiding rows.
@@ -24,7 +25,7 @@ export function resolveRowOrder(rowIds: readonly string[], order: readonly strin
   return result;
 }
 
-/** A copy of `items` with the element at `from` moved to `to`. */
+/** @public A copy of `items` with the element at `from` moved to `to`. */
 export function moveItem<T>(items: readonly T[], from: number, to: number): T[] {
   const next = [...items];
   const [item] = next.splice(from, 1);

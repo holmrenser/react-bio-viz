@@ -5,7 +5,9 @@ import {
   DEFAULT_COLOR_STYLE,
   detectSequenceType,
   GAP_COLOR,
+  moveItem,
   ResizeHandle,
+  resolveRowOrder,
   ROOT_CLASS,
   RowLabels,
   useDarkMode,
@@ -41,7 +43,6 @@ import { buildColorIndex } from "./utils/colorIndex";
 import { cellColor, type ColorStyle, type ColumnColorContext } from "./utils/colorStyle";
 import { computeHighlightMask } from "./utils/highlight";
 import { analyseColumns, computeColumnStats, computeConsensus, computeConservationScores } from "./utils/msaAnalysis";
-import { moveItem, resolveRowOrder } from "./utils/rowOrder";
 import { applySelectionMode, EMPTY_SELECTION, indexRange, pruneSelection } from "./utils/selection";
 
 export type {

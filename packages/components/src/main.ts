@@ -5,21 +5,65 @@
  */
 import "@react-bio-viz/core/style.css";
 
-export { MultipleSequenceAlignment, COLOR_STYLES, COLOR_STYLE_GROUPS } from './components/MultipleSequenceAlignment';
+export {
+  MultipleSequenceAlignment,
+  COLOR_STYLES,
+  COLOR_STYLE_GROUPS,
+  analyseColumns,
+  computeColumnStats,
+  computeConsensus,
+  computeConservationScores,
+} from './components/MultipleSequenceAlignment';
 export type {
   Sequence,
   MultipleSequenceAlignmentProps,
   AlignedSequences,
   MSADrawOptions,
+  MSAHover,
+  MSAPanelSizes,
+  MSASelection,
+  MSATrack,
   ColorStyle,
   ColumnColorStyle,
+  ScoreColorStyle,
   ColumnAnalysis,
   ColumnStat,
 } from './components/MultipleSequenceAlignment';
+export { DistanceMatrix, distanceColor } from './components/DistanceMatrix';
+export type {
+  DistanceColorScheme,
+  DistanceMatrixHover,
+  DistanceMatrixOptions,
+  DistanceMatrixPanelSizes,
+  DistanceMatrixProps,
+} from './components/DistanceMatrix';
 export { GeneModel } from './components/GeneModel';
 export type { SequenceInterval, GeneModelProps } from './components/GeneModel';
-export { PhyloTree } from './components/PhyloTree';
-export type { Tree, PhyloTreeProps, LeafFn, ColorFn, LayoutMode, TreeSelection, HierarchyPointNode } from './components/PhyloTree';
+export {
+  PhyloTree,
+  REROOT_ID,
+  applyTreeSelection,
+  collapseBySupport,
+  ladderizeOrder,
+  leafOrder,
+  midpointRoot,
+  orderForLeafNames,
+  parseNewick,
+  rotateOrder,
+  toNewick,
+} from './components/PhyloTree';
+export type {
+  Tree,
+  PhyloTreeProps,
+  LeafFn,
+  ColorFn,
+  LayoutMode,
+  TreeSelection,
+  TreeNodeInfo,
+  TreeNodeStyle,
+  TreeBranchStyle,
+  HierarchyPointNode,
+} from './components/PhyloTree';
 export { GenomeBrowser } from './components/GenomeBrowser';
 export type {
   GenomeBrowserProps,
@@ -42,10 +86,12 @@ export type { BlastHit, BlastHitDistributionProps, BlastMetric, HitSelection } f
 export {
   createControllableStore,
   createZustandStoreController,
+  moveItem,
+  resolveRowOrder,
   clampToExtent,
   fitToExtent,
   panBy,
   zoomAt,
   zoomBy,
 } from '@react-bio-viz/core';
-export type { StoreController, Viewport } from '@react-bio-viz/core';
+export type { StoreController, Viewport, ZustandLikeStore } from '@react-bio-viz/core';
