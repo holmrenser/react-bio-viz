@@ -33,7 +33,10 @@ export interface HitSelection {
   brushRange?: [number, number];
 }
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface BlastHitDistributionProps {
   hits: BlastHit[];
   /** Length of the query sequence; the x-axis extent. */

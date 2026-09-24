@@ -1,0 +1,78 @@
+---
+title: Controllable state
+description: The one contract every interactive prop follows — uncontrolled, controlled, or kept in your own store.
+sidebar:
+  order: 1
+---
+import ControlledState from "../../../examples/ControlledState.tsx";
+
+Every piece of interactive state in every component — a viewport, a selection, a row order, a
+tree's arrangement, panel sizes — follows the same contract. Each is a group of four props named for
+the state:
+
+| Prop | Purpose |
+| --- | --- |
+| `viewport` | The current value. Present → **controlled**: you own it. |
+| `defaultViewport` | The starting value when **uncontrolled**: the component owns it. |
+| `onViewportChange` | Called on every change, in every mode. |
+| `viewportStore` | Hand the state to an **external store** the component reads and writes directly. |
+
+The same four exist as `selection`/`defaultSelection`/`onSelectionChange`/`selectionStore`,
+`rowOrder`/…, `panelSizes`/…, and so on. Once you know one, you know them all.
+
+## Uncontrolled
+
+The component keeps the state; you can still observe every change.
+
+```tsx
+<MultipleSequenceAlignment msa={msa} onSelectionChange={(s) => console.log(s.columns)} />
+```
+
+## Controlled
+
+You keep the state, exactly like a controlled `<input>`. The component only *reports* changes —
+nothing visibly changes until you pass the new value back. Use this to validate, transform, or
+record changes (an undo stack, say).
+
+```tsx
+const [selection, setSelection] = useState({ rows: [], columns: [] });
+
+<MultipleSequenceAlignment msa={msa} selection={selection} onSelectionChange={setSelection} />;
+```
+
+## External store
+
+For state shared across components or with the rest of an app, pass a `StoreController` — three
+functions, `getValue`/`setValue`/`subscribe`, that any store can implement. A Zustand adapter is
+included:
+
+```tsx
+import { createControllableStore, createZustandStoreController, type Viewport } from "react-bio-viz";
+
+const store = createControllableStore<Viewport>(initialViewport);
+const viewportStore = createZustandStoreController(
+  store,
+  (value) => value,
+  (s, next) => s.setState((prev) => (typeof next === "function" ? next(prev) : next))
+);
+
+<MultipleSequenceAlignment msa={msa} viewportStore={viewportStore} />
+<MultipleSequenceAlignment msa={msa} viewportStore={viewportStore} /> {/* same window */}
+```
+
+Below, two alignments share one viewport store — pan or zoom either and the other follows; the
+button writes to the store directly:
+
+<ControlledState client:only="react" />
+
+An existing Zustand store works too: `createZustandStoreController(appStore, (s) => s.msaViewport, (store, next) => …)`
+binds one slice of it. The [Jupyter widgets](../../python/) are built on this same seam — each
+synced traitlet is a `StoreController` — which is why no component contains any Jupyter-specific
+code.
+
+## Data edits are events, not state
+
+Components never change the data you pass in (`msa`, `tree`). When the user renames or removes a
+row, the component calls `onRenameRow` / `onRemoveRows` / `onRemoveColumns`, and you apply the
+change and pass the new data back. That keeps edit history, undo and validation in your hands —
+see [Editing an alignment](../../guides/editing/).

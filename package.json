@@ -15,11 +15,11 @@
     "typecheck": "pnpm -r --filter=./packages/* --filter=./apps/* typecheck",
     "lint": "pnpm -r --filter=./packages/* --filter=./apps/* lint",
     "dev": "pnpm --filter ./apps/demo dev",
-    "docs": "pnpm build && pnpm -r --filter=./packages/* docs:extract && api-documenter markdown -i temp -o docs"
+    "docs": "pnpm build && pnpm --filter @react-bio-viz/docs build",
+    "docs:dev": "pnpm --filter @react-bio-viz/docs dev"
   },
   "devDependencies": {
     "@eslint/js": "^9",
-    "@microsoft/api-documenter": "^7.25.0",
     "eslint": "^9",
     "eslint-plugin-react-hooks": "^5",
     "eslint-plugin-react-refresh": "^0.5.7",
@@ -29,5 +29,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "pnpm@9.15.9"
 }

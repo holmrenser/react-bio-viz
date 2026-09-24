@@ -292,3 +292,7 @@ acacia's datasets go to ~1000 × 1200 and beyond; everything must cost O(what's 
    `useControllableState.test.ts` in `packages/core`.
 7. Barrel-export the component and its public types from `packages/components/src/main.ts`, with
    `@public` TSDoc tags so api-extractor picks it up.
+8. Document it on the site: a page in `apps/docs/src/content/docs/components/` with at least one
+   live example in `apps/docs/src/examples/`; for a stateful prop, say which controllable-state
+   group it belongs to. Tag the component `@group Components` and its props interface
+   `@group Component props` so the generated API reference files them together.

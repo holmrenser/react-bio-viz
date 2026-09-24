@@ -1,0 +1,353 @@
+{
+  "ID": "gene:MtrunA17Chr1g0184451",
+  "seqid": "MtrunA17Chr1",
+  "source": "EuGene",
+  "interval_type": "gene",
+  "start": 35039693,
+  "end": 35045433,
+  "score": ".",
+  "strand": "+",
+  "phase": ".",
+  "attributes": {
+    "name": ["MtrunA17Chr1g0184451"],
+    "locus_tag": ["MtrunA17_Chr1g0184451"]
+  },
+  "children": [
+    {
+      "ID": "mRNA:MtrunA17Chr1g0184451.1",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "mRNA",
+      "start": 35039693,
+      "end": 35045433,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "name": ["MtrunA17Chr1g0184451"],
+        "parent": ["gene:MtrunA17Chr1g0184451"],
+        "ontology_term": ["GO:0005739"],
+        "locus_tag": ["MtrunA17_Chr1g0184451"],
+        "product": [
+          "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35"
+        ]
+      }
+    },
+    {
+      "ID": "mRNA:MtrunA17Chr1g0184451.2",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "mRNA",
+      "start": 35039693,
+      "end": 35045433,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "name": ["MtrunA17Chr1g0184451"],
+        "parent": ["gene:MtrunA17Chr1g0184451"],
+        "ontology_term": ["GO:0005739"],
+        "locus_tag": ["MtrunA17_Chr1g0184451"],
+        "product": [
+          "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35"
+        ]
+      }
+    },
+    {
+      "ID": "five_prime_UTR:MtrunA17Chr1g0184451.0",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "five_prime_UTR",
+      "start": 35039693,
+      "end": 35039922,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.1",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35039693,
+      "end": 35039934,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.1",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35039923,
+      "end": 35039934,
+      "score": ".",
+      "strand": "+",
+      "phase": 0,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.2",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35040034,
+      "end": 35040142,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.2",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35040034,
+      "end": 35040142,
+      "score": ".",
+      "strand": "+",
+      "phase": 0,
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1"],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.3",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35041155,
+      "end": 35041277,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.3",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35041155,
+      "end": 35041277,
+      "score": ".",
+      "strand": "+",
+      "phase": 2,
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1"],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.4",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35042183,
+      "end": 35042280,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.4",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35042183,
+      "end": 35042280,
+      "score": ".",
+      "strand": "+",
+      "phase": 2,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.5",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35042442,
+      "end": 35042568,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.5",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35042442,
+      "end": 35042568,
+      "score": ".",
+      "strand": "+",
+      "phase": 0,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.6",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35043200,
+      "end": 35043285,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.6",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35043200,
+      "end": 35043285,
+      "score": ".",
+      "strand": "+",
+      "phase": 2,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.7",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35044019,
+      "end": 35044144,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.7",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35044019,
+      "end": 35044144,
+      "score": ".",
+      "strand": "+",
+      "phase": 0,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "CDS:MtrunA17Chr1g0184451.8",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "CDS",
+      "start": 35044859,
+      "end": 35045017,
+      "score": ".",
+      "strand": "+",
+      "phase": 0,
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    },
+    {
+      "ID": "exon:MtrunA17Chr1g0184451.8",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "exon",
+      "start": 35044859,
+      "end": 35045433,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
+      }
+    },
+    {
+      "ID": "three_prime_UTR:MtrunA17Chr1g0184451.16",
+      "seqid": "MtrunA17Chr1",
+      "source": "EuGene",
+      "interval_type": "three_prime_UTR",
+      "start": 35045018,
+      "end": 35045433,
+      "score": ".",
+      "strand": "+",
+      "phase": ".",
+      "attributes": {
+        "parent": [
+          "mRNA:MtrunA17Chr1g0184451.1",
+          "mRNA:MtrunA17Chr1g0184451.2"
+        ],
+        "est_cons": ["100.0"],
+        "est_incons": ["0.0"]
+      }
+    }
+  ]
+}

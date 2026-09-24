@@ -93,6 +93,15 @@ store.
 All six widgets share a single bundled ES module, dispatching on an internal `_component` trait,
 so React ships once in the wheel rather than once per widget.
 
+`PhyloTree`'s layout trait is `tree_layout` (ipywidgets reserves `layout` for a widget's CSS layout);
+`PhyloTree(layout="radial")` is accepted as a shorthand.
+
+## Example notebook
+
+[`examples/tour.ipynb`](examples/tour.ipynb) loads an alignment, computes p-distances and a
+neighbour-joining tree in plain Python, and links all three views. Documentation:
+<https://holmrenser.github.io/react-bio-viz/python/>.
+
 ## Development
 
 ```bash

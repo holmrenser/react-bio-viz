@@ -2,6 +2,8 @@
 
 React components for biological data visualization.
 
+**Documentation, with live examples: [holmrenser.github.io/react-bio-viz](https://holmrenser.github.io/react-bio-viz/)**
+
 - **MultipleSequenceAlignment** — windowed canvas rendering (no size limit; letters crisp at any
   zoom) with pan/zoom, column ruler, minimap, consensus row, residue search, the standard colour
   schemes (ClustalX, Zappo, Taylor) plus analysis and score styles, conservation/logo/score tracks,
@@ -90,13 +92,15 @@ widget.observe(lambda change: print(change["new"]), names="viewport")
 widget
 ```
 
-See [`packages/python/README.md`](packages/python/README.md).
+The [example notebook](packages/python/examples/tour.ipynb) takes an alignment through
+distances and a neighbour-joining tree, with all three views linked. See also
+[`packages/python/README.md`](packages/python/README.md).
 
-## API reference
+## Documentation
 
-Generated from the source with api-extractor: [`docs/index.md`](docs/index.md), covering both
-`react-bio-viz` (the components) and `@react-bio-viz/core` (the shared state, viewport, colour,
-scale and layout primitives).
+The [documentation site](https://holmrenser.github.io/react-bio-viz/) has guides, a live example for every component, the Jupyter
+widgets, and an API reference generated from the TSDoc comments. Its source is `apps/docs`
+(Astro Starlight), deployed to GitHub Pages by `.github/workflows/docs.yml`.
 
 ## Development
 
@@ -107,6 +111,7 @@ packages/core/         @react-bio-viz/core   shared primitives + shadcn/ui chrom
 packages/components/   react-bio-viz         the components
 packages/python/       react-bio-viz (PyPI)  anywidget/Jupyter bindings
 apps/demo/                                   Vite playground
+apps/docs/                                   documentation site (Astro Starlight)
 ```
 
 ```bash
@@ -116,7 +121,8 @@ pnpm dev            # the demo playground
 pnpm test           # Vitest across packages
 pnpm typecheck
 pnpm lint
-pnpm run docs       # regenerate docs/ from the TSDoc comments (`pnpm docs` is a pnpm built-in)
+pnpm run docs       # build the documentation site into apps/docs/dist (`pnpm docs` is a pnpm built-in)
+pnpm docs:dev       # the documentation site with live reload
 ```
 
 For the Python package, from `packages/python`: `uv pip install -e ".[dev]"` then `pytest`.

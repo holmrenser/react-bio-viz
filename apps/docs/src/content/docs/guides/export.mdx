@@ -1,0 +1,48 @@
+---
+title: Exporting
+description: Save trees and other SVG views as standalone SVG or PNG, and trees as Newick.
+sidebar:
+  order: 3
+---
+
+## SVG and PNG
+
+SVG-based views (`PhyloTree`, `GeneModel`, …) are partly styled by CSS, which doesn't travel with the
+markup. `serializeSvg` inlines the computed style of every element and fits the drawing, so the
+file looks the same anywhere; `svgToPng` rasterises it.
+
+```tsx
+import { PhyloTree, serializeSvg, svgToPng } from "react-bio-viz";
+
+const svgRef = useRef<SVGSVGElement>(null);
+
+<PhyloTree tree={tree} svgRef={svgRef} />;
+
+function download(content: Blob, filename: string) {
+  const url = URL.createObjectURL(content);
+  Object.assign(document.createElement("a"), { href: url, download: filename }).click();
+  URL.revokeObjectURL(url);
+}
+
+const svg = serializeSvg(svgRef.current!, { background: "white" }); // the whole tree, not just what's panned into view
+download(new Blob([svg], { type: "image/svg+xml" }), "tree.svg");
+download(await svgToPng(svg, 2), "tree.png"); // 2× resolution
+```
+
+The tree example on the [PhyloTree page](../../components/phylo-tree/#a-node-menu) has an
+**Export SVG** button.
+
+## Newick
+
+Export the tree *as the user arranged it* — rerooted and rotated:
+
+```ts
+import { applyTreeSelection, toNewick } from "react-bio-viz";
+
+const newick = toNewick(applyTreeSelection(tree, selection));
+```
+
+## Canvas views
+
+The alignment and distance matrix draw on `<canvas>`; the visible window can be saved with the
+standard canvas API (`canvas.toBlob`) — e.g. `container.querySelector("canvas.alignment")`.

@@ -1,0 +1,75 @@
+---
+title: Example notebook
+description: A tour of the widgets in Jupyter — an alignment, distances and a tree computed in Python, all linked.
+sidebar:
+  order: 2
+---
+import { Image } from "astro:assets";
+import { LinkButton } from "@astrojs/starlight/components";
+import msaShot from "../../../assets/jupyter/notebook-msa.png";
+import treeShot from "../../../assets/jupyter/notebook-tree.png";
+import matrixShot from "../../../assets/jupyter/notebook-matrix.png";
+import geneShot from "../../../assets/jupyter/notebook-gene.png";
+
+The [tour notebook](https://github.com/holmrenser/react-bio-viz/blob/main/packages/python/examples/tour.ipynb)
+loads a 24-sequence protein alignment and explores it with the widgets. It computes p-distances and
+a neighbour-joining tree in plain Python, then links all three views.
+
+<LinkButton href="https://github.com/holmrenser/react-bio-viz/blob/main/packages/python/examples/tour.ipynb" icon="github">View on GitHub</LinkButton>
+<LinkButton href="https://nbviewer.org/github/holmrenser/react-bio-viz/blob/main/packages/python/examples/tour.ipynb" variant="secondary">Open in nbviewer</LinkButton>
+
+To run it, clone the repository and open `packages/python/examples/tour.ipynb`. Its data files sit
+next to it in `data/`.
+
+```bash
+pip install react-bio-viz jupyterlab
+jupyter lab packages/python/examples/tour.ipynb
+```
+
+The screenshots below are from the notebook running in JupyterLab.
+
+## 1. Explore an alignment
+
+`read_fasta` loads the records and `MSA` shows them, here with conservation and logo tracks. Pan,
+zoom, select and drag labels as in the [live examples](../../components/multiple-sequence-alignment/).
+
+<Image src={msaShot} alt="The MSA widget in JupyterLab, with conservation and sequence-logo tracks" />
+
+## 2. Read, drive and observe state
+
+The notebook reads `msa.selection` after you select something. It prints each new selection into an
+`Output` widget as it happens, and then drives the view from Python:
+
+```python
+msa.viewport = {**msa.viewport, "x0": 100, "x1": 160}
+msa.options = {**msa.options, "colorStyle": "AA Zappo"}
+msa.selection = {"rows": [], "columns": list(range(120, 130))}
+```
+
+## 3. Edit
+
+Rename, row-removal and column-removal callbacks apply each edit to `msa.msa`. Double-click a label
+to rename it, hover a label for its ×, or select columns and press <kbd>Delete</kbd>.
+
+## 4. Distances, linked to the alignment
+
+p-distances computed in Python go into a `DistanceMatrix`. One `traitlets.link` on `row_order`
+keeps it in step with the alignment.
+
+<Image src={matrixShot} alt="The DistanceMatrix widget showing pairwise p-distances" />
+
+## 5. A tree that orders the rows
+
+A short neighbour-joining implementation turns the distances into a tree. `traitlets.dlink` from
+its `leaf_order` makes the alignment rows (and so the matrix) follow the tree. Drag a node to
+rotate it, or past the top or bottom to reroot. Clicks report the node, its leaves and
+its descendants to a Python callback.
+
+<Image src={treeShot} alt="The PhyloTree widget with a neighbour-joining tree" />
+
+## 6. Newick, and genes
+
+`to_newick` and `parse_newick` round-trip the tree, and a `GeneModel` shows the transcripts, exons
+and CDSs of a gene.
+
+<Image src={geneShot} alt="The GeneModel widget" />

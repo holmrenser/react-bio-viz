@@ -67,7 +67,7 @@ export interface MSAHover {
 /**
  * @public
  * Rendering toggles for {@link MultipleSequenceAlignment}, consolidated into one options object
- * per the `bio-viz-conventions` project skill (rather than a growing pile of boolean props).
+ * (rather than a growing pile of boolean props).
  */
 export interface MSADrawOptions {
   /** Pixel size of each residue cell at the default zoom. @defaultValue 16 */
@@ -136,7 +136,10 @@ export interface MSADrawOptions {
   darkMode?: boolean;
 }
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface MultipleSequenceAlignmentProps {
   /** The alignment to render. All sequences must have the same length. */
   msa: AlignedSequences;

@@ -1,0 +1,51 @@
+---
+title: react-bio-viz
+description: React components and Jupyter widgets for biological data visualization — alignments, phylogenetic trees, distance matrices, gene models, genome tracks and BLAST hits.
+template: splash
+hero:
+  tagline: Interactive, consistently controllable React components for alignments, trees, distance matrices and genomes — and the same components as Jupyter widgets.
+  actions:
+    - text: Get started
+      link: ./getting-started/
+      icon: right-arrow
+    - text: Linked views example
+      link: ./guides/linked-views/
+      variant: minimal
+    - text: Jupyter
+      link: ./python/
+      variant: minimal
+---
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import MsaBasic from "../../examples/MsaBasic.tsx";
+
+A 100-sequence protein alignment, live — scroll to pan, <kbd>Ctrl</kbd>/<kbd>⌘</kbd>-scroll to zoom,
+drag the minimap:
+
+<MsaBasic client:only="react" />
+
+<CardGrid>
+  <Card title="Built for real data" icon="rocket">
+    Canvas views draw only what is on screen, so a thousand-sequence alignment or distance matrix
+    costs the same as a small one.
+  </Card>
+  <Card title="One state contract" icon="setting">
+    Every piece of interactive state — viewport, selection, row order, tree arrangement — can be
+    uncontrolled, controlled, or kept in your own store. Learn it once.
+  </Card>
+  <Card title="Views that link" icon="random">
+    An alignment, its distance matrix and its tree can share one row order: reorder one and the
+    others follow.
+  </Card>
+  <Card title="Python too" icon="seti:python">
+    The same components as Jupyter widgets, with every piece of state a synced traitlet.
+  </Card>
+</CardGrid>
+
+## Components
+
+<CardGrid>
+  <LinkCard title="MultipleSequenceAlignment" href="./components/multiple-sequence-alignment/" description="Colour schemes, tracks, selection, reordering and editing." />
+  <LinkCard title="PhyloTree" href="./components/phylo-tree/" description="Three layouts, rerooting, collapsing, drag-to-rotate, styling." />
+  <LinkCard title="DistanceMatrix" href="./components/distance-matrix/" description="A pairwise distance heatmap that scales to thousands of rows." />
+  <LinkCard title="GeneModel · GenomeBrowser · BlastHitDistribution" href="./components/gene-model/" description="Genes, genome tracks and BLAST hits on a shared genomic axis." />
+</CardGrid>

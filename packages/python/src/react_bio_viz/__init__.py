@@ -20,6 +20,7 @@ from .blasthitdistribution import BlastHitDistribution
 from .distancematrix import DistanceMatrix
 from .genemodel import GeneModel
 from .genomebrowser import GenomeBrowser
+from .io import parse_fasta, parse_newick, read_fasta, read_newick, to_newick
 from .msa import MSA
 from .phylotree import PhyloTree
 
@@ -34,5 +35,10 @@ __all__ = [
     "MSA",
     "PhyloTree",
     "fit_to_extent",
+    "parse_fasta",
+    "parse_newick",
+    "read_fasta",
+    "read_newick",
+    "to_newick",
     "__version__",
 ]

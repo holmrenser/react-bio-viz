@@ -54,29 +54,31 @@ function defaultHitPopover(hit: BlastHit): JSX.Element {
 
 /**
  * @public
+ * @group Components
  * Overlaid BLAST hits along a single query sequence, row-stacked to avoid overlap and colored by
  * a chosen metric. Clicking a hit toggles it in `selection.selectedHitIds` — brush-to-select
  * (`selection.brushRange`) is reserved for a future enhancement, not implemented here.
  */
-export function BlastHitDistribution({
-  hits,
-  queryLength,
-  queryName = "",
-  width = 800,
-  showScale = true,
-  metric,
-  defaultMetric = DEFAULT_METRIC,
-  onMetricChange,
-  hitPopoverFn = defaultHitPopover,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-  selection,
-  defaultSelection,
-  onSelectionChange,
-  selectionStore,
-}: BlastHitDistributionProps): JSX.Element {
+export function BlastHitDistribution(props: BlastHitDistributionProps): JSX.Element {
+  const {
+    hits,
+    queryLength,
+    queryName = "",
+    width = 800,
+    showScale = true,
+    metric,
+    defaultMetric = DEFAULT_METRIC,
+    onMetricChange,
+    hitPopoverFn = defaultHitPopover,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+    selection,
+    defaultSelection,
+    onSelectionChange,
+    selectionStore,
+  } = props;
   const [currentMetric, setMetric] = useControllableState<BlastMetric>({
     value: metric,
     defaultValue: defaultMetric,

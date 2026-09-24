@@ -1,0 +1,99 @@
+---
+title: PhyloTree
+description: Rectangular, cladogram and radial trees with rerooting, collapsing, drag-to-rotate, styling and click callbacks.
+sidebar:
+  order: 2
+---
+import TreeLayouts from "../../../examples/TreeLayouts.tsx";
+import TreeInteractive from "../../../examples/TreeInteractive.tsx";
+
+```tsx
+import { PhyloTree, parseNewick } from "react-bio-viz";
+
+const tree = parseNewick(newickText);
+
+<PhyloTree tree={tree} layout="rectangular" width={900} height={600} />;
+```
+
+A tree is nested `{ name, length, children }` nodes; internal node names hold support values (as
+in Newick). `parseNewick` and `toNewick` convert, handling quoted labels.
+
+<TreeLayouts client:only="react" />
+
+`leafSpacing` fixes the pixels per leaf, so a large tree stays readable and scrolls; without it the
+tree fits `height`.
+
+## Rerooting, collapsing and ordering
+
+Everything about how the tree is arranged lives in one controllable `selection`:
+
+```ts
+interface TreeSelection {
+  rerootedAt?: string;      // the node whose branch holds the root
+  rerootPosition?: number;  // where on that branch, 0 (node) – 1 (parent); default 0.5
+  collapsed: string[];      // clades drawn as a triangle
+  order?: Record<string, string[]>; // a node's children, in display order
+}
+```
+
+Node ids come from `ID` on your data, or else a positional path, and they **stay the same across
+reroots** — so collapsed clades, orders and styles survive whatever the user does.
+
+Pure helpers compute new selections:
+
+| Helper | Returns |
+| --- | --- |
+| `midpointRoot(tree)` | the root placement at the midpoint of the longest leaf-to-leaf path |
+| `rerootAbove(tree, selection, id)` | the root halfway along the branch *drawn* above a node |
+| `rotateOrder(tree, selection, id)` | an order with that node's children reversed |
+| `ladderizeOrder(tree, selection, "asc" \| "desc")` | an order sorting every node's children by clade size |
+| `orderForLeafNames(tree, selection, names)` | an order following a list of leaves as far as the topology allows |
+| `leafOrder(tree, selection)` | the leaves in display order |
+| `applyTreeSelection(tree, selection)` | the tree as displayed, as plain data — e.g. for `toNewick` |
+| `collapseBySupport(tree, threshold)` | a new tree with poorly supported clades turned into polytomies |
+
+## A node menu
+
+`onNodeClick` and `onBranchClick` report everything needed to act on the node — its leaves, all its
+descendants' ids, and `rerootAbove` ready to spread into the selection. Click a node:
+
+<TreeInteractive client:only="react" />
+
+```tsx
+const [selection, setSelection] = useState<TreeSelection>({ collapsed: [] });
+const [menu, setMenu] = useState<TreeNodeInfo | null>(null);
+
+<PhyloTree
+  tree={tree}
+  interactive
+  selection={selection}
+  onSelectionChange={setSelection}   // drags and collapse toggles
+  onNodeClick={setMenu}               // open your own menu at menu.clientX/clientY
+  activeNodeId={menu?.id}
+/>;
+
+// "Reroot here":   setSelection((s) => ({ ...s, ...menu.rerootAbove }))
+// "Rotate":        setSelection((s) => ({ ...s, order: rotateOrder(tree, s, menu.id) }))
+// "Colour clade":  setStyles(Object.fromEntries(menu.descendantIds.map((id) => [id, { color }])))
+```
+
+With `interactive` and no `onNodeClick`, clicking an internal node toggles its collapse.
+
+## Dragging
+
+With `interactive` (or `dragEnabled`), drag a node marker to another row: nodes rotate so the
+clade lands there — the topology never changes. Drag past the first or last row to reroot on that
+node with its clade at that end. The change is committed once, on release.
+
+## Styling
+
+`nodeStyles` and `branchStyles` map node ids to `{ color, bold }` and `{ color }`. Also:
+`showSupportValues` with `supportThreshold`, `shadeBranchBySupport`, `showBranchLengths`,
+`showScaleBar`, `branchWidth`, `nodeRadius`, `labelFontSize`, `leafMarkerColor`, `searchQuery`.
+
+## Exporting
+
+`svgRef` gives you the rendered `<svg>`; `serializeSvg` turns it into a standalone file — see
+[Exporting](../../guides/export/).
+
+[All props →](../../reference/interfaces/phylotreeprops/)

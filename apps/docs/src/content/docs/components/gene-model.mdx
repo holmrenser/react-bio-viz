@@ -1,0 +1,23 @@
+---
+title: GeneModel
+description: A gene's transcripts, exons and CDSs on a genomic axis, with popovers.
+sidebar:
+  order: 4
+---
+import GeneModelExample from "../../../examples/GeneModelExample.tsx";
+
+```tsx
+import { GeneModel } from "react-bio-viz";
+
+<GeneModel gene={gene} width={900} />;
+```
+
+`gene` is a GFF-like interval tree: a gene with `children` transcripts, each with exon and CDS
+children (`start`, `end`, `strand`, `interval_type`, `attributes`). Click an exon for its details;
+pan and zoom along the gene.
+
+<GeneModelExample client:only="react" />
+
+The genomic window is a controllable `viewport`.
+
+[All props →](../../reference/interfaces/genemodelprops/)

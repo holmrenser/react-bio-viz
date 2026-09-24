@@ -61,7 +61,10 @@ export interface TrackRenderProps<T extends GenomeTrack = GenomeTrack> {
 /** @public A render function for one track kind — the extensibility seam for custom track types. */
 export type TrackRenderer = (props: TrackRenderProps) => JSX.Element | null;
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface GenomeBrowserProps {
   /** The tracks to render, top to bottom. */
   tracks: GenomeTrack[];

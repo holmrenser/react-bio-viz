@@ -5,11 +5,13 @@ import type { HierarchyPointNode, Tree } from "../types";
 
 const MARKER_CSS = css({ "&:hover": { stroke: ACCENT_COLOR, strokeWidth: 2 } });
 
-/** Pointer callbacks shared by every marker, keyed by node id so they stay referentially stable. */
+/**
+ * Callbacks shared by every marker, keyed by node id so they stay referentially stable. A press may
+ * become a drag (followed on the window by the owner) or a click.
+ */
 export interface NodeMarkerHandlers {
   onPointerDown: (nodeId: string, event: React.PointerEvent<SVGCircleElement>) => void;
-  onPointerMove: (event: React.PointerEvent<SVGCircleElement>) => void;
-  onPointerUp: (event: React.PointerEvent<SVGCircleElement>) => void;
+  onClick: (nodeId: string, event: React.MouseEvent<SVGCircleElement>) => void;
 }
 
 /**
@@ -55,9 +57,7 @@ export function NodeMarker({
       data-pan-ignore={isInteractive || isDraggable ? true : undefined}
       data-node-id={node.id}
       onPointerDown={handlers ? (event) => handlers.onPointerDown(node.id, event) : undefined}
-      onPointerMove={handlers?.onPointerMove}
-      onPointerUp={handlers?.onPointerUp}
-      onPointerCancel={handlers?.onPointerUp}
+      onClick={handlers ? (event) => handlers.onClick(node.id, event) : undefined}
     >
       {title && <title>{title}</title>}
     </circle>
