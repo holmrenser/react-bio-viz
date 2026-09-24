@@ -30,3 +30,11 @@ export function accentAlpha(alpha: number): string {
  * {@link ACCENT_COLOR} instead and let CSS pick.
  */
 export const ACCENT_LITERAL = { light: "rgb(48, 92, 222)", dark: "rgb(125, 163, 255)" } as const;
+
+/**
+ * @public
+ * Selected rows/columns/cells. A warm red rather than the accent, so a selection stays distinct
+ * from hover feedback drawn on top of it. Literal (not a CSS variable) because the MSA paints it
+ * on canvas; it reads on both light and dark backgrounds.
+ */
+export const SELECTION_LITERAL = { fill: "rgba(220, 60, 60, 0.18)", stroke: "rgba(220, 60, 60, 0.8)" } as const;

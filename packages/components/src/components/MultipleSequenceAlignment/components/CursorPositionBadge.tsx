@@ -1,10 +1,10 @@
 import { cx, css } from "@emotion/css";
 
-import { describeHover, type HoverCell } from "./CursorTooltip";
-import type { AlignedSequences } from "../types";
+import { describeHover } from "./CursorTooltip";
+import type { MSAHover } from "../types";
 
 /** A persistent status-line readout of the hovered cell, for when a floating tooltip isn't wanted. */
-export function CursorPositionBadge({ hover, msa }: { hover: HoverCell | null; msa: AlignedSequences }) {
+export function CursorPositionBadge({ hover }: { hover: MSAHover | null }) {
   return (
     <div
       className={cx(
@@ -12,7 +12,7 @@ export function CursorPositionBadge({ hover, msa }: { hover: HoverCell | null; m
         css({ fontSize: 11, fontFamily: "ui-monospace, monospace", minHeight: "1.4em" })
       )}
     >
-      {hover ? describeHover(hover, msa) : " "}
+      {hover ? describeHover(hover) : " "}
     </div>
   );
 }

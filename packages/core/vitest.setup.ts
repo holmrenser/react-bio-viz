@@ -1,10 +1,3 @@
-import "@testing-library/jest-dom/vitest";
-
-// jsdom doesn't implement scrollIntoView; Radix UI's Select (and other listbox-style primitives)
-// call it when the open list scrolls its selected item into view.
-if (!Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = () => {};
-}
 /*
  * jsdom has no `PointerEvent`, so Testing Library falls back to a plain `Event` and drops
  * `clientX`/`clientY`/`shiftKey`/`button` — which every drag, click-select and reorder gesture

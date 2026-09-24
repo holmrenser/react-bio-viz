@@ -1,25 +1,15 @@
 import { css } from "@emotion/css";
 
-import type { AlignedSequences } from "../types";
-
-/** @public The cell under the pointer, in data coordinates plus the screen coords that produced it. */
-export interface HoverCell {
-  row: number;
-  col: number;
-  clientX: number;
-  clientY: number;
-}
+import type { MSAHover } from "../types";
 
 /** `<name> · col <n> · <residue>` for the hovered cell — shared by the tooltip and the badge. */
-export function describeHover(hover: HoverCell, msa: AlignedSequences): string {
-  const sequence = msa[hover.row];
-  const residue = sequence?.sequence[hover.col];
-  const label = sequence?.header ?? "?";
-  return residue ? `${label} · col ${hover.col + 1} · ${residue}` : `${label} · col ${hover.col + 1}`;
+export function describeHover(hover: MSAHover): string {
+  const position = `col ${hover.col + 1}`;
+  return hover.residue ? `${hover.label} · ${position} · ${hover.residue}` : `${hover.label} · ${position}`;
 }
 
 /** A small floating tooltip that follows the cursor while it's over the alignment. */
-export function CursorTooltip({ hover, msa }: { hover: HoverCell | null; msa: AlignedSequences }) {
+export function CursorTooltip({ hover }: { hover: MSAHover | null }) {
   if (!hover) return null;
   return (
     <div
@@ -39,7 +29,7 @@ export function CursorTooltip({ hover, msa }: { hover: HoverCell | null; msa: Al
       })}
       style={{ left: hover.clientX + 14, top: hover.clientY + 18 }}
     >
-      {describeHover(hover, msa)}
+      {describeHover(hover)}
     </div>
   );
 }

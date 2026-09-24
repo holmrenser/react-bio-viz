@@ -3,9 +3,12 @@ import { css } from "@emotion/css";
 import { clampToExtent, type Viewport } from "@react-bio-viz/core";
 
 import { MINIMAP_EDGE_ZONE } from "../constants";
+import type { ColorIndex } from "../utils/colorIndex";
 import { AlignmentCanvas } from "./AlignmentCanvas";
 
 type DragMode = "pan" | "resize-left" | "resize-right";
+
+const FULL_WINDOW = (columns: number, rows: number) => ({ x0: 0, x1: columns, y0: 0, y1: rows });
 
 /**
  * An interactive overview of the whole alignment: the current viewport is drawn as a box over a
@@ -14,27 +17,29 @@ type DragMode = "pan" | "resize-left" | "resize-right";
  * the same canvas pipeline as the main view rather than a separate implementation — see the
  * `bio-viz-conventions` skill for why viewport interactions all go through the same `useViewport`
  * seam regardless of which surface triggers them.
+ *
+ * The overview is drawn by the same renderer as the main view with the whole alignment as its
+ * window, so a large alignment is sampled per pixel instead of rasterised in full.
  */
 export function Minimap({
-  offscreenCanvasRef,
+  colorIndex,
+  rowOrder,
+  sequences,
   numColumns,
   numSeqs,
-  cellSize,
   pixelWidth,
   pixelHeight,
-  sourceRevision,
   viewport,
   setViewport,
   panBy,
 }: {
-  offscreenCanvasRef: React.RefObject<HTMLCanvasElement>;
+  colorIndex: ColorIndex;
+  rowOrder: readonly number[];
+  sequences: readonly string[];
   numColumns: number;
   numSeqs: number;
-  cellSize: number;
   pixelWidth: number;
   pixelHeight: number;
-  /** Forwarded to the inner crop so the overview repaints with the source — see `AlignmentCanvas`. */
-  sourceRevision?: unknown;
   viewport: Viewport;
   setViewport: (next: Viewport | ((prev: Viewport) => Viewport)) => void;
   panBy: (dx: number, dy: number) => void;
@@ -45,10 +50,13 @@ export function Minimap({
   const scaleX = numColumns > 0 ? numColumns / pixelWidth : 0;
   const scaleY = numSeqs > 0 ? numSeqs / pixelHeight : 0;
 
-  const boxLeft = numColumns > 0 ? (viewport.x0 / numColumns) * pixelWidth : 0;
-  const boxRight = numColumns > 0 ? (viewport.x1 / numColumns) * pixelWidth : pixelWidth;
-  const boxTop = numSeqs > 0 ? (viewport.y0 / numSeqs) * pixelHeight : 0;
-  const boxBottom = numSeqs > 0 ? (viewport.y1 / numSeqs) * pixelHeight : pixelHeight;
+  // The viewport may extend past the data (a small alignment in a large canvas); clamp the box to it.
+  const clampX = (x: number) => Math.max(0, Math.min(pixelWidth, x));
+  const clampY = (y: number) => Math.max(0, Math.min(pixelHeight, y));
+  const boxLeft = numColumns > 0 ? clampX((viewport.x0 / numColumns) * pixelWidth) : 0;
+  const boxRight = numColumns > 0 ? clampX((viewport.x1 / numColumns) * pixelWidth) : pixelWidth;
+  const boxTop = numSeqs > 0 ? clampY((viewport.y0 / numSeqs) * pixelHeight) : 0;
+  const boxBottom = numSeqs > 0 ? clampY((viewport.y1 / numSeqs) * pixelHeight) : pixelHeight;
 
   const zoneAt = useCallback(
     (localX: number, localY: number): DragMode | "outside" => {
@@ -83,6 +91,7 @@ export function Minimap({
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
+      event.stopPropagation();
       const rect = event.currentTarget.getBoundingClientRect();
       const localX = event.clientX - rect.left;
       const localY = event.clientY - rect.top;
@@ -149,12 +158,14 @@ export function Minimap({
       onPointerLeave={() => setHoverZone(null)}
     >
       <AlignmentCanvas
-        offscreenCanvasRef={offscreenCanvasRef}
-        sourceWindow={{ x0: 0, x1: numColumns, y0: 0, y1: numSeqs }}
-        sourceRevision={sourceRevision}
-        cellSize={cellSize}
-        pixelWidth={pixelWidth}
-        pixelHeight={pixelHeight}
+        colorIndex={colorIndex}
+        rowOrder={rowOrder}
+        sequences={sequences}
+        window={FULL_WINDOW(numColumns, numSeqs)}
+        width={pixelWidth}
+        height={pixelHeight}
+        showLetters={false}
+        letterColor="transparent"
       />
       <div
         className={css({

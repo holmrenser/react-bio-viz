@@ -61,5 +61,12 @@ export function createZustandStoreController<TStore, T>(
  * ```
  */
 export function createControllableStore<T>(initial: T): ZustandLikeStore<T> {
-  return createVanillaStore<T>(() => initial);
+  const store = createVanillaStore<T>(() => initial);
+  return {
+    getState: store.getState,
+    subscribe: store.subscribe,
+    // Always replace: Zustand merges object updates by default, which would turn an array value
+    // (e.g. a row order) into a plain object and splice stale keys into a replaced object.
+    setState: (next) => store.setState(next, true),
+  };
 }

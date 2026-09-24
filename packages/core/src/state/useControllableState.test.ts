@@ -78,3 +78,15 @@ describe("useControllableState", () => {
     expect(result.current[0]).toBe(42);
   });
 });
+
+describe("createControllableStore", () => {
+  it("replaces rather than merges, so array and object values survive updates intact", () => {
+    const order = createControllableStore<string[]>(["a", "b"]);
+    order.setState(["b", "a"]);
+    expect(order.getState()).toEqual(["b", "a"]);
+    expect(Array.isArray(order.getState())).toBe(true);
+    const selection = createControllableStore<{ rows: string[]; extra?: number }>({ rows: [], extra: 1 });
+    selection.setState((prev) => ({ rows: [...prev.rows, "x"] }));
+    expect(selection.getState()).toEqual({ rows: ["x"] });
+  });
+});

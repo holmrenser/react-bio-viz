@@ -19,3 +19,5 @@ export {
 export type { ColorScheme, ResidueColorStyle, SequenceType } from "./schemes";
 export { AMINO_ACIDS, NUCLEOTIDES } from "./palettes";
 export type { Palette, AminoAcid, Nucleotide, BioLetter } from "./palettes";
+export { toRGBA } from "./rgba";
+export type { RGBA } from "./rgba";
