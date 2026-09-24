@@ -54,7 +54,9 @@ function ownSegment(node: HierarchyPointNode<Tree>, center?: { cx: number; cy: n
  */
 function branchOpacity(node: HierarchyPointNode<Tree>, shadeBranchBySupport?: boolean): number {
   if (!shadeBranchBySupport) return DEFAULT_BRANCH_OPACITY;
-  const support = Number(node.parent!.data.name);
+  // parseFloat, not Number: an unlabelled node (every Newick root, many internal nodes) has name
+  // "", which Number() reads as 0 — a support of zero, i.e. an invisible branch.
+  const support = Number.parseFloat(node.parent!.data.name);
   return Number.isFinite(support) ? Math.min(1, Math.max(0, support)) : DEFAULT_BRANCH_OPACITY;
 }
 

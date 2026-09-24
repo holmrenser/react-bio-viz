@@ -346,6 +346,22 @@ describe("PhyloTree search", () => {
   });
 });
 
+describe("PhyloTree support shading", () => {
+  it("draws branches under an unlabelled node at full strength (regression: '' was read as support 0)", () => {
+    const { container } = render(<PhyloTree tree={{ ...tree, name: "" }} shadeBranchBySupport />);
+    const opacities = Array.from(container.querySelectorAll('path[pointer-events="none"]')).map((p) => Number(p.getAttribute("opacity")));
+    expect(opacities.length).toBeGreaterThan(0);
+    expect(opacities.every((o) => o > 0)).toBe(true);
+  });
+
+  it("still fades branches under a low-support node", () => {
+    const lowSupport: Tree = { ...tree, name: "", children: [tree.children[0], { ...tree.children[1], name: "0.2" }] };
+    const { container } = render(<PhyloTree tree={lowSupport} shadeBranchBySupport />);
+    const opacities = Array.from(container.querySelectorAll('path[pointer-events="none"]')).map((p) => Number(p.getAttribute("opacity")));
+    expect(opacities).toContain(0.2);
+  });
+});
+
 describe("PhyloTree scale bar", () => {
   it("renders a scale bar in rectangular layout by default", () => {
     const { container } = render(<PhyloTree tree={tree} layout="rectangular" />);
