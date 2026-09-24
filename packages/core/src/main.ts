@@ -13,5 +13,6 @@ export * from "./scale";
 export * from "./overlay";
 export * from "./layout";
 export * from "./labels";
+export * from "./export";
 export * from "./theme";
 export * from "./components/ui";

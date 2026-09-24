@@ -68,8 +68,6 @@ interface MarkerPress {
   nodeId: string;
   startClientX: number;
   startClientY: number;
-  /** The node's tip-axis position when pressed, in layout units. */
-  startX: number;
   /** Set once the pointer travels past the drag threshold. */
   dragging: boolean;
 }
@@ -265,8 +263,10 @@ export function PhyloTree({
   // ---- node gestures: click (inspect/collapse) vs drag (reorder, or reroot past either end) -----
   // Everything a gesture reads lives in refs, so the handlers are stable and the memoised tree body
   // below doesn't re-render on every pan.
-  const latest = useRef({ tree, currentSelection, root, nodes, unitsPerPixelY, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial });
-  latest.current = { tree, currentSelection, root, nodes, unitsPerPixelY, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial };
+  const viewportY0 = currentViewport.y0;
+  const marginTop = margin.top;
+  const latest = useRef({ tree, currentSelection, root, nodes, unitsPerPixelY, viewportY0, marginTop, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial });
+  latest.current = { tree, currentSelection, root, nodes, unitsPerPixelY, viewportY0, marginTop, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial };
   const pressRef = useRef<MarkerPress | null>(null);
 
   const findNode = (id: string) => latest.current.nodes.find((node) => node.id === id);
@@ -287,8 +287,7 @@ export function PhyloTree({
       onPointerDown: (nodeId, event) => {
         if (event.button > 0) return;
         event.stopPropagation();
-        const node = findNode(nodeId);
-        pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, startX: node?.x ?? 0, dragging: false };
+        pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, dragging: false };
         try {
           event.currentTarget.setPointerCapture?.(event.pointerId);
         } catch {
@@ -298,16 +297,25 @@ export function PhyloTree({
       onPointerMove: (event) => {
         const press = pressRef.current;
         if (!press) return;
-        const { dragEnabled: canDrag, isRadial: radialLayout, unitsPerPixelY: perPixel, root: displayRoot, collapsedSet: collapsed } = latest.current;
+        const {
+          dragEnabled: canDrag,
+          isRadial: radialLayout,
+          unitsPerPixelY: perPixel,
+          viewportY0: y0,
+          marginTop: top,
+          root: displayRoot,
+          collapsedSet: collapsed,
+        } = latest.current;
         if (!press.dragging) {
           if (!canDrag || radialLayout || Math.hypot(event.clientX - press.startClientX, event.clientY - press.startClientY) < DRAG_THRESHOLD_PX) return;
           press.dragging = true;
         }
-        // Where the pointer is, in layout units along the tip axis, relative to the tip rows.
+        // The row under the pointer: its position in layout units along the tip axis.
         const tips = displayTips(displayRoot, collapsed);
         if (tips.length < 2) return;
         const spacing = (tips[tips.length - 1].x - tips[0].x) / (tips.length - 1) || 1;
-        const y = press.startX + (event.clientY - press.startClientY) * perPixel;
+        const svgTop = (event.currentTarget as SVGGraphicsElement).ownerSVGElement?.getBoundingClientRect().top ?? 0;
+        const y = (event.clientY - svgTop) * perPixel + y0 - top;
         const { tree: source, currentSelection: selectionNow } = latest.current;
         let next: TreeSelection | null;
         if (y < tips[0].x - REROOT_DRAG_ZONE * spacing) {

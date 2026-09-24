@@ -157,7 +157,9 @@ export function displayTips(root: Node, collapsed: ReadonlySet<string>): Node[] 
 
 /**
  * The `selection.order` that moves the tips under `draggedId` to row `toIndex` of the displayed
- * tips, as far as rotations allow (the topology never changes). `null` when nothing would move.
+ * tips, as far as rotations allow (the topology never changes): dragged up, the clade's first tip
+ * lands on that row; dragged down, its last one does. `null` when nothing would move — including a
+ * target inside the dragged clade itself.
  */
 export function planTipMove(tree: Tree, selection: TreeSelection, draggedId: string, toIndex: number): Record<string, string[]> | null {
   const root = displayedHierarchy(tree, selection);
@@ -168,7 +170,10 @@ export function planTipMove(tree: Tree, selection: TreeSelection, draggedId: str
   const block = displayTips(dragged, collapsed);
   const inBlock = new Set(block);
   const rest = tips.filter((tip) => !inBlock.has(tip));
-  const at = Math.max(0, Math.min(rest.length, toIndex));
+  const blockStart = tips.indexOf(block[0]);
+  const blockEnd = blockStart + block.length - 1;
+  if (toIndex >= blockStart && toIndex <= blockEnd) return null;
+  const at = Math.max(0, Math.min(rest.length, toIndex > blockEnd ? toIndex - block.length + 1 : toIndex));
   const desired = [...rest.slice(0, at), ...block, ...rest.slice(at)];
   const leafNames = desired.flatMap((tip) => descendants(tip).filter((n) => !n.children).map((n) => n.data.name));
   const order = orderForLeafNames(tree, selection, leafNames);

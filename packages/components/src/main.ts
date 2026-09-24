@@ -89,10 +89,12 @@ export {
   createZustandStoreController,
   moveItem,
   resolveRowOrder,
+  serializeSvg,
+  svgToPng,
   clampToExtent,
   fitToExtent,
   panBy,
   zoomAt,
   zoomBy,
 } from '@react-bio-viz/core';
-export type { StoreController, Viewport, ZustandLikeStore } from '@react-bio-viz/core';
+export type { SerializeSvgOptions, StoreController, Viewport, ZustandLikeStore } from '@react-bio-viz/core';

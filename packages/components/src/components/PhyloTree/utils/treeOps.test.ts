@@ -74,6 +74,14 @@ describe("drag and reroot planning", () => {
     expect(rerooted.children.map((c) => c.length)).toEqual([2, 2]);
   });
 
+  it("lands a clade's last tip on the target when dragged down, and ignores targets inside it", () => {
+    const flat = parseNewick("(A,(B,C,D),E);");
+    flat.children[1].ID = "BCD";
+    expect(planTipMove(flat, { collapsed: [] }, "BCD", 3)).toBeNull();
+    expect(leafOrder(flat, { order: planTipMove(flat, { collapsed: [] }, "BCD", 4)! })).toEqual(["A", "E", "B", "C", "D"]);
+    expect(leafOrder(flat, { order: planTipMove(flat, { collapsed: [] }, "BCD", 0)! })).toEqual(["B", "C", "D", "A", "E"]);
+  });
+
   it("plans a tip move by rotation only", () => {
     const order = planTipMove(ids, { collapsed: [] }, "D", 0)!;
     expect(leafOrder(ids, { order })).toEqual(["D", "C", "A", "B"]);
