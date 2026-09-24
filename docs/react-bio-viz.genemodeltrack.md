@@ -9,7 +9,7 @@ A gene model (reuses `GeneModel`<!-- -->'s own `Transcript`<!-- -->/`Exon` rende
 **Signature:**
 
 ```typescript
-export interface GeneModelTrack extends BaseTrack 
+export declare interface GeneModelTrack extends BaseTrack 
 ```
 **Extends:** BaseTrack
 

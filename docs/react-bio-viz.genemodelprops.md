@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export interface GeneModelProps 
+export declare interface GeneModelProps 
 ```
 
 ## Properties
@@ -63,7 +63,7 @@ _(Optional)_ Seed string for the gene's color scheme.
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -120,7 +120,7 @@ Recursively defined gene model object: SequenceInterval children are also Sequen
 
 </td><td>
 
-(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+(next: [Viewport](./react-bio-viz.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
@@ -196,7 +196,7 @@ _(Optional)_ Show a scalebar indicating genomic position.
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -215,7 +215,7 @@ _(Optional)_ The visible genomic-coordinate window, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[Viewport](./react-bio-viz.viewport.md)<!-- -->&gt;
 
 
 </td><td>

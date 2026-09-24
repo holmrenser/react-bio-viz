@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-export type GenomeTrack = FeatureTrack | CoverageTrack | GeneModelTrack;
+export declare type GenomeTrack = FeatureTrack | CoverageTrack | GeneModelTrack;
 ```
 **References:** [FeatureTrack](./react-bio-viz.featuretrack.md)<!-- -->, [CoverageTrack](./react-bio-viz.coveragetrack.md)<!-- -->, [GeneModelTrack](./react-bio-viz.genemodeltrack.md)
 

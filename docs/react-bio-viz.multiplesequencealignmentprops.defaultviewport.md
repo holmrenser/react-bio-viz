@@ -4,7 +4,7 @@
 
 ## MultipleSequenceAlignmentProps.defaultViewport property
 
-Seeds the visible column/row window when uncontrolled. Defaults to fitting the widget's pixel area.
+Seeds the visible column/row window when uncontrolled. Defaults to the top-left at `cellSize` pixels per cell.
 
 **Signature:**
 

@@ -9,7 +9,7 @@ Per-column summary produced in a single pass over the alignment.
 **Signature:**
 
 ```typescript
-export interface ColumnStat 
+export declare interface ColumnStat 
 ```
 
 ## Properties

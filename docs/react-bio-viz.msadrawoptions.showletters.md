@@ -4,7 +4,7 @@
 
 ## MSADrawOptions.showLetters property
 
-Draw the residue letter inside each cell.
+Draw the residue letter inside each cell (only once cells are large enough to read).
 
 **Signature:**
 

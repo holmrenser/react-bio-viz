@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export type ColorFn = (node: HierarchyPointNode<Tree>) => string;
+export declare type ColorFn = (node: HierarchyPointNode<Tree>) => string;
 ```
 **References:** [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->, [Tree](./react-bio-viz.tree.md)
 

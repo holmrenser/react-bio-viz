@@ -1,7 +1,7 @@
 # react-bio-viz
 
 Jupyter widgets for biological data visualization: multiple sequence alignments, phylogenetic
-trees, gene models, genome browser tracks, and BLAST hit distributions.
+trees, distance matrices, gene models, genome browser tracks, and BLAST hit distributions.
 
 These are [anywidget](https://anywidget.dev) bindings around the `react-bio-viz` React components,
 so the same visualizations run in a notebook and in a web app.
@@ -39,8 +39,9 @@ widget.viewport = {**widget.viewport, "x0": 0, "x1": 50}
 
 | Class | Data prop | Interactive traits |
 | --- | --- | --- |
-| `MSA` | `msa` | `viewport` |
-| `PhyloTree` | `tree` | `viewport`, `selection` |
+| `MSA` | `msa` | `viewport`, `selection`, `row_order`, `panel_sizes` |
+| `PhyloTree` | `tree` | `viewport`, `selection`; `leaf_order` (read-only) |
+| `DistanceMatrix` | `labels`, `matrix` | `viewport`, `row_order`, `panel_sizes` |
 | `GeneModel` | `gene` | `viewport` |
 | `GenomeBrowser` | `tracks`, `reference_length` | `viewport` |
 | `BlastHitDistribution` | `hits`, `query_length` | `viewport`, `selection` |
@@ -48,8 +49,23 @@ widget.viewport = {**widget.viewport, "x0": 0, "x1": 50}
 `viewport` is a plain dict — `{"x0", "x1", "y0", "y1", "xMin", "xMax", "yMin", "yMax"}` — seeded on
 construction to show the whole dataset, so it is readable and observable before any interaction.
 
-`selection` is `{"rerootedAt", "collapsed", "order"}` for `PhyloTree` and `{"selectedHitIds"}` for
-`BlastHitDistribution`.
+`selection` is `{"rows", "columns"}` for `MSA`, `{"rerootedAt", "rerootPosition", "collapsed",
+"order"}` for `PhyloTree` and `{"selectedHitIds"}` for `BlastHitDistribution`. `row_order` has the
+same shape on `MSA` and `DistanceMatrix`, so one can follow the other with a plain `observe`.
+
+User actions that are events rather than state arrive through callbacks. The widgets never edit
+their data themselves — apply the change and assign the new data back:
+
+```python
+msa = MSA(msa=records)
+msa.on_rename_row(lambda row_id, name: ...)
+msa.on_remove_rows(lambda row_ids: ...)
+msa.on_remove_columns(lambda columns: ...)
+
+tree = PhyloTree(tree=tree_dict, interactive=True)
+tree.on_node_click(lambda node: print(node["id"], node["leafNames"]))
+tree.on_branch_click(lambda node: ...)
+```
 
 ```python
 from react_bio_viz import BlastHitDistribution
@@ -74,7 +90,7 @@ components use for controlled state (`model.get` / `model.set` + `save_changes` 
 notebook is just another external-store consumer, the same kind of thing as a web app's Zustand
 store.
 
-All five widgets share a single bundled ES module, dispatching on an internal `_component` trait,
+All six widgets share a single bundled ES module, dispatching on an internal `_component` trait,
 so React ships once in the wheel rather than once per widget.
 
 ## Development

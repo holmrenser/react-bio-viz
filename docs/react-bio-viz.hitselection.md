@@ -9,7 +9,7 @@ Which hits are selected, and (reserved for a future brush-to-select interaction)
 **Signature:**
 
 ```typescript
-export interface HitSelection 
+export declare interface HitSelection 
 ```
 
 ## Properties

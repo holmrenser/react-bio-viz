@@ -9,5 +9,5 @@ Which `BlastHit` field the color scale is driven by.
 **Signature:**
 
 ```typescript
-export type BlastMetric = "evalue" | "bitScore" | "percentIdentity";
+export declare type BlastMetric = "evalue" | "bitScore" | "percentIdentity";
 ```

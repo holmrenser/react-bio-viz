@@ -9,7 +9,7 @@ One row of tabular BLAST output (e.g. `outfmt 6`<!-- -->), keyed against a singl
 **Signature:**
 
 ```typescript
-export interface BlastHit 
+export declare interface BlastHit 
 ```
 
 ## Properties

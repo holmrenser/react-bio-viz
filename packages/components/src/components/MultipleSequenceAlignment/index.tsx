@@ -63,7 +63,7 @@ export { analyseColumns, computeColumnStats, computeConsensus, computeConservati
 const LETTER_COLOR = { light: "#1a1a1a", dark: "#e8e8e8" } as const;
 const CONSENSUS_ROWS = [0];
 
-/** Stable identity of `msa[index]` — see {@link Sequence.id}. */
+/** Stable identity of `msa[index]` — see `id` on {@link Sequence}. */
 function rowIdOf(sequence: { header: string; id?: string }): string {
   return sequence.id ?? sequence.header;
 }

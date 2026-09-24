@@ -9,7 +9,7 @@ Sequence interval object based on gff3 field specs. Recursively defined: Sequenc
 **Signature:**
 
 ```typescript
-export type SequenceInterval = {
+export declare type SequenceInterval = {
     ID: string;
     seqid: string;
     source: string;

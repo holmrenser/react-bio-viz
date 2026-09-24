@@ -9,7 +9,7 @@ A node in the laid-out tree: wraps the source `Tree` data with parent/children l
 **Signature:**
 
 ```typescript
-export type HierarchyPointNode<T> = {
+export declare type HierarchyPointNode<T> = {
     id: string;
     data: T;
     parent: HierarchyPointNode<T> | null;
@@ -19,6 +19,7 @@ export type HierarchyPointNode<T> = {
     y: number;
     radius?: number;
     angle?: number;
+    collapsedLeafCount?: number;
 };
 ```
 **References:** [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)

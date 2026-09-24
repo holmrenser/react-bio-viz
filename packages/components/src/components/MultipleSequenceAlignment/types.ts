@@ -21,7 +21,7 @@ export type AlignedSequences = Sequence[];
 
 /**
  * @public
- * Selected rows (by row id — see {@link Sequence.id}) and columns (0-based indices into the
+ * Selected rows (by row id — see `id` on {@link Sequence}) and columns (0-based indices into the
  * alignment as passed). Plain arrays rather than `Set`s so the value serializes as-is into a
  * store or across the Jupyter bridge.
  */

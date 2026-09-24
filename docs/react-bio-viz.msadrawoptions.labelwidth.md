@@ -4,15 +4,13 @@
 
 ## MSADrawOptions.labelWidth property
 
-Pixel width of the sequence-name column.
+> Warning: This API is now obsolete.
+> 
+> Seed `defaultPanelSizes.labelWidth` (or control `panelSizes`<!-- -->) instead.
+> 
 
 **Signature:**
 
 ```typescript
 labelWidth?: number;
 ```
-
-## Default Value
-
-150
-

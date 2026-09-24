@@ -4,7 +4,7 @@
 
 ## zoomAt() function
 
-Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out.
+Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out. Pass `factorY` to zoom the axes independently (`1` keeps that axis fixed) — e.g. the MSA's column-only zoom, which keeps rows readable.
 
 **Signature:**
 
@@ -12,7 +12,7 @@ Scales the visible window by `factor` around a fixed data-coordinate point (so t
 export declare function zoomAt(viewport: Viewport, point: {
     x: number;
     y: number;
-}, factor: number): Viewport;
+}, factor: number, factorY?: number): Viewport;
 ```
 
 ## Parameters
@@ -72,6 +72,22 @@ number
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+factorY
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

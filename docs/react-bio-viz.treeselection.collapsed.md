@@ -4,7 +4,7 @@
 
 ## TreeSelection.collapsed property
 
-`id`<!-- -->s of internal nodes whose subtrees are hidden.
+`id`<!-- -->s of internal nodes whose clades are drawn collapsed, as a triangle.
 
 **Signature:**
 

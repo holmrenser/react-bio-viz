@@ -9,7 +9,7 @@ Which columns fall into each of the classic alignment-analysis categories.
 **Signature:**
 
 ```typescript
-export interface ColumnAnalysis 
+export declare interface ColumnAnalysis 
 ```
 
 ## Properties

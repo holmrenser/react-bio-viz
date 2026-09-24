@@ -9,7 +9,7 @@ A single interval feature on a `"feature"` track (e.g. a BED/GFF-style annotatio
 **Signature:**
 
 ```typescript
-export interface GenomeFeature 
+export declare interface GenomeFeature 
 ```
 
 ## Properties

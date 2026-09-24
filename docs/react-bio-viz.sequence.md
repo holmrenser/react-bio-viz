@@ -8,8 +8,9 @@
 **Signature:**
 
 ```typescript
-export type Sequence = {
+export declare type Sequence = {
     header: string;
     sequence: string;
+    id?: string;
 };
 ```

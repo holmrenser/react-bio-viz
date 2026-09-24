@@ -19,12 +19,148 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[analyseColumns(msa)](./react-bio-viz.analysecolumns.md)
+
+
+</td><td>
+
+Classifies every column as conserved (one character throughout), variable (more than one), and parsimony-informative (at least two characters each appearing at least twice — the columns that can actually discriminate between topologies).
+
+
+</td></tr>
+<tr><td>
+
+[applyTreeSelection(tree, selection)](./react-bio-viz.applytreeselection.md)
+
+
+</td><td>
+
+The tree as displayed for `selection` (rerooted and reordered), as plain data — e.g. to export it with [toNewick()](./react-bio-viz.tonewick.md) exactly as the user arranged it.
+
+
+</td></tr>
+<tr><td>
+
 [BlastHitDistribution({ hits, queryLength, queryName, width, showScale, metric, defaultMetric, onMetricChange, hitPopoverFn, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, }, input)](./react-bio-viz.blasthitdistribution.md)
 
 
 </td><td>
 
 Overlaid BLAST hits along a single query sequence, row-stacked to avoid overlap and colored by a chosen metric. Clicking a hit toggles it in `selection.selectedHitIds` — brush-to-select (`selection.brushRange`<!-- -->) is reserved for a future enhancement, not implemented here.
+
+
+</td></tr>
+<tr><td>
+
+[clampToExtent(viewport)](./react-bio-viz.clamptoextent.md)
+
+
+</td><td>
+
+Clamps a viewport's visible window so it never extends past its own data extent and never collapses to (or past) zero width/height.
+
+
+</td></tr>
+<tr><td>
+
+[collapseBySupport(tree, threshold)](./react-bio-viz.collapsebysupport.md)
+
+
+</td><td>
+
+A new tree in which every internal node whose support value (its numeric `name`<!-- -->) is below `threshold` is dissolved into its parent — a polytomy — with its branch length added to each of its children's. The root, leaves, and nodes without a numeric name are kept. Returns `tree` itself when nothing is below the threshold.
+
+
+</td></tr>
+<tr><td>
+
+[computeColumnStats(msa)](./react-bio-viz.computecolumnstats.md)
+
+
+</td><td>
+
+Single pass over every column, producing the consensus residue plus conservation figures. Gaps are skipped when picking the dominant residue (so a mostly-gapped column is summarized by the residues that are actually there) but still counted in `identity`<!-- -->, which is what makes a gappy column score lower than a clean one.
+
+Written without intermediate per-column arrays: this runs over every cell of the alignment, so allocation matters on large inputs.
+
+
+</td></tr>
+<tr><td>
+
+[computeConsensus(msa, stats)](./react-bio-viz.computeconsensus.md)
+
+
+</td><td>
+
+The majority-vote consensus row, as a `Sequence` that can be rendered like any other.
+
+
+</td></tr>
+<tr><td>
+
+[computeConservationScores(stats)](./react-bio-viz.computeconservationscores.md)
+
+
+</td><td>
+
+Per-column conservation score (fraction of non-gap residues matching the dominant one).
+
+
+</td></tr>
+<tr><td>
+
+[createControllableStore(initial)](./react-bio-viz.createcontrollablestore.md)
+
+
+</td><td>
+
+Convenience for the common case: a dedicated Zustand vanilla store for a single controllable value, with no need to hand-roll a `select`<!-- -->/`set` pair. Pass the result straight to [createZustandStoreController()](./react-bio-viz.createzustandstorecontroller.md)<!-- -->, or read/write it directly.
+
+
+</td></tr>
+<tr><td>
+
+[createZustandStoreController(store, select, set)](./react-bio-viz.createzustandstorecontroller.md)
+
+
+</td><td>
+
+Wraps a Zustand store (or a slice of one) as a [StoreController](./react-bio-viz.storecontroller.md)<!-- -->, the seam `useControllableState` (in `@react-bio-viz/core`<!-- -->) delegates to for the `store` option. This is the reference adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model (see `@react-bio-viz/python`<!-- -->'s `createAnywidgetStoreController`<!-- -->), or any other external store.
+
+
+</td></tr>
+<tr><td>
+
+[distanceColor(intensity, scheme)](./react-bio-viz.distancecolor.md)
+
+
+</td><td>
+
+The heatmap fill for a distance scaled to 0–1 (acacia's palettes).
+
+
+</td></tr>
+<tr><td>
+
+[DistanceMatrix({ labels, matrix, labelNames, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, rowOrder: rowOrderProp, defaultRowOrder, onRowOrderChange, rowOrderStore, panelSizes: panelSizesProp, defaultPanelSizes, onPanelSizesChange, panelSizesStore, onHoverChange, }, input)](./react-bio-viz.distancematrix.md)
+
+
+</td><td>
+
+A pairwise distance matrix as a heatmap: row names on the left, rotated column names on top, cells shaded by distance (four palettes) with the value written in once cells are large enough. Rendered on canvas and windowed, so it scales to thousands of sequences where a DOM grid can't.
+
+Scroll to pan, Ctrl/⌘-scroll to zoom, drag to pan; drag row names to reorder rows and columns together. The `viewport`<!-- -->, `rowOrder` and `panelSizes` are controllable like every stateful prop in this library — and `rowOrder` has the same shape as the MSA's, so one store can keep an alignment, its tree and its distance matrix in the same order.
+
+
+</td></tr>
+<tr><td>
+
+[fitToExtent(extent)](./react-bio-viz.fittoextent.md)
+
+
+</td><td>
+
+A viewport that shows the full extent of `[xMin,xMax] x [yMin,yMax]`<!-- -->, i.e. fully zoomed out.
 
 
 </td></tr>
@@ -52,25 +188,194 @@ A multi-track genome browser: a shared genomic-coordinate viewport (pan/zoom, co
 </td></tr>
 <tr><td>
 
-[MultipleSequenceAlignment({ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, }, input)](./react-bio-viz.multiplesequencealignment.md)
+[ladderizeOrder(tree, selection, direction)](./react-bio-viz.ladderizeorder.md)
 
 
 </td><td>
 
-Renders a multiple sequence alignment as a dual-canvas viewport (an off-screen full-resolution source image, cropped/scaled on-screen for the visible window) with drag-to-pan, wheel-to-zoom, a pan/zoom toolbar, a column ruler, an interactive minimap, an optional consensus row, residue search highlighting, and a hover tooltip/position badge.
-
-Colors come from the shared scheme set (ClustalX/Zappo/Taylor for protein, two nucleotide schemes) plus column-analysis styles; the default is picked from the alignment's own alphabet.
-
-Pan/zoom is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
+A `selection.order` that sorts every internal node's children by clade size — `"asc"` puts the smaller clade first (on top), `"desc"` the larger — giving the tree a "ladder" shape.
 
 
 </td></tr>
 <tr><td>
 
-[PhyloTree({ tree, height, width, cladogram, layout, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, }, input)](./react-bio-viz.phylotree.md)
+[leafOrder(tree, selection)](./react-bio-viz.leaforder.md)
 
 
 </td><td>
+
+Leaf names in display order for `selection` (leaves inside collapsed clades included).
+
+
+</td></tr>
+<tr><td>
+
+[midpointRoot(tree)](./react-bio-viz.midpointroot.md)
+
+
+</td><td>
+
+The `rerootedAt`<!-- -->/`rerootPosition` pair that roots `tree` at its midpoint: the point halfway along the longest leaf-to-leaf path. Independent of the tree's current rooting, so it can be spread straight into a selection. Returns `{}` (no reroot) for a tree with fewer than two leaves.
+
+
+</td></tr>
+<tr><td>
+
+[moveItem(items, from, to)](./react-bio-viz.moveitem.md)
+
+
+</td><td>
+
+A copy of `items` with the element at `from` moved to `to`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[MultipleSequenceAlignment({ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, selection: selectionProp, defaultSelection, onSelectionChange, selectionStore, rowOrder: rowOrderProp, defaultRowOrder, onRowOrderChange, rowOrderStore, panelSizes: panelSizesProp, defaultPanelSizes: defaultPanelSizesProp, onPanelSizesChange, panelSizesStore, onRenameRow, onRemoveRows, onRemoveColumns, onHoverChange, }, input)](./react-bio-viz.multiplesequencealignment.md)
+
+
+</td><td>
+
+Renders a multiple sequence alignment: a canvas that draws only the visible window (so there is no size limit, and letters stay crisp at any zoom), with a sequence-name column, a consensus row, a column ruler, an interactive minimap, optional tracks (conservation, sequence logo, or any per-column score), residue search highlighting, and a hover tooltip/position badge.
+
+Interaction: scroll to pan, Ctrl/⌘-scroll or pinch to zoom, drag to pan; Shift-drag adds to the selection and Cmd/Ctrl-drag toggles it (or plain drag, in `"select"` mode); click a track to select columns and a label to select rows; drag labels to reorder rows; Delete/Backspace removes the selection and Escape clears it.
+
+Every piece of interactive state is controllable like every other stateful prop in this library — `viewport`<!-- -->, `selection`<!-- -->, `rowOrder` and `panelSizes`<!-- -->, each with its `default*`<!-- -->/`on*Change`<!-- -->/ `*Store` companions (see the `bio-viz-conventions` project skill). The alignment itself is never mutated: renames and removals are reported through `onRenameRow`<!-- -->/`onRemoveRows`<!-- -->/ `onRemoveColumns` for the caller to apply, which keeps undo/redo and edit logs in the caller's hands.
+
+
+</td></tr>
+<tr><td>
+
+[orderForLeafNames(tree, selection, leafNames)](./react-bio-viz.orderforleafnames.md)
+
+
+</td><td>
+
+A `selection.order` that makes the tree's leaves follow `leafNames` as closely as its topology allows: every node's children are sorted by the earliest position any of their leaves has in `leafNames` (leaves not listed sort last, keeping their relative order). Used to make a tree follow rows the user reordered in an alignment.
+
+
+</td></tr>
+<tr><td>
+
+[panBy(viewport, dx, dy)](./react-bio-viz.panby.md)
+
+
+</td><td>
+
+Shifts the visible window by `dx`<!-- -->/`dy` data units (positive = pan right/down), clamped to stay within the data extent.
+
+
+</td></tr>
+<tr><td>
+
+[parseNewick(text)](./react-bio-viz.parsenewick.md)
+
+
+</td><td>
+
+Parses a Newick string into a [Tree](./react-bio-viz.tree.md)<!-- -->. Internal-node labels (typically bootstrap support) become the node's `name`<!-- -->; `:length` suffixes become `length` (0 when absent). Quoted labels (`'a b'`<!-- -->, with `''` as an escaped quote) are unquoted, so names containing Newick's special characters — spaces, pipes and commas in FASTA headers — round-trip through [toNewick()](./react-bio-viz.tonewick.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[PhyloTree({ tree, height, width, cladogram, layout, showSupportValues, supportThreshold, shadeBranchBySupport, colorFunction, leafMarkerColor, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, showBranchLengths, branchWidth, nodeRadius, labelFontSize, leafSpacing, nodeStyles, branchStyles, activeNodeId, onNodeClick, onBranchClick, dragEnabled, onLeafOrderChange, svgRef, }, input)](./react-bio-viz.phylotree.md)
+
+
+</td><td>
+
+An interactive phylogenetic tree (SVG): rectangular phylogram, cladogram or radial layout, with pan/zoom (scroll to pan, Ctrl/⌘-scroll to zoom), branch rerooting, collapsible clades, drag-to- reorder siblings, per-node and per-branch styling, node/branch click callbacks for context panels, leaf search, support values, branch-length labels and a scale bar.
+
+Interactive state — the `viewport` and the `selection` (root position, collapsed clades, sibling order) — is controllable like every other stateful prop in this library. Node ids are stable across reroots, so a selection, `nodeStyles` and `branchStyles` stay valid whatever the user does. Pure helpers operate on the same `Tree` + `TreeSelection` pair: [midpointRoot()](./react-bio-viz.midpointroot.md)<!-- -->, [ladderizeOrder()](./react-bio-viz.ladderizeorder.md)<!-- -->, [rotateOrder()](./react-bio-viz.rotateorder.md)<!-- -->, [orderForLeafNames()](./react-bio-viz.orderforleafnames.md)<!-- -->, [collapseBySupport()](./react-bio-viz.collapsebysupport.md)<!-- -->, [applyTreeSelection()](./react-bio-viz.applytreeselection.md)<!-- -->, [leafOrder()](./react-bio-viz.leaforder.md)<!-- -->, [parseNewick()](./react-bio-viz.parsenewick.md) and [toNewick()](./react-bio-viz.tonewick.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[rerootAbove(tree, selection, nodeId)](./react-bio-viz.rerootabove.md)
+
+
+</td><td>
+
+The `rerootedAt`<!-- -->/`rerootPosition` that put the root halfway along the branch \*as displayed\* above `nodeId`<!-- -->. Use this (rather than `{ rerootedAt: nodeId }`<!-- -->) for a "reroot here" action on a tree that may already be rerooted: `rerootedAt` names a branch of the tree as passed in, and after a reroot the branch drawn above a node can be a different one — or two merged through the old root. Returns `null` for the root.
+
+
+</td></tr>
+<tr><td>
+
+[resolveRowOrder(rowIds, order)](./react-bio-viz.resolveroworder.md)
+
+
+</td><td>
+
+The display order as indices into `msa`<!-- -->: `order`<!-- -->'s ids first (unknown ids ignored), then any rows `order` doesn't mention, in their original order. So a stale or partial order — e.g. a tree's leaf order that lacks some sequences — degrades gracefully instead of hiding rows.
+
+
+</td></tr>
+<tr><td>
+
+[rotateOrder(tree, selection, nodeId)](./react-bio-viz.rotateorder.md)
+
+
+</td><td>
+
+A `selection.order` with the children of `nodeId` reversed (a "rotate" of that node).
+
+
+</td></tr>
+<tr><td>
+
+[serializeSvg(svg, options)](./react-bio-viz.serializesvg.md)
+
+
+</td><td>
+
+Serializes a rendered `<svg>` to a standalone SVG document. The library styles SVG partly with class-based CSS and theme variables (`currentColor`<!-- -->, `var(--background)`<!-- -->), none of which travel with the markup — so the computed style of every element is inlined first, and the result looks the same outside the page. Interactive-only elements (invisible hit areas) are dropped.
+
+
+</td></tr>
+<tr><td>
+
+[svgToPng(svgText, scale)](./react-bio-viz.svgtopng.md)
+
+
+</td><td>
+
+Rasterises an SVG document (e.g. from [serializeSvg()](./react-bio-viz.serializesvg.md)<!-- -->) to a PNG blob at `scale` × its size.
+
+
+</td></tr>
+<tr><td>
+
+[toNewick(tree)](./react-bio-viz.tonewick.md)
+
+
+</td><td>
+
+Serializes a [Tree](./react-bio-viz.tree.md) to Newick. Names with Newick's special characters are quoted; a zero branch length on the root is omitted. Pair with [applyTreeSelection()](./react-bio-viz.applytreeselection.md) to export the tree as displayed (rerooted, reordered).
+
+
+</td></tr>
+<tr><td>
+
+[zoomAt(viewport, point, factor, factorY)](./react-bio-viz.zoomat.md)
+
+
+</td><td>
+
+Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out. Pass `factorY` to zoom the axes independently (`1` keeps that axis fixed) — e.g. the MSA's column-only zoom, which keeps rows readable.
+
+
+</td></tr>
+<tr><td>
+
+[zoomBy(viewport, factor)](./react-bio-viz.zoomby.md)
+
+
+</td><td>
+
+Scales the visible window by `factor` (`<1` zooms in, `>1` zooms out) around its own center.
 
 
 </td></tr>
@@ -156,6 +461,49 @@ A depth/signal profile drawn as a filled line chart.
 </td></tr>
 <tr><td>
 
+[DistanceMatrixHover](./react-bio-viz.distancematrixhover.md)
+
+
+</td><td>
+
+The cell under the pointer.
+
+
+</td></tr>
+<tr><td>
+
+[DistanceMatrixOptions](./react-bio-viz.distancematrixoptions.md)
+
+
+</td><td>
+
+Rendering toggles for [DistanceMatrix()](./react-bio-viz.distancematrix.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[DistanceMatrixPanelSizes](./react-bio-viz.distancematrixpanelsizes.md)
+
+
+</td><td>
+
+Sizes of the user-resizable panels, in pixels.
+
+
+</td></tr>
+<tr><td>
+
+[DistanceMatrixProps](./react-bio-viz.distancematrixprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
 [FeatureTrack](./react-bio-viz.featuretrack.md)
 
 
@@ -231,6 +579,39 @@ Rendering toggles for [MultipleSequenceAlignment()](./react-bio-viz.multiplesequ
 </td></tr>
 <tr><td>
 
+[MSAHover](./react-bio-viz.msahover.md)
+
+
+</td><td>
+
+The cell under the pointer.
+
+
+</td></tr>
+<tr><td>
+
+[MSAPanelSizes](./react-bio-viz.msapanelsizes.md)
+
+
+</td><td>
+
+Sizes of the user-resizable panels, in pixels.
+
+
+</td></tr>
+<tr><td>
+
+[MSASelection](./react-bio-viz.msaselection.md)
+
+
+</td><td>
+
+Selected rows (by row id — see `id` on [Sequence](./react-bio-viz.sequence.md)<!-- -->) and columns (0-based indices into the alignment as passed). Plain arrays rather than `Set`<!-- -->s so the value serializes as-is into a store or across the Jupyter bridge.
+
+
+</td></tr>
+<tr><td>
+
 [MultipleSequenceAlignmentProps](./react-bio-viz.multiplesequencealignmentprops.md)
 
 
@@ -251,6 +632,27 @@ Rendering toggles for [MultipleSequenceAlignment()](./react-bio-viz.multiplesequ
 </td></tr>
 <tr><td>
 
+[SerializeSvgOptions](./react-bio-viz.serializesvgoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[StoreController](./react-bio-viz.storecontroller.md)
+
+
+</td><td>
+
+A minimal external-store seam that `useControllableState` (in `@react-bio-viz/core`<!-- -->) can delegate to instead of plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can satisfy this by implementing `getValue`<!-- -->/`setValue`<!-- -->/`subscribe`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [TrackRenderProps](./react-bio-viz.trackrenderprops.md)
 
 
@@ -262,12 +664,67 @@ Props every built-in and custom track renderer receives.
 </td></tr>
 <tr><td>
 
+[TreeBranchStyle](./react-bio-viz.treebranchstyle.md)
+
+
+</td><td>
+
+Per-branch styling, keyed by the `id` of the node below the branch.
+
+
+</td></tr>
+<tr><td>
+
+[TreeNodeInfo](./react-bio-viz.treenodeinfo.md)
+
+
+</td><td>
+
+What a node or branch click reports about the node (for a branch: the node below it).
+
+
+</td></tr>
+<tr><td>
+
+[TreeNodeStyle](./react-bio-viz.treenodestyle.md)
+
+
+</td><td>
+
+Per-node styling, keyed by node `id` in [PhyloTreeProps.nodeStyles](./react-bio-viz.phylotreeprops.nodestyles.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [TreeSelection](./react-bio-viz.treeselection.md)
 
 
 </td><td>
 
-Which node the tree is rerooted at, and which internal nodes have their subtrees collapsed. Controllable like every other stateful prop in this library — see `selection`<!-- -->/ `defaultSelection`<!-- -->/`onSelectionChange`<!-- -->/`selectionStore`<!-- -->.
+Where the tree is rooted, which clades are collapsed, and how siblings are ordered. Controllable like every other stateful prop in this library — see `selection`<!-- -->/`defaultSelection`<!-- -->/ `onSelectionChange`<!-- -->/`selectionStore`<!-- -->. All ids are those of the tree as passed in (see [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->), and stay valid across reroots.
+
+
+</td></tr>
+<tr><td>
+
+[Viewport](./react-bio-viz.viewport.md)
+
+
+</td><td>
+
+A plain, serializable "virtual coordinate space + visible window" shape shared by every component that needs pan/zoom (MSA, GeneModel, GenomeBrowser, BlastHitDistribution's axis). Deliberately plain data, not a class with mutation methods, so it survives living in a Zustand store, being sent over an anywidget/Jupyter comm channel as JSON, or being diffed by React.
+
+
+</td></tr>
+<tr><td>
+
+[ZustandLikeStore](./react-bio-viz.zustandlikestore.md)
+
+
+</td><td>
+
+The part of a Zustand store's API that [createZustandStoreController()](./react-bio-viz.createzustandstorecontroller.md) uses. Declared structurally rather than imported from `zustand`<!-- -->, so this library's published types resolve without `zustand` installed — any real Zustand store (vanilla or the `create()` hook, which exposes the same methods) satisfies it.
 
 
 </td></tr>
@@ -305,6 +762,17 @@ The color styles grouped for a picker: which alphabet each group applies to (`nu
 </td><td>
 
 All color styles, in the order the picker lists them.
+
+
+</td></tr>
+<tr><td>
+
+[REROOT\_ID](./react-bio-viz.reroot_id.md)
+
+
+</td><td>
+
+`id` of the root a reroot inserts (every other node keeps its original `id`<!-- -->).
 
 
 </td></tr>
@@ -377,6 +845,17 @@ Every color style [MultipleSequenceAlignment()](./react-bio-viz.multiplesequence
 </td></tr>
 <tr><td>
 
+[DistanceColorScheme](./react-bio-viz.distancecolorscheme.md)
+
+
+</td><td>
+
+The heatmap palettes (acacia's): white fading to red, blue, green or black with distance.
+
+
+</td></tr>
+<tr><td>
+
 [GenomeTrack](./react-bio-viz.genometrack.md)
 
 
@@ -402,13 +881,34 @@ A node in the laid-out tree: wraps the source `Tree` data with parent/children l
 
 </td><td>
 
-`rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a typed placeholder for a future circular layout — selecting it currently falls back to `rectangular` with a console warning.
+`rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a circular phylogram, with leaves spread over a full turn.
 
 
 </td></tr>
 <tr><td>
 
 [LeafFn](./react-bio-viz.leaffn.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[MSATrack](./react-bio-viz.msatrack.md)
+
+
+</td><td>
+
+A per-column track drawn below the alignment, sharing its horizontal pan/zoom: - `"conservation"` — fraction of non-gap residues matching the column's consensus; - `"logo"` — a sequence logo (letter height = frequency × information content); - `{ label, scores }` — any externally computed 0–1 per-column score (TRIDENT, mean TCS, …).
+
+
+</td></tr>
+<tr><td>
+
+[ScoreColorStyle](./react-bio-viz.scorecolorstyle.md)
 
 
 </td><td>

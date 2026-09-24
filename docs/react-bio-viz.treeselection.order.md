@@ -4,7 +4,7 @@
 
 ## TreeSelection.order property
 
-Maps a node's `id` to a reordered sequence of its children's `id`<!-- -->s, overriding the source data's sibling order (set by dragging a leaf up/down).
+Maps a node's `id` to a reordered sequence of its children's `id`<!-- -->s, overriding the source data's sibling order (set by dragging a node, or by [ladderizeOrder()](./react-bio-viz.ladderizeorder.md)<!-- -->/[rotateOrder()](./react-bio-viz.rotateorder.md)<!-- -->/ [orderForLeafNames()](./react-bio-viz.orderforleafnames.md)<!-- -->).
 
 **Signature:**
 

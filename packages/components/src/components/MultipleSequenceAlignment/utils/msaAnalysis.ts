@@ -21,6 +21,7 @@ export interface ColumnAnalysis {
 }
 
 /**
+ * @public
  * Single pass over every column, producing the consensus residue plus conservation figures.
  * Gaps are skipped when picking the dominant residue (so a mostly-gapped column is summarized by
  * the residues that are actually there) but still counted in `identity`, which is what makes a
@@ -62,17 +63,18 @@ export function computeColumnStats(msa: AlignedSequences): ColumnStat[] {
   return stats;
 }
 
-/** The majority-vote consensus row, as a `Sequence` that can be rendered like any other. */
+/** @public The majority-vote consensus row, as a `Sequence` that can be rendered like any other. */
 export function computeConsensus(msa: AlignedSequences, stats = computeColumnStats(msa)): Sequence {
   return { header: "Consensus", sequence: stats.map((stat) => stat.dominantChar).join("") };
 }
 
-/** Per-column conservation score (fraction of non-gap residues matching the dominant one). */
+/** @public Per-column conservation score (fraction of non-gap residues matching the dominant one). */
 export function computeConservationScores(stats: ColumnStat[]): number[] {
   return stats.map((stat) => stat.score);
 }
 
 /**
+ * @public
  * Classifies every column as conserved (one character throughout), variable (more than one), and
  * parsimony-informative (at least two characters each appearing at least twice — the columns that
  * can actually discriminate between topologies).

@@ -86,6 +86,9 @@ worked example — load that skill before implementing a new stateful component 
   library build emits it beside the JS rather than importing it from there. Without it the chrome
   is unstyled and the theme tokens (`--foreground`, `--rbv-accent`, …) are undefined. `apps/demo`
   does this in `src/main.tsx`.
+- **The stylesheet must never restyle the host app**: no Tailwind preflight, no global element
+  rules, tokens at zero specificity so the host's win. Put `ROOT_CLASS` (from core) on every
+  component root and portalled overlay — the element reset is scoped to it. See the skill, 5b.
 - **Colors**: prefer `currentColor` and theme tokens (`text-foreground`, `text-muted-foreground`,
   `bg-background`, `var(--background)`) over literal colors, so components follow the host's
   light/dark theme. The one reserved saturated color is `--rbv-accent`, for interactive
@@ -101,7 +104,8 @@ worked example — load that skill before implementing a new stateful component 
 - `pnpm --filter apps/demo dev` — run the Vite playground (rebuild dependent packages first).
 - `pnpm test` — run Vitest across packages.
 - `pnpm typecheck` — `tsc` (noEmit) across packages.
-- `pnpm --filter react-bio-viz docs` — regenerate the api-extractor/api-documenter reference docs into `/docs`.
+- `pnpm lint` — ESLint (one flat config at the repo root, `eslint.config.js`) across packages.
+- `pnpm run docs` — regenerate the api-extractor/api-documenter reference docs into `/docs` (both packages). Not `pnpm docs`: that is a pnpm built-in that opens a package homepage and never runs the script.
 
 Python package (`packages/python`, PyPI name `react-bio-viz`):
 
@@ -112,16 +116,21 @@ Python package (`packages/python`, PyPI name `react-bio-viz`):
 ## Where things live
 
 - State/viewport/color/scale primitives and shadcn/ui chrome: `packages/core/src/`.
-- Components (`MultipleSequenceAlignment`, `PhyloTree`, `GeneModel`, `GenomeBrowser`,
-  `BlastHitDistribution`): `packages/components/src/components/`, barrel-exported from
-  `packages/components/src/main.ts`.
+- Components (`MultipleSequenceAlignment`, `PhyloTree`, `DistanceMatrix`, `GeneModel`,
+  `GenomeBrowser`, `BlastHitDistribution`): `packages/components/src/components/`, barrel-exported
+  from `packages/components/src/main.ts`.
+- Publishing: `react-bio-viz` bundles `@react-bio-viz/core` (JS and, via `rollupTypes`, its
+  declarations) and every other library it uses, so its only runtime requirements are its React
+  peer dependencies. Keep bundled libraries in `devDependencies`.
 - Python/anywidget bindings: `packages/python/` — one `AnyWidget` subclass per component in
   `src/react_bio_viz/`, the JS bridge in `js/` (`widget.tsx` dispatches on a `_component` trait so
-  all five widgets share one bundle; `_storeAdapter.ts` wraps a synced trait as a
+  all six widgets share one bundle; `_storeAdapter.ts` wraps a synced trait as a
   `StoreController`). Adding a prop means: a snake_case trait on the Python class, its name in
   that component's `props` list in `js/widget.tsx`, and a test. Interactive state goes in `stores`
-  instead, and must be seeded in the widget's `__init__` — a `None` store snapshot reaches the
-  component as a null viewport/selection and crashes it.
+  instead (bound to the camelCased `<trait>Store` prop), and must be seeded with a non-`None`
+  default — a `None` store snapshot reaches the component as a null viewport/selection and crashes
+  it. Event callbacks (`onRenameRow`, `onNodeClick`, …) go in `events`, sending a custom message
+  that a Python `on_<event>` method receives through `BioVizWidget._on_event`.
 
 For the full architectural rationale (why `useControllableState` looks the way it does, the
 `StoreController` external-store adapter design, the viewport pan/zoom primitive, the color

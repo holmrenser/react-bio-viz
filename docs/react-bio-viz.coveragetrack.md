@@ -9,7 +9,7 @@ A depth/signal profile drawn as a filled line chart.
 **Signature:**
 
 ```typescript
-export interface CoverageTrack extends BaseTrack 
+export declare interface CoverageTrack extends BaseTrack 
 ```
 **Extends:** BaseTrack
 

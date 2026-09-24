@@ -9,7 +9,7 @@ A row of non-overlapping-when-possible interval features (auto-stacked when they
 **Signature:**
 
 ```typescript
-export interface FeatureTrack extends BaseTrack 
+export declare interface FeatureTrack extends BaseTrack 
 ```
 **Extends:** BaseTrack
 

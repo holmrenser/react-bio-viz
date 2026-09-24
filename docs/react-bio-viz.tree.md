@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export type Tree = {
+export declare type Tree = {
     ID?: string | number;
     name: string;
     color_regex?: string;

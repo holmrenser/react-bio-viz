@@ -9,7 +9,7 @@ One sample in a `"coverage"` track's depth/signal profile.
 **Signature:**
 
 ```typescript
-export interface CoveragePoint 
+export declare interface CoveragePoint 
 ```
 
 ## Properties

@@ -9,7 +9,7 @@ Every color style [MultipleSequenceAlignment()](./react-bio-viz.multiplesequence
 **Signature:**
 
 ```typescript
-export type ColorStyle = ResidueColorStyle | ColumnColorStyle;
+export declare type ColorStyle = ResidueColorStyle | ColumnColorStyle | ScoreColorStyle;
 ```
-**References:** [ResidueColorStyle](./core.residuecolorstyle.md)<!-- -->, [ColumnColorStyle](./react-bio-viz.columncolorstyle.md)
+**References:** [ColumnColorStyle](./react-bio-viz.columncolorstyle.md)<!-- -->, [ScoreColorStyle](./react-bio-viz.scorecolorstyle.md)
 

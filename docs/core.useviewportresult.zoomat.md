@@ -10,5 +10,5 @@
 zoomAt: (point: {
         x: number;
         y: number;
-    }, factor: number) => void;
+    }, factor: number, factorY?: number) => void;
 ```

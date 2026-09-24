@@ -9,7 +9,7 @@ A render function for one track kind — the extensibility seam for custom track
 **Signature:**
 
 ```typescript
-export type TrackRenderer = (props: TrackRenderProps) => JSX.Element | null;
+export declare type TrackRenderer = (props: TrackRenderProps) => JSX.Element | null;
 ```
 **References:** [TrackRenderProps](./react-bio-viz.trackrenderprops.md)
 

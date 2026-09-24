@@ -4,7 +4,7 @@
 
 ## TreeSelection.rerootedAt property
 
-`id` (see [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->) of the node to treat as the root, or undefined for the original root.
+`id` of the node whose \*branch\* (the edge to its parent) holds the root — a new bifurcating root is inserted on it — or undefined for the tree's own root. See also [midpointRoot()](./react-bio-viz.midpointroot.md)<!-- -->.
 
 **Signature:**
 

@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export interface MultipleSequenceAlignmentProps 
+export declare interface MultipleSequenceAlignmentProps 
 ```
 
 ## Properties
@@ -36,6 +36,63 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[defaultPanelSizes?](./react-bio-viz.multiplesequencealignmentprops.defaultpanelsizes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Partial&lt;[MSAPanelSizes](./react-bio-viz.msapanelsizes.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Seeds panel sizes when uncontrolled. Partial: omitted sizes take their defaults.
+
+
+</td></tr>
+<tr><td>
+
+[defaultRowOrder?](./react-bio-viz.multiplesequencealignmentprops.defaultroworder.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+_(Optional)_ Seeds the row order when uncontrolled.
+
+
+</td></tr>
+<tr><td>
+
+[defaultSelection?](./react-bio-viz.multiplesequencealignmentprops.defaultselection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[MSASelection](./react-bio-viz.msaselection.md)
+
+
+</td><td>
+
+_(Optional)_ Seeds the selection when uncontrolled.
+
+
+</td></tr>
+<tr><td>
+
 [defaultViewport?](./react-bio-viz.multiplesequencealignmentprops.defaultviewport.md)
 
 
@@ -44,12 +101,12 @@ Description
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
 
-_(Optional)_ Seeds the visible column/row window when uncontrolled. Defaults to fitting the widget's pixel area.
+_(Optional)_ Seeds the visible column/row window when uncontrolled. Defaults to the top-left at `cellSize` pixels per cell.
 
 
 </td></tr>
@@ -68,7 +125,7 @@ number
 
 </td><td>
 
-_(Optional)_ Pixel height of the whole widget.
+_(Optional)_ Maximum pixel height of the whole widget; an alignment with few rows takes less.
 
 
 </td></tr>
@@ -87,7 +144,140 @@ _(Optional)_ Pixel height of the whole widget.
 
 </td><td>
 
-The alignment to render.
+The alignment to render. All sequences must have the same length.
+
+
+</td></tr>
+<tr><td>
+
+[onHoverChange?](./react-bio-viz.multiplesequencealignmentprops.onhoverchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(hover: [MSAHover](./react-bio-viz.msahover.md) \| null) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called as the pointer moves over the alignment (`null` when it leaves).
+
+
+</td></tr>
+<tr><td>
+
+[onPanelSizesChange?](./react-bio-viz.multiplesequencealignmentprops.onpanelsizeschange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: [MSAPanelSizes](./react-bio-viz.msapanelsizes.md)<!-- -->) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called while a panel divider is dragged.
+
+
+</td></tr>
+<tr><td>
+
+[onRemoveColumns?](./react-bio-viz.multiplesequencealignmentprops.onremovecolumns.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(columns: number\[\]) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Enables column removal with Delete/Backspace on selected columns. Never called with every column — at least one always remains.
+
+
+</td></tr>
+<tr><td>
+
+[onRemoveRows?](./react-bio-viz.multiplesequencealignmentprops.onremoverows.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(rowIds: string\[\]) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Enables row removal: the × on a hovered label, and Delete/Backspace on selected rows. Never called with every row — at least one always remains.
+
+
+</td></tr>
+<tr><td>
+
+[onRenameRow?](./react-bio-viz.multiplesequencealignmentprops.onrenamerow.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(rowId: string, name: string) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Enables inline rename of a row label (double-click, or the pencil on hover). The component never edits `msa` itself: apply the rename to your data (or edit log) and pass it back.
+
+
+</td></tr>
+<tr><td>
+
+[onRowOrderChange?](./react-bio-viz.multiplesequencealignmentprops.onroworderchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: string\[\]) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when a label is dragged to a new position.
+
+
+</td></tr>
+<tr><td>
+
+[onSelectionChange?](./react-bio-viz.multiplesequencealignmentprops.onselectionchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(next: [MSASelection](./react-bio-viz.msaselection.md)<!-- -->) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called on every selection change (drag/click on the alignment, labels or tracks; Escape).
 
 
 </td></tr>
@@ -101,7 +291,7 @@ The alignment to render.
 
 </td><td>
 
-(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+(next: [Viewport](./react-bio-viz.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
@@ -131,6 +321,120 @@ _(Optional)_ Rendering toggles — see [MSADrawOptions](./react-bio-viz.msadrawo
 </td></tr>
 <tr><td>
 
+[panelSizes?](./react-bio-viz.multiplesequencealignmentprops.panelsizes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[MSAPanelSizes](./react-bio-viz.msapanelsizes.md)
+
+
+</td><td>
+
+_(Optional)_ Panel sizes (label column, tracks, minimap), fully controlled.
+
+
+</td></tr>
+<tr><td>
+
+[panelSizesStore?](./react-bio-viz.multiplesequencealignmentprops.panelsizesstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[MSAPanelSizes](./react-bio-viz.msapanelsizes.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates panel sizes to an external store.
+
+
+</td></tr>
+<tr><td>
+
+[rowOrder?](./react-bio-viz.multiplesequencealignmentprops.roworder.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+_(Optional)_ Display order of the rows, as row ids, fully controlled. Ids not in `msa` are ignored and rows missing from it are appended in `msa` order — so a tree's leaf order can be passed as-is.
+
+
+</td></tr>
+<tr><td>
+
+[rowOrderStore?](./react-bio-viz.multiplesequencealignmentprops.roworderstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;string\[\]&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates row order to an external store (e.g. one shared with a tree's leaf order).
+
+
+</td></tr>
+<tr><td>
+
+[selection?](./react-bio-viz.multiplesequencealignmentprops.selection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[MSASelection](./react-bio-viz.msaselection.md)
+
+
+</td><td>
+
+_(Optional)_ Selected rows and columns, fully controlled.
+
+
+</td></tr>
+<tr><td>
+
+[selectionStore?](./react-bio-viz.multiplesequencealignmentprops.selectionstore.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[MSASelection](./react-bio-viz.msaselection.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Delegates selection state to an external store.
+
+
+</td></tr>
+<tr><td>
+
 [viewport?](./react-bio-viz.multiplesequencealignmentprops.viewport.md)
 
 
@@ -139,7 +443,7 @@ _(Optional)_ Rendering toggles — see [MSADrawOptions](./react-bio-viz.msadrawo
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -158,7 +462,7 @@ _(Optional)_ The visible column/row window, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[Viewport](./react-bio-viz.viewport.md)<!-- -->&gt;
 
 
 </td><td>

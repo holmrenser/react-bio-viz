@@ -5,7 +5,7 @@ import type { StoreController, ZustandLikeStore } from "./types";
 /**
  * @public
  * Wraps a Zustand store (or a slice of one) as a {@link StoreController}, the seam
- * {@link useControllableState} delegates to for the `store` option. This is the reference
+ * `useControllableState` (in `@react-bio-viz/core`) delegates to for the `store` option. This is the reference
  * adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model
  * (see `@react-bio-viz/python`'s `createAnywidgetStoreController`), or any other external store.
  *

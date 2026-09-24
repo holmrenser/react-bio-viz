@@ -83,7 +83,16 @@ function useViewportState(props: {
 ```
 
 Existing domain wrappers to reuse or model new ones on: `useViewport` (pan/zoom — every component
-with a viewport) and `useTreeSelection` (reroot/collapse — PhyloTree). The naming rule is what lets
+with a viewport), `useTreeSelection` (reroot/collapse/order — PhyloTree), and `useMSASelection`/
+`useRowOrder`/`usePanelSizes` (MultipleSequenceAlignment's `hooks/useMSAState.ts`).
+
+**Data edits are events, not state.** A component never mutates its data prop (`msa`, `tree`): a
+rename or removal is reported through a callback (`onRenameRow`, `onRemoveRows`, `onRemoveColumns`)
+and the caller applies it and passes the new data back. That keeps undo/redo and edit logs (acacia
+keeps an edit log against the original alignment) in the caller's hands. Clicks that should open a
+caller's UI (`onNodeClick`, `onBranchClick`) are events too — report enough to act on
+(`TreeNodeInfo`: leaves, descendant ids, `rerootAbove`) that the caller never has to re-derive
+anything from the component's internals. The naming rule is what lets
 the Python bridge bind a trait to its prop by name alone, with no per-component mapping table —
 see `packages/python/js/widget.tsx`.
 
@@ -108,6 +117,16 @@ this codebase's history already; every rewrite should have used this instead).
 If the pannable surface has nested elements with their own click behavior (a feature marker with
 a popover, e.g. GeneModel's `Exon`), mark that element with `data-pan-ignore` so `useDragPan`
 doesn't capture the pointer and swallow the click — see `GeneModel/components/Exon.tsx` for the pattern.
+
+`useWheelZoom` returns a callback `ref` (spread its result onto the surface): it attaches a native
+wheel listener with `passive: false`, because React's `onWheel` is passive and `preventDefault()`
+there is ignored — the page scrolls underneath the zoom. Pass `onPan` for surfaces that are mostly
+scrolled through (MSA, tree, distance matrix): a plain scroll then pans and Ctrl/⌘-scroll (which is
+also what a trackpad pinch reports) zooms. `zoomAt` takes an optional `factorY` for single-axis zoom.
+
+**Pointer capture** retargets the `click`/`dblclick` that follow a press to the capturing element,
+so capture only once a gesture has become a drag (past a few pixels), never on every press — or a
+double-click inside the surface (rename a label) silently stops working. See `labels/RowLabels.tsx`.
 
 ## 4. shadcn/ui usage rule
 
@@ -143,6 +162,17 @@ doesn't capture the pointer and swallow the click — see `GeneModel/components/
 
 The shipped stylesheet defines the shadcn tokens plus `--rbv-accent`. Consumers import it once
 (`import "react-bio-viz/style.css"`); without it, tokens are undefined and chrome is unstyled.
+
+That stylesheet is loaded into *someone else's* app, so it must never restyle the host:
+
+- No Tailwind preflight and no `html`/`body`/`*` rules — `core/src/styles.css` imports only
+  Tailwind's theme and utilities layers. The small element reset the chrome needs is scoped to
+  `.rbv` (`ROOT_CLASS` from core). **Every component root, and every portalled overlay
+  (Popover/Tooltip/Select content), carries `ROOT_CLASS`.**
+- Default tokens sit in `@layer base` under `:where(:root)`/`:where(.dark)` — zero specificity — and
+  the build rewrites Tailwind's own `:root,:host` theme variables to `:where(...)` too
+  (`core/vite.config.ts`). A host that defines `--background` or `--font-sans` always wins, so the
+  components adopt the host's theme rather than overriding it (acacia's font was replaced before).
 
 - **SVG** → use `currentColor` and theme tokens (`text-foreground`, `text-muted-foreground`,
   `var(--background)`). These follow the host's theme for free. Never literal `"black"`/`"white"`.
@@ -191,25 +221,60 @@ project `wur-bioinformatics/acacia` (its features, not its zero-prop/global-stor
 - **Hover tooltip / position badge** — ephemeral, non-controllable local `useState` (not part of
   the public controllable-state API — nothing meaningful is lost if it resets on remount). See
   `MultipleSequenceAlignment/components/CursorTooltip.tsx` and `CursorPositionBadge.tsx`.
-- **Drag-to-reorder** — dragging a node among its siblings. Track the gesture in a `useRef`
-  (`{parentId, order, draggedId, startIndex, startClientY}`), convert screen-pixel delta to
-  data-space delta the same way `useDragPan` does, and maintain a *local* `previewOrder` state for
-  live visual feedback during the drag — only commit to the controllable `selection`/`onChange` once,
-  on pointer-up, never on every pointermove (that would spam the callback and thrash external
-  stores). See `PhyloTree/utils/reorder.ts` (`computeReordered`, `applyOrder`) and the `handleReorder*`
-  handlers in `PhyloTree/index.tsx`. The pure reorder/prune functions return a *new* node whenever
-  they change anything, and the *same reference* when there's nothing to do — cheap to check, and
-  lets `useMemo` skip work.
+- **Drag-to-reorder** — a pure *planner* maps "this node was dragged to that row" to the next
+  controllable state, and the component only previews and commits it. In PhyloTree,
+  `planTipMove` (utils/treeOps.ts) turns the row under the pointer into a `selection.order` of
+  rotations only — the topology never changes; dragging up lands the clade's first tip on the row,
+  dragging down its last, a row inside the clade is a no-op — and `planDragReroot` handles a drop
+  past either end of the tree (reroot there, clade at that end). Map the pointer to an *absolute*
+  row (from the surface's bounding box, the viewport offset and the margin), not a delta from where
+  the node was grabbed. Keep the gesture in a `useRef`, the preview in local state (mirrored in a
+  ref so pointer-up can commit it without a side-effecting state updater), and commit to the
+  controllable state once, on pointer-up — never on every pointermove, which would spam the
+  callback and thrash external stores. `preventDefault()` on the press, or the drag selects text.
+- **Tree transforms rebuild parent links.** Every pure transform (`applyOrder`, `pruneCollapsed`,
+  `rerootOnBranch`) returns nodes whose `parent` is the *new* parent: layout positions the new
+  objects, and a branch is drawn from `node.parent`, so a stale pointer draws it from wherever the
+  old, un-laid-out object sits (every reordered branch started at x = 0 before this was fixed).
+  They return the *same reference* when there's nothing to do, so `useMemo` can skip work.
+- **Stable ids.** Node ids come from the tree as passed in (`data.ID`, else a positional path) and
+  survive reroots — `rerootOnBranch` re-hangs the existing nodes and only adds `REROOT_ID`. That is
+  what keeps `selection.collapsed`, `selection.order`, `nodeStyles` and a caller's own maps valid.
+  `rerootedAt` names a branch of the tree *as passed in*; for a "reroot here" on a tree that may
+  already be rerooted, use `rerootAbove(tree, selection, id)` (also on `TreeNodeInfo`), which maps
+  the branch drawn above a node back to the original tree.
 - **Marker occlusion**: a clickable marker positioned exactly at a node's (x,y) can be visually and
   functionally covered by a *child's* branch line, since children paint after their parent in SVG
   document order and every child branch starts at that exact point. Render such markers in a
-  separate pass, after all branches — see `PhyloTree/components/CollapseMarker.tsx`'s doc comment, and always
+  separate pass, after all branches — see `PhyloTree/components/NodeMarker.tsx`'s doc comment, and always
   mark them `data-pan-ignore` (section 3) since they sit inside a pannable surface.
+- **Shared row labels** — `RowLabels` (core) is the one label column: virtualised, aligned with a
+  zoomed row axis (`rowHeight`, `offsetY`), with hover, click-select, rename, remove and
+  drag-to-reorder each enabled by passing its callback. MSA and DistanceMatrix both use it, and
+  both take the same `rowOrder: string[]` shape so one store can order an alignment, its tree and
+  its distance matrix together (`resolveRowOrder`/`moveItem` in core).
+
+## 7b. Large data
+
+acacia's datasets go to ~1000 × 1200 and beyond; everything must cost O(what's on screen):
+
+- **Canvas: draw the visible window, never a full-size bitmap.** Browsers cap a canvas at roughly
+  268 Mpx (Chromium) and silently draw nothing past it — a 986 × 1182 alignment at 16px cells is
+  298 Mpx, and rendered blank. The MSA resolves every cell's colour once into a `Uint16Array`
+  palette-index matrix (`utils/colorIndex.ts`), then `drawAlignment` paints per cell when cells
+  are ≥ 2px (letters re-rasterised at the current zoom, so they stay crisp) and per *pixel* via
+  `ImageData` below that. The minimap is the same renderer with the whole alignment as its window.
+- **SVG: memoise the body apart from the viewport.** Panning changes only the `<svg viewBox>`; the
+  element tree must not re-render (PhyloTree's `body` `useMemo` — a 986-leaf tree took ~100 ms per
+  pan step before). Handlers read changing values through a `latest` ref so they stay stable.
+- **DOM lists: virtualise.** `RowLabels` renders only visible rows; the distance matrix is a canvas
+  plus a header that renders only visible columns (acacia's DOM grid was n² elements).
 
 ## 8. Checklist for adding a new component
 
 0. Lay the module out per section 0 (`index.tsx` / `types.ts` / `constants.ts` / `components/` /
-   `hooks/` / `utils/`); no magic numbers inline, no pure logic inside a component file.
+   `hooks/` / `utils/`); no magic numbers inline, no pure logic inside a component file. Put
+   `ROOT_CLASS` on the root element (section 5b).
 1. Props follow the controllable-state shape (section 1) for every piece of interactive state;
    plain data props (e.g. `msa`, `tree`, `gene`, `hits`) are ordinary required/optional props.
 2. Pan/zoom needs → `useViewport` from core, not custom logic.

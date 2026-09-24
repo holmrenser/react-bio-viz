@@ -4,7 +4,7 @@
 
 ## MultipleSequenceAlignmentProps.height property
 
-Pixel height of the whole widget.
+Maximum pixel height of the whole widget; an alignment with few rows takes less.
 
 **Signature:**
 

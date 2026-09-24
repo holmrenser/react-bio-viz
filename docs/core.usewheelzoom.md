@@ -4,7 +4,7 @@
 
 ## useWheelZoom() function
 
-Wheel/trackpad-pinch-to-zoom, zooming around the pointer's position rather than the viewport center. Spread the returned handler onto the interactive surface.
+Wheel/trackpad-pinch-to-zoom, zooming around the pointer's position rather than the viewport center — or, with `onPan`<!-- -->, scroll-to-pan plus Ctrl/⌘-scroll-to-zoom. Spread the returned object onto the interactive surface; it attaches a native, non-passive listener so scrolling the surface never also scrolls the page.
 
 **Signature:**
 
@@ -32,7 +32,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ onZoom, toDataPoint, sensitivity, disabled, }
+{ onZoom, toDataPoint, onPan, sensitivity, disabled, }
 
 
 </td><td>

@@ -8,5 +8,5 @@
 **Signature:**
 
 ```typescript
-export type ColumnColorStyle = (typeof COLUMN_COLOR_STYLES)[number];
+export declare type ColumnColorStyle = (typeof COLUMN_COLOR_STYLES)[number];
 ```

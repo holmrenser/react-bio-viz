@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export interface GenomeBrowserProps 
+export declare interface GenomeBrowserProps 
 ```
 
 ## Properties
@@ -44,7 +44,7 @@ Description
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -63,7 +63,7 @@ _(Optional)_ Seeds the visible window when uncontrolled. Defaults to the full re
 
 </td><td>
 
-(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+(next: [Viewport](./react-bio-viz.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
@@ -177,7 +177,7 @@ The tracks to render, top to bottom.
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -196,7 +196,7 @@ _(Optional)_ The visible genomic-coordinate window, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[Viewport](./react-bio-viz.viewport.md)<!-- -->&gt;
 
 
 </td><td>

@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.showSupportValues property
 
+Label internal nodes with their name (typically bootstrap support).
+
 **Signature:**
 
 ```typescript
 showSupportValues?: boolean;
 ```
+
+## Default Value
+
+true
+

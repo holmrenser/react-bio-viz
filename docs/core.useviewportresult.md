@@ -112,7 +112,7 @@ Description
 
 </td><td>
 
-(point: { x: number; y: number; }, factor: number) =&gt; void
+(point: { x: number; y: number; }, factor: number, factorY?: number) =&gt; void
 
 
 </td><td>

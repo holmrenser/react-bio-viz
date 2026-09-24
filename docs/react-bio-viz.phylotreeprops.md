@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export interface PhyloTreeProps 
+export declare interface PhyloTreeProps 
 ```
 
 ## Properties
@@ -36,6 +36,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[activeNodeId?](./react-bio-viz.phylotreeprops.activenodeid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string \| null
+
+
+</td><td>
+
+_(Optional)_ Node drawn highlighted — e.g. the one whose context panel is open.
+
+
+</td></tr>
+<tr><td>
+
 [alignTips?](./react-bio-viz.phylotreeprops.aligntips.md)
 
 
@@ -50,6 +69,44 @@ boolean
 </td><td>
 
 _(Optional)_ Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch.
+
+
+</td></tr>
+<tr><td>
+
+[branchStyles?](./react-bio-viz.phylotreeprops.branchstyles.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, [TreeBranchStyle](./react-bio-viz.treebranchstyle.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Per-branch colour, keyed by the `id` of the node below the branch.
+
+
+</td></tr>
+<tr><td>
+
+[branchWidth?](./react-bio-viz.phylotreeprops.branchwidth.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Branch stroke width, in pixels.
 
 
 </td></tr>
@@ -87,7 +144,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Seeds the default colour of each leaf's marker; `nodeStyles` overrides it.
 
 
 </td></tr>
@@ -120,12 +177,31 @@ _(Optional)_ Seeds the selection when uncontrolled. Defaults to no reroot, nothi
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
 
 _(Optional)_ Seeds the visible window when uncontrolled. Defaults to fitting the whole tree.
+
+
+</td></tr>
+<tr><td>
+
+[dragEnabled?](./react-bio-viz.phylotreeprops.dragenabled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Let nodes be dragged vertically among their siblings (writes `selection.order`<!-- -->).
 
 
 </td></tr>
@@ -144,7 +220,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Font size of support-value labels, in pixels.
 
 
 </td></tr>
@@ -182,7 +258,26 @@ boolean
 
 </td><td>
 
-_(Optional)_ Render a clickable marker on internal nodes that toggles `selection.collapsed`<!-- -->, and let leaves be dragged vertically to reorder them among their siblings (writes to `selection.order`<!-- -->).
+_(Optional)_ Render a clickable marker on internal nodes that toggles `selection.collapsed` (or calls `onNodeClick`<!-- -->), and let nodes be dragged vertically among their siblings (writes to `selection.order`<!-- -->; see `dragEnabled`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[labelFontSize?](./react-bio-viz.phylotreeprops.labelfontsize.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Leaf label font size, in pixels.
 
 
 </td></tr>
@@ -207,6 +302,44 @@ _(Optional)_ Tree layout mode — see [LayoutMode](./react-bio-viz.layoutmode.md
 </td></tr>
 <tr><td>
 
+[leafMarkerColor?](./react-bio-viz.phylotreeprops.leafmarkercolor.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ One colour for every leaf marker (e.g. `"currentColor"` for neutral dots), instead of the per-leaf colours seeded by `colorFunction`<!-- -->. `nodeStyles` still overrides it.
+
+
+</td></tr>
+<tr><td>
+
+[leafSpacing?](./react-bio-viz.phylotreeprops.leafspacing.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Vertical pixels per leaf. When set, the tree is laid out that tall (instead of fitting `height`<!-- -->) and the view scrolls through it — a large tree stays readable. Ignored for `"radial"`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [leafTextComponent?](./react-bio-viz.phylotreeprops.leaftextcomponent.md)
 
 
@@ -221,6 +354,101 @@ _(Optional)_ Tree layout mode — see [LayoutMode](./react-bio-viz.layoutmode.md
 </td><td>
 
 _(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[nodeRadius?](./react-bio-viz.phylotreeprops.noderadius.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Radius of node markers, in pixels (0 hides them).
+
+
+</td></tr>
+<tr><td>
+
+[nodeStyles?](./react-bio-viz.phylotreeprops.nodestyles.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, [TreeNodeStyle](./react-bio-viz.treenodestyle.md)<!-- -->&gt;
+
+
+</td><td>
+
+_(Optional)_ Per-node colour/bold, keyed by node `id` (see [TreeNodeInfo.descendantIds](./react-bio-viz.treenodeinfo.descendantids.md) for clades).
+
+
+</td></tr>
+<tr><td>
+
+[onBranchClick?](./react-bio-viz.phylotreeprops.onbranchclick.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(node: [TreeNodeInfo](./react-bio-viz.treenodeinfo.md)<!-- -->, event: React.MouseEvent) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when a branch is clicked; makes branches clickable. Reports the node below the branch.
+
+
+</td></tr>
+<tr><td>
+
+[onLeafOrderChange?](./react-bio-viz.phylotreeprops.onleaforderchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(leafNames: string\[\]) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called with the leaf names in display order whenever it changes (e.g. to order alignment rows to match).
+
+
+</td></tr>
+<tr><td>
+
+[onNodeClick?](./react-bio-viz.phylotreeprops.onnodeclick.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(node: [TreeNodeInfo](./react-bio-viz.treenodeinfo.md)<!-- -->, event: React.MouseEvent) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when a node marker is clicked (without dragging). When provided, clicking an internal node's marker calls this instead of toggling collapse, so the caller can offer a menu.
 
 
 </td></tr>
@@ -253,7 +481,7 @@ _(Optional)_ Called on every reroot/collapse change.
 
 </td><td>
 
-(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+(next: [Viewport](./react-bio-viz.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
@@ -329,7 +557,7 @@ _(Optional)_ The reroot/collapse selection, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[TreeSelection](./react-bio-viz.treeselection.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[TreeSelection](./react-bio-viz.treeselection.md)<!-- -->&gt;
 
 
 </td><td>
@@ -353,7 +581,26 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Fade branches whose parent's support (a 0–1 value) is low.
+
+
+</td></tr>
+<tr><td>
+
+[showBranchLengths?](./react-bio-viz.phylotreeprops.showbranchlengths.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Label every branch with its length.
 
 
 </td></tr>
@@ -391,7 +638,45 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Label internal nodes with their name (typically bootstrap support).
+
+
+</td></tr>
+<tr><td>
+
+[supportThreshold?](./react-bio-viz.phylotreeprops.supportthreshold.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Only label support values at or above this value.
+
+
+</td></tr>
+<tr><td>
+
+[svgRef?](./react-bio-viz.phylotreeprops.svgref.md)
+
+
+</td><td>
+
+
+</td><td>
+
+React.Ref&lt;SVGSVGElement&gt;
+
+
+</td><td>
+
+_(Optional)_ Ref to the rendered `<svg>`<!-- -->, e.g. to export it as SVG or PNG.
 
 
 </td></tr>
@@ -424,7 +709,7 @@ Recursively defined tree object: `children` of a Tree are also a Tree.
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -443,7 +728,7 @@ _(Optional)_ The visible pan/zoom window over the rendered tree, fully controlle
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[Viewport](./react-bio-viz.viewport.md)<!-- -->&gt;
 
 
 </td><td>

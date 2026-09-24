@@ -4,6 +4,10 @@
 
 ## PhyloTree() function
 
+An interactive phylogenetic tree (SVG): rectangular phylogram, cladogram or radial layout, with pan/zoom (scroll to pan, Ctrl/⌘-scroll to zoom), branch rerooting, collapsible clades, drag-to- reorder siblings, per-node and per-branch styling, node/branch click callbacks for context panels, leaf search, support values, branch-length labels and a scale bar.
+
+Interactive state — the `viewport` and the `selection` (root position, collapsed clades, sibling order) — is controllable like every other stateful prop in this library. Node ids are stable across reroots, so a selection, `nodeStyles` and `branchStyles` stay valid whatever the user does. Pure helpers operate on the same `Tree` + `TreeSelection` pair: [midpointRoot()](./react-bio-viz.midpointroot.md)<!-- -->, [ladderizeOrder()](./react-bio-viz.ladderizeorder.md)<!-- -->, [rotateOrder()](./react-bio-viz.rotateorder.md)<!-- -->, [orderForLeafNames()](./react-bio-viz.orderforleafnames.md)<!-- -->, [collapseBySupport()](./react-bio-viz.collapsebysupport.md)<!-- -->, [applyTreeSelection()](./react-bio-viz.applytreeselection.md)<!-- -->, [leafOrder()](./react-bio-viz.leaforder.md)<!-- -->, [parseNewick()](./react-bio-viz.parsenewick.md) and [toNewick()](./react-bio-viz.tonewick.md)<!-- -->.
+
 **Signature:**
 
 ```typescript
@@ -30,7 +34,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ tree, height, width, cladogram, layout, showSupportValues, shadeBranchBySupport, colorFunction, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, }
+{ tree, height, width, cladogram, layout, showSupportValues, supportThreshold, shadeBranchBySupport, colorFunction, leafMarkerColor, fontSize, alignTips, leafTextComponent, viewport, defaultViewport, onViewportChange, viewportStore, selection, defaultSelection, onSelectionChange, selectionStore, interactive, searchQuery, searchUseRegex, showScaleBar, showBranchLengths, branchWidth, nodeRadius, labelFontSize, leafSpacing, nodeStyles, branchStyles, activeNodeId, onNodeClick, onBranchClick, dragEnabled, onLeafOrderChange, svgRef, }
 
 
 </td><td>
@@ -59,8 +63,6 @@ input
 </tbody></table>
 
 **Returns:**
-
-JSX.Element
 
 JSX.Element
 

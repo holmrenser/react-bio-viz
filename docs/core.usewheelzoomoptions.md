@@ -55,6 +55,25 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
+[onPan?](./core.usewheelzoomoptions.onpan.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(dxPixels: number, dyPixels: number) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ When provided, a plain wheel/trackpad scroll \*pans\* by the scroll delta (in pixels) and zooming requires Ctrl/⌘ — which is also what a trackpad pinch reports — instead of every wheel tick zooming. Suits surfaces that are mostly scrolled through (a long alignment or tree).
+
+
+</td></tr>
+<tr><td>
+
 [onZoom](./core.usewheelzoomoptions.onzoom.md)
 
 
@@ -63,12 +82,12 @@ _(Optional)_
 
 </td><td>
 
-(point: { x: number; y: number; }, factor: number) =&gt; void
+(point: { x: number; y: number; }, factor: number, event: WheelEvent) =&gt; void
 
 
 </td><td>
 
-Called with the data-space point under the cursor and a zoom factor (`<1` zooms in).
+Called with the data-space point under the cursor and a zoom factor (`<1` zooms in). The originating event is passed along so a component can pick axes from its modifier keys (e.g. the MSA zooms columns only while Alt is held).
 
 
 </td></tr>
@@ -106,7 +125,7 @@ _(Optional)_ Controls how much one wheel "tick" zooms by. Default 0.0015.
 
 </td><td>
 
-Converts a pixel position (relative to the event's `currentTarget`<!-- -->) to a data-space point.
+Converts a pixel position (relative to the element the handler is attached to) to a data-space point.
 
 
 </td></tr>

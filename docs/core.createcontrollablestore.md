@@ -9,7 +9,7 @@ Convenience for the common case: a dedicated Zustand vanilla store for a single 
 **Signature:**
 
 ```typescript
-export declare function createControllableStore<T>(initial: T): StoreApi<T>;
+export declare function createControllableStore<T>(initial: T): ZustandLikeStore<T>;
 ```
 
 ## Parameters
@@ -48,7 +48,7 @@ T
 
 **Returns:**
 
-StoreApi&lt;T&gt;
+[ZustandLikeStore](./core.zustandlikestore.md)<!-- -->&lt;T&gt;
 
 ## Example
 

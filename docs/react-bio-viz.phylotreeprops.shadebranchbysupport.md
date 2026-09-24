@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.shadeBranchBySupport property
 
+Fade branches whose parent's support (a 0–1 value) is low.
+
 **Signature:**
 
 ```typescript
 shadeBranchBySupport?: boolean;
 ```
+
+## Default Value
+
+true
+

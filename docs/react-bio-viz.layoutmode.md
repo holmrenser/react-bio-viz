@@ -4,10 +4,10 @@
 
 ## LayoutMode type
 
-`rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a typed placeholder for a future circular layout — selecting it currently falls back to `rectangular` with a console warning.
+`rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a circular phylogram, with leaves spread over a full turn.
 
 **Signature:**
 
 ```typescript
-export type LayoutMode = "rectangular" | "cladogram" | "radial";
+export declare type LayoutMode = "rectangular" | "cladogram" | "radial";
 ```

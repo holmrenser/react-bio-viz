@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export type LeafFn = (arg0: {
+export declare type LeafFn = (arg0: {
     node: HierarchyPointNode<Tree>;
     fontSize?: number;
 }) => JSX.Element;

@@ -4,7 +4,7 @@
 
 ## MultipleSequenceAlignmentProps.msa property
 
-The alignment to render.
+The alignment to render. All sequences must have the same length.
 
 **Signature:**
 

@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export type AlignedSequences = Sequence[];
+export declare type AlignedSequences = Sequence[];
 ```
 **References:** [Sequence](./react-bio-viz.sequence.md)
 

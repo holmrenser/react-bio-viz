@@ -4,12 +4,12 @@
 
 ## createZustandStoreController() function
 
-Wraps a Zustand store (or a slice of one) as a [StoreController](./core.storecontroller.md)<!-- -->, the seam [useControllableState()](./core.usecontrollablestate.md) delegates to for the `store` option. This is the reference adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model (see `@react-bio-viz/python`<!-- -->'s `createAnywidgetStoreController`<!-- -->), or any other external store.
+Wraps a Zustand store (or a slice of one) as a [StoreController](./core.storecontroller.md)<!-- -->, the seam `useControllableState` (in `@react-bio-viz/core`<!-- -->) delegates to for the `store` option. This is the reference adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model (see `@react-bio-viz/python`<!-- -->'s `createAnywidgetStoreController`<!-- -->), or any other external store.
 
 **Signature:**
 
 ```typescript
-export declare function createZustandStoreController<TStore, T>(store: StoreApi<TStore>, select: (state: TStore) => T, set: (store: StoreApi<TStore>, value: T | ((prev: T) => T)) => void): StoreController<T>;
+export declare function createZustandStoreController<TStore, T>(store: ZustandLikeStore<TStore>, select: (state: TStore) => T, set: (store: ZustandLikeStore<TStore>, value: T | ((prev: T) => T)) => void): StoreController<T>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ store
 
 </td><td>
 
-StoreApi&lt;TStore&gt;
+[ZustandLikeStore](./core.zustandlikestore.md)<!-- -->&lt;TStore&gt;
 
 
 </td><td>
@@ -69,7 +69,7 @@ set
 
 </td><td>
 
-(store: StoreApi&lt;TStore&gt;, value: T \| ((prev: T) =&gt; T)) =&gt; void
+(store: [ZustandLikeStore](./core.zustandlikestore.md)<!-- -->&lt;TStore&gt;, value: T \| ((prev: T) =&gt; T)) =&gt; void
 
 
 </td><td>

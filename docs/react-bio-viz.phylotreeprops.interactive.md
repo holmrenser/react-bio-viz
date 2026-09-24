@@ -4,7 +4,7 @@
 
 ## PhyloTreeProps.interactive property
 
-Render a clickable marker on internal nodes that toggles `selection.collapsed`<!-- -->, and let leaves be dragged vertically to reorder them among their siblings (writes to `selection.order`<!-- -->).
+Render a clickable marker on internal nodes that toggles `selection.collapsed` (or calls `onNodeClick`<!-- -->), and let nodes be dragged vertically among their siblings (writes to `selection.order`<!-- -->; see `dragEnabled`<!-- -->).
 
 **Signature:**
 

@@ -4,12 +4,12 @@
 
 ## TreeSelection interface
 
-Which node the tree is rerooted at, and which internal nodes have their subtrees collapsed. Controllable like every other stateful prop in this library — see `selection`<!-- -->/ `defaultSelection`<!-- -->/`onSelectionChange`<!-- -->/`selectionStore`<!-- -->.
+Where the tree is rooted, which clades are collapsed, and how siblings are ordered. Controllable like every other stateful prop in this library — see `selection`<!-- -->/`defaultSelection`<!-- -->/ `onSelectionChange`<!-- -->/`selectionStore`<!-- -->. All ids are those of the tree as passed in (see [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->), and stay valid across reroots.
 
 **Signature:**
 
 ```typescript
-export interface TreeSelection 
+export declare interface TreeSelection 
 ```
 
 ## Properties
@@ -50,7 +50,7 @@ string\[\]
 
 </td><td>
 
-`id`<!-- -->s of internal nodes whose subtrees are hidden.
+`id`<!-- -->s of internal nodes whose clades are drawn collapsed, as a triangle.
 
 
 </td></tr>
@@ -69,7 +69,7 @@ Record&lt;string, string\[\]&gt;
 
 </td><td>
 
-_(Optional)_ Maps a node's `id` to a reordered sequence of its children's `id`<!-- -->s, overriding the source data's sibling order (set by dragging a leaf up/down).
+_(Optional)_ Maps a node's `id` to a reordered sequence of its children's `id`<!-- -->s, overriding the source data's sibling order (set by dragging a node, or by [ladderizeOrder()](./react-bio-viz.ladderizeorder.md)<!-- -->/[rotateOrder()](./react-bio-viz.rotateorder.md)<!-- -->/ [orderForLeafNames()](./react-bio-viz.orderforleafnames.md)<!-- -->).
 
 
 </td></tr>
@@ -88,7 +88,26 @@ string
 
 </td><td>
 
-_(Optional)_ `id` (see [HierarchyPointNode](./react-bio-viz.hierarchypointnode.md)<!-- -->) of the node to treat as the root, or undefined for the original root.
+_(Optional)_ `id` of the node whose \*branch\* (the edge to its parent) holds the root — a new bifurcating root is inserted on it — or undefined for the tree's own root. See also [midpointRoot()](./react-bio-viz.midpointroot.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[rerootPosition?](./react-bio-viz.treeselection.rerootposition.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Where on that branch the root sits, as a fraction from the node (0) to its parent (1).
 
 
 </td></tr>

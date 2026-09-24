@@ -4,7 +4,7 @@
 
 ## UseWheelZoomOptions.toDataPoint property
 
-Converts a pixel position (relative to the event's `currentTarget`<!-- -->) to a data-space point.
+Converts a pixel position (relative to the element the handler is attached to) to a data-space point.
 
 **Signature:**
 

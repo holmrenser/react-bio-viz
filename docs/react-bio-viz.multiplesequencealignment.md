@@ -4,11 +4,11 @@
 
 ## MultipleSequenceAlignment() function
 
-Renders a multiple sequence alignment as a dual-canvas viewport (an off-screen full-resolution source image, cropped/scaled on-screen for the visible window) with drag-to-pan, wheel-to-zoom, a pan/zoom toolbar, a column ruler, an interactive minimap, an optional consensus row, residue search highlighting, and a hover tooltip/position badge.
+Renders a multiple sequence alignment: a canvas that draws only the visible window (so there is no size limit, and letters stay crisp at any zoom), with a sequence-name column, a consensus row, a column ruler, an interactive minimap, optional tracks (conservation, sequence logo, or any per-column score), residue search highlighting, and a hover tooltip/position badge.
 
-Colors come from the shared scheme set (ClustalX/Zappo/Taylor for protein, two nucleotide schemes) plus column-analysis styles; the default is picked from the alignment's own alphabet.
+Interaction: scroll to pan, Ctrl/⌘-scroll or pinch to zoom, drag to pan; Shift-drag adds to the selection and Cmd/Ctrl-drag toggles it (or plain drag, in `"select"` mode); click a track to select columns and a label to select rows; drag labels to reorder rows; Delete/Backspace removes the selection and Escape clears it.
 
-Pan/zoom is controllable like every other stateful prop in this library — see `viewport`<!-- -->/ `defaultViewport`<!-- -->/`onViewportChange`<!-- -->/`viewportStore` and the `bio-viz-conventions` project skill.
+Every piece of interactive state is controllable like every other stateful prop in this library — `viewport`<!-- -->, `selection`<!-- -->, `rowOrder` and `panelSizes`<!-- -->, each with its `default*`<!-- -->/`on*Change`<!-- -->/ `*Store` companions (see the `bio-viz-conventions` project skill). The alignment itself is never mutated: renames and removals are reported through `onRenameRow`<!-- -->/`onRemoveRows`<!-- -->/ `onRemoveColumns` for the caller to apply, which keeps undo/redo and edit logs in the caller's hands.
 
 **Signature:**
 
@@ -36,7 +36,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, }
+{ msa, width, height, options, viewport, defaultViewport, onViewportChange, viewportStore, selection: selectionProp, defaultSelection, onSelectionChange, selectionStore, rowOrder: rowOrderProp, defaultRowOrder, onRowOrderChange, rowOrderStore, panelSizes: panelSizesProp, defaultPanelSizes: defaultPanelSizesProp, onPanelSizesChange, panelSizesStore, onRenameRow, onRemoveRows, onRemoveColumns, onHoverChange, }
 
 
 </td><td>

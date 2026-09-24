@@ -4,7 +4,7 @@
 
 ## ControllableStateOptions interface
 
-Options accepted by [useControllableState()](./core.usecontrollablestate.md)<!-- -->. Every stateful prop in this library is a thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
+Options accepted by `useControllableState` (in `@react-bio-viz/core`<!-- -->). Every stateful prop in this library is a thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
 
 **Signature:**
 

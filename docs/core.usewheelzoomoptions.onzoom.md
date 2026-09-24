@@ -4,7 +4,7 @@
 
 ## UseWheelZoomOptions.onZoom property
 
-Called with the data-space point under the cursor and a zoom factor (`<1` zooms in).
+Called with the data-space point under the cursor and a zoom factor (`<1` zooms in). The originating event is passed along so a component can pick axes from its modifier keys (e.g. the MSA zooms columns only while Alt is held).
 
 **Signature:**
 
@@ -12,5 +12,5 @@ Called with the data-space point under the cursor and a zoom factor (`<1` zooms 
 onZoom: (point: {
         x: number;
         y: number;
-    }, factor: number) => void;
+    }, factor: number, event: WheelEvent) => void;
 ```

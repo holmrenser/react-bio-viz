@@ -9,7 +9,7 @@ Rendering toggles for [MultipleSequenceAlignment()](./react-bio-viz.multiplesequ
 **Signature:**
 
 ```typescript
-export interface MSADrawOptions 
+export declare interface MSADrawOptions 
 ```
 
 ## Properties
@@ -37,6 +37,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[cellScores?](./react-bio-viz.msadrawoptions.cellscores.md)
+
+
+</td><td>
+
+
+</td><td>
+
+readonly (readonly number\[\])\[\]
+
+
+</td><td>
+
+_(Optional)_ Per-residue 0–1 scores for the `"Cell score"` color style, indexed `[row][column]` in `msa` order.
+
+
+</td></tr>
+<tr><td>
+
 [cellSize?](./react-bio-viz.msadrawoptions.cellsize.md)
 
 
@@ -50,7 +69,7 @@ number
 
 </td><td>
 
-_(Optional)_ Pixel size of each residue cell.
+_(Optional)_ Pixel size of each residue cell at the default zoom.
 
 
 </td></tr>
@@ -70,6 +89,25 @@ _(Optional)_ Pixel size of each residue cell.
 </td><td>
 
 _(Optional)_ Residue or column-analysis color scheme. Defaults to `"DNA"` or `"AA ClustalX"` depending on what the alignment's alphabet looks like — see `detectSequenceType` in `@react-bio-viz/core`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[columnScores?](./react-bio-viz.msadrawoptions.columnscores.md)
+
+
+</td><td>
+
+
+</td><td>
+
+readonly number\[\]
+
+
+</td><td>
+
+_(Optional)_ Per-column 0–1 scores for the `"Column score"` color style.
 
 
 </td></tr>
@@ -151,6 +189,25 @@ _(Optional)_ Treat `highlightPattern` as a regular expression instead of a plain
 </td></tr>
 <tr><td>
 
+[interactionMode?](./react-bio-viz.msadrawoptions.interactionmode.md)
+
+
+</td><td>
+
+
+</td><td>
+
+"pan" \| "select"
+
+
+</td><td>
+
+_(Optional)_ What a plain drag on the alignment does. In `"pan"` mode, Shift-drag (add) and Cmd/Ctrl-drag (toggle) still select; in `"select"` mode a plain drag replaces the selection.
+
+
+</td></tr>
+<tr><td>
+
 [labelWidth?](./react-bio-viz.msadrawoptions.labelwidth.md)
 
 
@@ -164,7 +221,45 @@ number
 
 </td><td>
 
-_(Optional)_ Pixel width of the sequence-name column.
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[reorderableRows?](./react-bio-viz.msadrawoptions.reorderablerows.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Let rows be reordered by dragging their labels (writes `rowOrder`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[selectionAxis?](./react-bio-viz.msadrawoptions.selectionaxis.md)
+
+
+</td><td>
+
+
+</td><td>
+
+"rows" \| "columns"
+
+
+</td><td>
+
+_(Optional)_ Which axis a drag/click on the alignment selects.
 
 
 </td></tr>
@@ -184,6 +279,44 @@ boolean
 </td><td>
 
 _(Optional)_ Show a majority-vote consensus row above the alignment.
+
+
+</td></tr>
+<tr><td>
+
+[showCursorBadge?](./react-bio-viz.msadrawoptions.showcursorbadge.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Show the one-line readout of the hovered cell above the alignment.
+
+
+</td></tr>
+<tr><td>
+
+[showCursorTooltip?](./react-bio-viz.msadrawoptions.showcursortooltip.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Show a tooltip next to the pointer describing the hovered cell.
 
 
 </td></tr>
@@ -221,7 +354,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Draw the residue letter inside each cell.
+_(Optional)_ Draw the residue letter inside each cell (only once cells are large enough to read).
 
 
 </td></tr>
@@ -279,6 +412,63 @@ boolean
 </td><td>
 
 _(Optional)_ Show a column-position ruler above the alignment.
+
+
+</td></tr>
+<tr><td>
+
+[showToolbar?](./react-bio-viz.msadrawoptions.showtoolbar.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Show the pan/zoom button bar.
+
+
+</td></tr>
+<tr><td>
+
+[tracks?](./react-bio-viz.msadrawoptions.tracks.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[MSATrack](./react-bio-viz.msatrack.md)<!-- -->\[\]
+
+
+</td><td>
+
+_(Optional)_ Tracks drawn below the alignment, top to bottom. Clicking a track selects columns.
+
+
+</td></tr>
+<tr><td>
+
+[zoomAxes?](./react-bio-viz.msadrawoptions.zoomaxes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+"both" \| "columns"
+
+
+</td><td>
+
+_(Optional)_ Axes that Ctrl/⌘-scroll (and trackpad pinch) zoom. `"columns"` keeps rows at a readable height while zooming along the sequence. A plain scroll always pans.
 
 
 </td></tr>

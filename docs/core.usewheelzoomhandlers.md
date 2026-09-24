@@ -36,7 +36,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[onWheel](./core.usewheelzoomhandlers.onwheel.md)
+[ref](./core.usewheelzoomhandlers.ref.md)
 
 
 </td><td>
@@ -44,10 +44,12 @@ Description
 
 </td><td>
 
-(event: ReactWheelEvent) =&gt; void
+(element: Element \| null) =&gt; void
 
 
 </td><td>
+
+Callback ref: spread the handlers object (or pass this as `ref`<!-- -->) onto the interactive surface. A ref rather than an `onWheel` prop because React registers wheel listeners as passive, where `preventDefault()` is ignored and the page scrolls underneath the zoom.
 
 
 </td></tr>

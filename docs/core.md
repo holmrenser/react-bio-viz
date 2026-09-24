@@ -151,7 +151,7 @@ A continuous color scale for a numeric metric (e.g. BLAST e-value/bit score/perc
 
 </td><td>
 
-Wraps a Zustand store (or a slice of one) as a [StoreController](./core.storecontroller.md)<!-- -->, the seam [useControllableState()](./core.usecontrollablestate.md) delegates to for the `store` option. This is the reference adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model (see `@react-bio-viz/python`<!-- -->'s `createAnywidgetStoreController`<!-- -->), or any other external store.
+Wraps a Zustand store (or a slice of one) as a [StoreController](./core.storecontroller.md)<!-- -->, the seam `useControllableState` (in `@react-bio-viz/core`<!-- -->) delegates to for the `store` option. This is the reference adapter — the same `StoreController` interface can back Redux, Jotai, an anywidget model (see `@react-bio-viz/python`<!-- -->'s `createAnywidgetStoreController`<!-- -->), or any other external store.
 
 
 </td></tr>
@@ -185,6 +185,17 @@ A viewport that shows the full extent of `[xMin,xMax] x [yMin,yMax]`<!-- -->, i.
 </td><td>
 
 `window.devicePixelRatio`<!-- -->, clamped to a minimum of 1 (and 1 outside the browser). Useful on its own when a component needs HiDPI-aware canvas sizing without the rest of [useCoordinateScale()](./core.usecoordinatescale.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[moveItem(items, from, to)](./core.moveitem.md)
+
+
+</td><td>
+
+A copy of `items` with the element at `from` moved to `to`<!-- -->.
 
 
 </td></tr>
@@ -301,6 +312,39 @@ Looks up the color a residue character gets under `style`<!-- -->. Unknown chara
 </td></tr>
 <tr><td>
 
+[ResizeHandle({ orientation, size, onResize, min, max, thickness, className, "aria-label": ariaLabel, }, input)](./core.resizehandle.md)
+
+
+</td><td>
+
+A draggable divider between two panels (an MSA's label column and its canvas, a track and the alignment above it). Deliberately stateless: it reports sizes and the owning component decides where they live — which, per the controllable-state convention, is usually a `panelSizes` prop.
+
+
+</td></tr>
+<tr><td>
+
+[resolveRowOrder(rowIds, order)](./core.resolveroworder.md)
+
+
+</td><td>
+
+The display order as indices into `msa`<!-- -->: `order`<!-- -->'s ids first (unknown ids ignored), then any rows `order` doesn't mention, in their original order. So a stale or partial order — e.g. a tree's leaf order that lacks some sequences — degrades gracefully instead of hiding rows.
+
+
+</td></tr>
+<tr><td>
+
+[RowLabels({ rows, rowHeight, offsetY, width, height, fontSize, textAlign, hoverIndex, onHoverIndexChange, selectedIds, onRowClick, onRename, onRemove, onReorder, onReorderPreview, className, }, input)](./core.rowlabels.md)
+
+
+</td><td>
+
+A virtualised column of row labels that stays aligned with a panned/zoomed row axis — the MSA's sequence names, the distance matrix's row names. Hover, click-to-select, inline rename, remove, and drag-to-reorder (with a live preview reported through `onReorderPreview`<!-- -->) are each enabled by passing the matching callback, so a read-only column is just `rows`<!-- -->/`rowHeight`<!-- -->/`offsetY`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [Select({ ...props }, input)](./core.select.md)
 
 
@@ -391,6 +435,17 @@ Looks up the color a residue character gets under `style`<!-- -->. Unknown chara
 </td></tr>
 <tr><td>
 
+[serializeSvg(svg, options)](./core.serializesvg.md)
+
+
+</td><td>
+
+Serializes a rendered `<svg>` to a standalone SVG document. The library styles SVG partly with class-based CSS and theme variables (`currentColor`<!-- -->, `var(--background)`<!-- -->), none of which travel with the markup — so the computed style of every element is inlined first, and the result looks the same outside the page. Interactive-only elements (invisible hit areas) are dropped.
+
+
+</td></tr>
+<tr><td>
+
 [Slider({ className, defaultValue, value, min, max, ...props }, input)](./core.slider.md)
 
 
@@ -406,6 +461,17 @@ Looks up the color a residue character gets under `style`<!-- -->. Unknown chara
 </td><td>
 
 Greedily assigns each interval a row index (0-based) such that no two intervals sharing a row overlap — an interval is placed in the first row whose last-placed interval ends before this one starts, else a new row is opened. Sorts by start position first, so row assignment is deterministic regardless of input order. Shared by any track/lane-style renderer that needs to avoid overlapping intervals (GenomeBrowser's feature track, BlastHitDistribution's hit rows).
+
+
+</td></tr>
+<tr><td>
+
+[svgToPng(svgText, scale)](./core.svgtopng.md)
+
+
+</td><td>
+
+Rasterises an SVG document (e.g. from [serializeSvg()](./core.serializesvg.md)<!-- -->) to a PNG blob at `scale` × its size.
 
 
 </td></tr>
@@ -483,6 +549,17 @@ Greedily assigns each interval a row index (0-based) such that no two intervals 
 </td></tr>
 <tr><td>
 
+[toRGBA(color)](./core.torgba.md)
+
+
+</td><td>
+
+Resolves any CSS colour string the library's colour functions produce (`#rrggbb`<!-- -->, `rgb()`<!-- -->, `hsl()`<!-- -->, named colours like `royalblue`<!-- -->) to 8-bit RGBA, memoised per string. Pixel-level canvas rendering (the MSA's zoomed-out view and minimap, the distance heatmap) writes `ImageData` directly, which needs numbers rather than a `fillStyle` string. An unparseable string resolves to opaque black rather than throwing, so one bad colour can't blank a whole render.
+
+
+</td></tr>
+<tr><td>
+
 [useControllableState(options)](./core.usecontrollablestate.md)
 
 
@@ -546,12 +623,12 @@ The shared pan/zoom primitive for every component with a "large virtual coordina
 </td></tr>
 <tr><td>
 
-[useWheelZoom({ onZoom, toDataPoint, sensitivity, disabled, }, input)](./core.usewheelzoom.md)
+[useWheelZoom({ onZoom, toDataPoint, onPan, sensitivity, disabled, }, input)](./core.usewheelzoom.md)
 
 
 </td><td>
 
-Wheel/trackpad-pinch-to-zoom, zooming around the pointer's position rather than the viewport center. Spread the returned handler onto the interactive surface.
+Wheel/trackpad-pinch-to-zoom, zooming around the pointer's position rather than the viewport center — or, with `onPan`<!-- -->, scroll-to-pan plus Ctrl/⌘-scroll-to-zoom. Spread the returned object onto the interactive surface; it attaches a native, non-passive listener so scrolling the surface never also scrolls the page.
 
 
 </td></tr>
@@ -568,12 +645,12 @@ Shared pan/zoom toolbar for any [useViewport()](./core.useviewport.md)<!-- -->-b
 </td></tr>
 <tr><td>
 
-[zoomAt(viewport, point, factor)](./core.zoomat.md)
+[zoomAt(viewport, point, factor, factorY)](./core.zoomat.md)
 
 
 </td><td>
 
-Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out.
+Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out. Pass `factorY` to zoom the axes independently (`1` keeps that axis fixed) — e.g. the MSA's column-only zoom, which keeps rows readable.
 
 
 </td></tr>
@@ -642,7 +719,7 @@ A residue-coloring scheme in both light and dark variants.
 
 </td><td>
 
-Options accepted by [useControllableState()](./core.usecontrollablestate.md)<!-- -->. Every stateful prop in this library is a thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
+Options accepted by `useControllableState` (in `@react-bio-viz/core`<!-- -->). Every stateful prop in this library is a thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
 
 
 </td></tr>
@@ -690,7 +767,59 @@ A minimal linear scale: maps a numeric domain to a numeric range (and back), wit
 </td></tr>
 <tr><td>
 
+[ResizeHandleProps](./core.resizehandleprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[RowLabel](./core.rowlabel.md)
+
+
+</td><td>
+
+One row of a [RowLabels()](./core.rowlabels.md) column.
+
+
+</td></tr>
+<tr><td>
+
+[RowLabelsProps](./core.rowlabelsprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[RowReorderPreview](./core.rowreorderpreview.md)
+
+
+</td><td>
+
+An in-progress drag: row `from` (a display index) is currently hovering over index `to`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [SequentialColorScaleOptions](./core.sequentialcolorscaleoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[SerializeSvgOptions](./core.serializesvgoptions.md)
 
 
 </td><td>
@@ -705,7 +834,7 @@ A minimal linear scale: maps a numeric domain to a numeric range (and back), wit
 
 </td><td>
 
-A minimal external-store seam that [useControllableState()](./core.usecontrollablestate.md) can delegate to instead of plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can satisfy this by implementing `getValue`<!-- -->/`setValue`<!-- -->/`subscribe`<!-- -->.
+A minimal external-store seam that `useControllableState` (in `@react-bio-viz/core`<!-- -->) can delegate to instead of plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can satisfy this by implementing `getValue`<!-- -->/`setValue`<!-- -->/`subscribe`<!-- -->.
 
 
 </td></tr>
@@ -808,6 +937,17 @@ A plain, serializable "virtual coordinate space + visible window" shape shared b
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[ZustandLikeStore](./core.zustandlikestore.md)
+
+
+</td><td>
+
+The part of a Zustand store's API that [createZustandStoreController()](./core.createzustandstorecontroller.md) uses. Declared structurally rather than imported from `zustand`<!-- -->, so this library's published types resolve without `zustand` installed — any real Zustand store (vanilla or the `create()` hook, which exposes the same methods) satisfies it.
 
 
 </td></tr>
@@ -1002,6 +1142,28 @@ The color styles that map a single residue character to a color.
 </td></tr>
 <tr><td>
 
+[ROOT\_CLASS](./core.root_class.md)
+
+
+</td><td>
+
+Class every component's root element (and every portalled overlay) carries. The shipped stylesheet scopes its small element reset to this class instead of resetting the whole page, since it is loaded into a host application it must not restyle.
+
+
+</td></tr>
+<tr><td>
+
+[SELECTION\_LITERAL](./core.selection_literal.md)
+
+
+</td><td>
+
+Selected rows/columns/cells. A warm red rather than the accent, so a selection stays distinct from hover feedback drawn on top of it. Literal (not a CSS variable) because the MSA paints it on canvas; it reads on both light and dark backgrounds.
+
+
+</td></tr>
+<tr><td>
+
 [UNKNOWN\_COLOR](./core.unknown_color.md)
 
 
@@ -1094,6 +1256,17 @@ A named category → color lookup, generalized beyond any single component's dom
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[RGBA](./core.rgba.md)
+
+
+</td><td>
+
+An 8-bit `[r, g, b, a]` quadruple, ready to write into `ImageData`<!-- -->.
 
 
 </td></tr>

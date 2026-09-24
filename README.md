@@ -2,10 +2,15 @@
 
 React components for biological data visualization.
 
-- **MultipleSequenceAlignment** — canvas-rendered alignment with pan/zoom, column ruler, minimap,
-  consensus row, residue search and the standard colour schemes (ClustalX, Zappo, Taylor).
-- **PhyloTree** — rectangular, cladogram and radial layouts, with reroot, collapse, drag-to-reorder
-  and search.
+- **MultipleSequenceAlignment** — windowed canvas rendering (no size limit; letters crisp at any
+  zoom) with pan/zoom, column ruler, minimap, consensus row, residue search, the standard colour
+  schemes (ClustalX, Zappo, Taylor) plus analysis and score styles, conservation/logo/score tracks,
+  row and column selection, drag-to-reorder rows, and rename/remove callbacks for editing.
+- **PhyloTree** — rectangular, cladogram and radial layouts, with branch rerooting (and midpoint
+  rooting), collapsible clades, drag-to-reorder (or drag past either end to reroot), node and branch
+  click callbacks, per-node/branch styles, search, and Newick parse/serialise helpers.
+- **DistanceMatrix** — a pairwise distance heatmap that scales to thousands of rows, sharing its
+  row order with an alignment.
 - **GeneModel** — transcripts, exons and CDSs over a genomic axis.
 - **GenomeBrowser** — stacked feature/coverage/gene-model tracks sharing one viewport.
 - **BlastHitDistribution** — BLAST hits along a query, row-stacked and coloured by e-value, bit
@@ -21,9 +26,13 @@ npm install react-bio-viz
 
 ## Use
 
+Works with React 18 and 19.
+
 ```jsx
 import { GeneModel, MultipleSequenceAlignment, PhyloTree } from 'react-bio-viz';
-// Ships the component chrome and theme tokens; import it once, anywhere in your app.
+// Ships the component chrome and default theme tokens; import it once, anywhere in your app. It
+// never restyles the rest of your page, and your own theme tokens (--background, --font-sans, …)
+// take precedence over its defaults.
 import 'react-bio-viz/style.css';
 
 function App() {
@@ -106,7 +115,8 @@ pnpm build          # core -> components -> the Python widget bundle
 pnpm dev            # the demo playground
 pnpm test           # Vitest across packages
 pnpm typecheck
-pnpm docs           # regenerate docs/ from the TSDoc comments
+pnpm lint
+pnpm run docs       # regenerate docs/ from the TSDoc comments (`pnpm docs` is a pnpm built-in)
 ```
 
 For the Python package, from `packages/python`: `uv pip install -e ".[dev]"` then `pytest`.

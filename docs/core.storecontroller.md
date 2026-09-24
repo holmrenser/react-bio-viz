@@ -4,7 +4,7 @@
 
 ## StoreController interface
 
-A minimal external-store seam that [useControllableState()](./core.usecontrollablestate.md) can delegate to instead of plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can satisfy this by implementing `getValue`<!-- -->/`setValue`<!-- -->/`subscribe`<!-- -->.
+A minimal external-store seam that `useControllableState` (in `@react-bio-viz/core`<!-- -->) can delegate to instead of plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can satisfy this by implementing `getValue`<!-- -->/`setValue`<!-- -->/`subscribe`<!-- -->.
 
 **Signature:**
 

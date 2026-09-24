@@ -4,7 +4,7 @@
 
 ## MSADrawOptions.cellSize property
 
-Pixel size of each residue cell.
+Pixel size of each residue cell at the default zoom.
 
 **Signature:**
 

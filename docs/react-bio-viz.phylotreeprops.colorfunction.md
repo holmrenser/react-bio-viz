@@ -4,6 +4,8 @@
 
 ## PhyloTreeProps.colorFunction property
 
+Seeds the default colour of each leaf's marker; `nodeStyles` overrides it.
+
 **Signature:**
 
 ```typescript

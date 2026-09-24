@@ -1,6 +1,6 @@
 /**
  * @public
- * A minimal external-store seam that {@link useControllableState} can delegate to instead of
+ * A minimal external-store seam that `useControllableState` (in `@react-bio-viz/core`) can delegate to instead of
  * plain React state. Any store — Zustand, an anywidget model, a hand-rolled event emitter — can
  * satisfy this by implementing `getValue`/`setValue`/`subscribe`.
  */
@@ -18,7 +18,7 @@ export type ControllableStateChangeSource = "internal" | "external" | "programma
 
 /**
  * @public
- * Options accepted by {@link useControllableState}. Every stateful prop in this library is a
+ * Options accepted by `useControllableState` (in `@react-bio-viz/core`). Every stateful prop in this library is a
  * thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
  */
 export interface ControllableStateOptions<T> {

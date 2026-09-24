@@ -9,7 +9,7 @@ Props every built-in and custom track renderer receives.
 **Signature:**
 
 ```typescript
-export interface TrackRenderProps<T extends GenomeTrack = GenomeTrack> 
+export declare interface TrackRenderProps<T extends GenomeTrack = GenomeTrack> 
 ```
 
 ## Properties
@@ -64,7 +64,7 @@ Pixel height allotted to this track.
 
 </td><td>
 
-[LinearScale](./core.linearscale.md)
+LinearScale
 
 
 </td><td>
@@ -100,7 +100,7 @@ T
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>

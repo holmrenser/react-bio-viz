@@ -4,8 +4,15 @@
 
 ## PhyloTreeProps.fontSize property
 
+Font size of support-value labels, in pixels.
+
 **Signature:**
 
 ```typescript
 fontSize?: number;
 ```
+
+## Default Value
+
+10
+

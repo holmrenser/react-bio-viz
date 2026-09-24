@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export interface BlastHitDistributionProps 
+export declare interface BlastHitDistributionProps 
 ```
 
 ## Properties
@@ -82,7 +82,7 @@ _(Optional)_ Seeds the selection when uncontrolled. Defaults to nothing selected
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -194,7 +194,7 @@ _(Optional)_ Called on every selection change (clicking a hit toggles it).
 
 </td><td>
 
-(next: [Viewport](./core.viewport.md)<!-- -->) =&gt; void
+(next: [Viewport](./react-bio-viz.viewport.md)<!-- -->) =&gt; void
 
 
 </td><td>
@@ -270,7 +270,7 @@ _(Optional)_ Which hits are selected, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[HitSelection](./react-bio-viz.hitselection.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[HitSelection](./react-bio-viz.hitselection.md)<!-- -->&gt;
 
 
 </td><td>
@@ -308,7 +308,7 @@ _(Optional)_ Show a scalebar indicating query position.
 
 </td><td>
 
-[Viewport](./core.viewport.md)
+[Viewport](./react-bio-viz.viewport.md)
 
 
 </td><td>
@@ -327,7 +327,7 @@ _(Optional)_ The visible query-axis pan/zoom window, fully controlled.
 
 </td><td>
 
-[StoreController](./core.storecontroller.md)<!-- -->&lt;[Viewport](./core.viewport.md)<!-- -->&gt;
+[StoreController](./react-bio-viz.storecontroller.md)<!-- -->&lt;[Viewport](./react-bio-viz.viewport.md)<!-- -->&gt;
 
 
 </td><td>
