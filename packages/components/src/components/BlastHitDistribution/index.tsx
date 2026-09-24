@@ -18,6 +18,7 @@ import {
   useViewport,
   useWheelZoom,
   ViewportToolbar,
+  ROOT_CLASS,
 } from "@react-bio-viz/core";
 
 import { Scale } from "../GeneModel/components/Scale";
@@ -143,7 +144,7 @@ export function BlastHitDistribution({
   }
 
   return (
-    <div className={cx("text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
+    <div className={cx(ROOT_CLASS, "text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
       <div
         className={css({
           display: "flex",

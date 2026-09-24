@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { css, cx } from "@emotion/css";
-import { createLinearScale, useDragPan, useViewport, useWheelZoom, ViewportToolbar } from "@react-bio-viz/core";
+import { createLinearScale, ROOT_CLASS, useDragPan, useViewport, useWheelZoom, ViewportToolbar } from "@react-bio-viz/core";
 
 import { Scale } from "../GeneModel/components/Scale";
 import {
@@ -111,7 +111,7 @@ export function GenomeBrowser({
   const totalHeight = (lastTrack ? lastTrack.y + lastTrack.height : MARGIN.top + scaleHeight) + MARGIN.bottom;
 
   return (
-    <div className={cx("text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
+    <div className={cx(ROOT_CLASS, "text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
       <ViewportToolbar viewport={currentViewport} panBy={panBy} zoomBy={zoomBy} reset={reset} axes="x" />
       <div className={css({ display: "flex" })}>
         <div className={css({ width: MARGIN.left, flexShrink: 0 })}>

@@ -94,10 +94,17 @@ export function zoomBy(viewport: Viewport, factor: number): Viewport {
  * @public
  * Scales the visible window by `factor` around a fixed data-coordinate point (so that point stays
  * under the cursor), clamped to the data extent. `factor < 1` zooms in, `factor > 1` zooms out.
+ * Pass `factorY` to zoom the axes independently (`1` keeps that axis fixed) — e.g. the MSA's
+ * column-only zoom, which keeps rows readable.
  */
-export function zoomAt(viewport: Viewport, point: { x: number; y: number }, factor: number): Viewport {
+export function zoomAt(
+  viewport: Viewport,
+  point: { x: number; y: number },
+  factor: number,
+  factorY: number = factor
+): Viewport {
   const halfWidth = ((viewport.x1 - viewport.x0) * factor) / 2;
-  const halfHeight = ((viewport.y1 - viewport.y0) * factor) / 2;
+  const halfHeight = ((viewport.y1 - viewport.y0) * factorY) / 2;
   const xRatio = (point.x - viewport.x0) / (viewport.x1 - viewport.x0 || 1);
   const yRatio = (point.y - viewport.y0) / (viewport.y1 - viewport.y0 || 1);
 

@@ -1,4 +1,13 @@
-@import "tailwindcss";
+/*
+ * Tailwind without its preflight. This stylesheet is loaded into *someone else's* page, so it must
+ * never restyle anything outside a react-bio-viz component: no global element resets, no `body`/
+ * `html` rules, and design tokens that yield to any the host defines — see the `:where()` token
+ * blocks below, and the build step in `vite.config.ts` that does the same for Tailwind's own
+ * theme variables. The minimal reset components rely on is scoped to `.rbv` (`ROOT_CLASS`).
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
 
 /*
@@ -71,8 +80,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --color-chart-5: var(--chart-5);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
@@ -105,7 +112,13 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+/*
+ * Default tokens, at zero specificity inside the `base` layer: a host that already defines the
+ * shadcn tokens (its own theme, dark mode, brand colours) wins over these regardless of which
+ * stylesheet loads first, so the components pick up the host's theme instead of imposing ours.
+ */
+@layer base {
+:where(:root) {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -142,7 +155,7 @@
     --rbv-accent-rgb: 48, 92, 222;
 }
 
-.dark {
+:where(.dark) {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
@@ -170,14 +183,33 @@
     --rbv-accent-rgb: 125, 163, 255;
 }
 
+}
+
+/* The reset preflight would have provided, scoped to our own subtrees (and portalled overlays). */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans;
-    }
+  :where(.rbv, .rbv *, .rbv ::before, .rbv ::after) {
+    box-sizing: border-box;
+    border: 0 solid;
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
+  :where(.rbv) :where(button, input, select, textarea) {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+  }
+  :where(.rbv) :where(button) {
+    cursor: pointer;
+  }
+  :where(.rbv) :where(ul, ol) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  :where(.rbv) :where(svg, canvas) {
+    display: block;
+  }
 }

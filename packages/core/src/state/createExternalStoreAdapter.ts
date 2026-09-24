@@ -1,6 +1,6 @@
-import { createStore as createVanillaStore, type StoreApi } from "zustand/vanilla";
+import { createStore as createVanillaStore } from "zustand/vanilla";
 
-import type { StoreController } from "./types";
+import type { StoreController, ZustandLikeStore } from "./types";
 
 /**
  * @public
@@ -26,9 +26,9 @@ import type { StoreController } from "./types";
  * ```
  */
 export function createZustandStoreController<TStore, T>(
-  store: StoreApi<TStore>,
+  store: ZustandLikeStore<TStore>,
   select: (state: TStore) => T,
-  set: (store: StoreApi<TStore>, value: T | ((prev: T) => T)) => void
+  set: (store: ZustandLikeStore<TStore>, value: T | ((prev: T) => T)) => void
 ): StoreController<T> {
   return {
     getValue: () => select(store.getState()),
@@ -60,6 +60,6 @@ export function createZustandStoreController<TStore, T>(
  * );
  * ```
  */
-export function createControllableStore<T>(initial: T): StoreApi<T> {
+export function createControllableStore<T>(initial: T): ZustandLikeStore<T> {
   return createVanillaStore<T>(() => initial);
 }

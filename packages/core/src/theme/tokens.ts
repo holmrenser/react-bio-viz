@@ -1,5 +1,13 @@
 /**
  * @public
+ * Class every component's root element (and every portalled overlay) carries. The shipped
+ * stylesheet scopes its small element reset to this class instead of resetting the whole page,
+ * since it is loaded into a host application it must not restyle.
+ */
+export const ROOT_CLASS = "rbv";
+
+/**
+ * @public
  * The CSS custom property holding the visualization accent — the one saturated colour the library
  * reserves for "you can interact with this" (hover outlines, selection strokes, the MSA cursor
  * cross-hair). Defined for both themes in the shipped stylesheet, so SVG can use it directly and

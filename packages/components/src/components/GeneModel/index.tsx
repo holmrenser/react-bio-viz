@@ -8,6 +8,7 @@ import {
   useWheelZoom,
   ViewportToolbar,
   type Viewport,
+  ROOT_CLASS,
 } from "@react-bio-viz/core";
 
 import { Exon } from "./components/Exon";
@@ -135,7 +136,7 @@ export function GeneModel({
   });
 
   return (
-    <div className="genemodel text-foreground">
+    <div className={`${ROOT_CLASS} genemodel text-foreground`}>
       <ViewportToolbar viewport={currentViewport} panBy={panBy} zoomBy={zoomBy} reset={reset} axes="x" />
       <svg
         height={height}

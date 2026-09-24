@@ -31,3 +31,16 @@ export interface ControllableStateOptions<T> {
   /** Delegates state ownership to an external store instead of React state. */
   store?: StoreController<T>;
 }
+
+/**
+ * @public
+ * The part of a Zustand store's API that {@link createZustandStoreController} uses. Declared
+ * structurally rather than imported from `zustand`, so this library's published types resolve
+ * without `zustand` installed — any real Zustand store (vanilla or the `create()` hook, which
+ * exposes the same methods) satisfies it.
+ */
+export interface ZustandLikeStore<TState> {
+  getState: () => TState;
+  setState(partial: TState | ((state: TState) => TState)): void;
+  subscribe: (listener: (state: TState, previousState: TState) => void) => () => void;
+}

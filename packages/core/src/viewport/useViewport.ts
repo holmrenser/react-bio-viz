@@ -25,7 +25,7 @@ export interface UseViewportResult {
   setViewport: (next: Viewport | ((prev: Viewport) => Viewport)) => void;
   panBy: (dx: number, dy: number) => void;
   zoomBy: (factor: number) => void;
-  zoomAt: (point: { x: number; y: number }, factor: number) => void;
+  zoomAt: (point: { x: number; y: number }, factor: number, factorY?: number) => void;
   reset: () => void;
 }
 
@@ -56,7 +56,8 @@ export function useViewport(options: UseViewportOptions): UseViewportResult {
     [setValue]
   );
   const doZoomAt = useCallback(
-    (point: { x: number; y: number }, factor: number) => setValue((prev) => zoomAt(prev, point, factor)),
+    (point: { x: number; y: number }, factor: number, factorY?: number) =>
+      setValue((prev) => zoomAt(prev, point, factor, factorY)),
     [setValue]
   );
   const reset = useCallback(() => setValue(fitToExtent(extent)), [setValue, extent.xMin, extent.xMax, extent.yMin, extent.yMax]);

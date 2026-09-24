@@ -47,29 +47,19 @@ importers:
         version: 5.4.21(@types/node@20.19.43)(lightningcss@1.32.0)(sass@1.104.1)
 
   packages/components:
-    dependencies:
+    devDependencies:
       '@emotion/css':
         specifier: ^11.11.2
         version: 11.13.5
-      '@react-bio-viz/core':
-        specifier: workspace:*
-        version: link:../core
-      color:
-        specifier: ^4.2.3
-        version: 4.2.3
-      lucide-react:
-        specifier: ^1.47.0
-        version: 1.47.0(react@18.3.1)
-      randomcolor:
-        specifier: ^0.6.2
-        version: 0.6.2
-    devDependencies:
       '@microsoft/api-documenter':
         specifier: ^7.25.4
         version: 7.30.15(@types/node@20.19.43)
       '@microsoft/api-extractor':
         specifier: ^7.47.0
         version: 7.59.1(@types/node@20.19.43)
+      '@react-bio-viz/core':
+        specifier: workspace:*
+        version: link:../core
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.10.0(@testing-library/dom@10.4.2)
@@ -94,9 +84,18 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.5.0
         version: 3.11.0(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.32.0)(sass@1.104.1))
+      color:
+        specifier: ^4.2.3
+        version: 4.2.3
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      lucide-react:
+        specifier: ^1.47.0
+        version: 1.47.0(react@18.3.1)
+      randomcolor:
+        specifier: ^0.6.2
+        version: 0.6.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -120,40 +119,6 @@ importers:
         version: 0.3.3(vitest@2.1.9(@types/node@20.19.43)(jsdom@25.0.1)(lightningcss@1.32.0)(sass@1.104.1))
 
   packages/core:
-    dependencies:
-      class-variance-authority:
-        specifier: ^0.7.0
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      cn:
-        specifier: ^0.3.3
-        version: 0.3.3
-      color:
-        specifier: ^4.2.3
-        version: 4.2.3
-      immer:
-        specifier: ^10.1.1
-        version: 10.2.0
-      lucide-react:
-        specifier: ^1.47.0
-        version: 1.47.0(react@18.3.1)
-      radix-ui:
-        specifier: ^1.6.7
-        version: 1.6.7(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      randomcolor:
-        specifier: ^0.6.2
-        version: 0.6.2
-      tailwind-merge:
-        specifier: ^2.5.4
-        version: 2.6.1
-      tw-animate-css:
-        specifier: ^1.4.0
-        version: 1.4.0
-      zustand:
-        specifier: ^5.0.1
-        version: 5.0.15(@types/react@18.3.31)(immer@10.2.0)(react@18.3.1)
     devDependencies:
       '@microsoft/api-extractor':
         specifier: ^7.47.0
@@ -182,18 +147,45 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.5.0
         version: 3.11.0(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.32.0)(sass@1.104.1))
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cn:
+        specifier: ^0.3.3
+        version: 0.3.3
+      color:
+        specifier: ^4.2.3
+        version: 4.2.3
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      lucide-react:
+        specifier: ^1.47.0
+        version: 1.47.0(react@18.3.1)
+      radix-ui:
+        specifier: ^1.6.7
+        version: 1.6.7(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      randomcolor:
+        specifier: ^0.6.2
+        version: 0.6.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      tailwind-merge:
+        specifier: ^2.5.4
+        version: 2.6.1
       tailwindcss:
         specifier: ^4.0.0-beta.7
         version: 4.3.3
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
@@ -206,6 +198,9 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@20.19.43)(jsdom@25.0.1)(lightningcss@1.32.0)(sass@1.104.1)
+      zustand:
+        specifier: ^5.0.1
+        version: 5.0.15(@types/react@18.3.31)(immer@10.2.0)(react@18.3.1)
 
   packages/python:
     dependencies:
@@ -4823,7 +4818,8 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  immer@10.2.0: {}
+  immer@10.2.0:
+    optional: true
 
   immutable@5.1.9:
     optional: true

@@ -10,6 +10,11 @@ export default defineConfig({
       include: ["src"],
       exclude: ["src/**/*.test.ts", "src/**/*.test.tsx"],
       tsconfigPath: "./tsconfig.json",
+      // One self-contained `main.d.ts`: `@react-bio-viz/core` is bundled into the JS (it is a
+      // devDependency, not a runtime one), so its types must be inlined too or every consumer's
+      // type-check would try to resolve a package that is never installed alongside this one.
+      rollupTypes: true,
+      bundledPackages: ["@react-bio-viz/core"],
     }),
   ],
   build: {
