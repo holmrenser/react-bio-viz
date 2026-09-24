@@ -17,6 +17,8 @@ export type AlignmentCanvasProps = Omit<DrawAlignmentParams, "devicePixelRatio">
 export function AlignmentCanvas({ className, style, ...params }: AlignmentCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { colorIndex, rowOrder, sequences, window, width, height, showLetters, letterColor, reference } = params;
+  // Depend on the window's numbers, not the object: callers build a fresh one every render.
+  const { x0, x1, y0, y1 } = window;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -32,7 +34,7 @@ export function AlignmentCanvas({ className, style, ...params }: AlignmentCanvas
       colorIndex,
       rowOrder,
       sequences,
-      window,
+      window: { x0, x1, y0, y1 },
       width,
       height,
       devicePixelRatio: dpr,
@@ -44,10 +46,10 @@ export function AlignmentCanvas({ className, style, ...params }: AlignmentCanvas
     colorIndex,
     rowOrder,
     sequences,
-    window.x0,
-    window.x1,
-    window.y0,
-    window.y1,
+    x0,
+    x1,
+    y0,
+    y1,
     width,
     height,
     showLetters,

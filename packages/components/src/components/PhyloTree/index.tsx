@@ -362,8 +362,7 @@ export function PhyloTree({
         else if (canCollapse && (node.children || collapsedNow.has(node.id))) toggleCollapse(node.id);
       },
     }),
-    // Reads everything else through `latest`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Everything else is read through `latest`, so the handlers stay stable across renders.
     [setSelection, toggleCollapse, setPreview]
   );
 
@@ -372,7 +371,6 @@ export function PhyloTree({
   const handleBranchClick = useCallback((nodeId: string, event: React.MouseEvent) => {
     const node = findNode(nodeId);
     if (node) onBranchClickRef.current?.(describe(node, event), event);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Present only for radial; passing it down is what selects the polar geometry in the renderers.

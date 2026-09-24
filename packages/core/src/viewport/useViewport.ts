@@ -60,7 +60,8 @@ export function useViewport(options: UseViewportOptions): UseViewportResult {
       setValue((prev) => zoomAt(prev, point, factor, factorY)),
     [setValue]
   );
-  const reset = useCallback(() => setValue(fitToExtent(extent)), [setValue, extent.xMin, extent.xMax, extent.yMin, extent.yMax]);
+  const { xMin, xMax, yMin, yMax } = extent;
+  const reset = useCallback(() => setValue(fitToExtent({ xMin, xMax, yMin, yMax })), [setValue, xMin, xMax, yMin, yMax]);
 
   return { viewport: value, setViewport: setValue, panBy: doPanBy, zoomBy: doZoomBy, zoomAt: doZoomAt, reset };
 }

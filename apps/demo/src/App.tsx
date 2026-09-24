@@ -1,9 +1,29 @@
-import { useReducer, useState } from "react";
+import { useMemo, useReducer, useRef, useState } from "react";
 
-import { BlastHitDistribution, GenomeBrowser, GeneModel, MultipleSequenceAlignment, PhyloTree } from "react-bio-viz";
+import {
+  BlastHitDistribution,
+  createControllableStore,
+  createZustandStoreController,
+  DistanceMatrix,
+  GenomeBrowser,
+  GeneModel,
+  ladderizeOrder,
+  midpointRoot,
+  MultipleSequenceAlignment,
+  PhyloTree,
+  rotateOrder,
+  serializeSvg,
+} from "react-bio-viz";
 import type {
+  AlignedSequences,
   BlastHit,
   ColorStyle,
+  MSASelection,
+  MSATrack,
+  StoreController,
+  TreeNodeInfo,
+  TreeNodeStyle,
+  TreeSelection,
   CoverageTrack,
   FeatureTrack,
   GeneModelTrack,
@@ -85,6 +105,39 @@ function stateReducer(state: State, action: Action): State {
 
 const TREE_LAYOUTS: LayoutMode[] = ["rectangular", "cladogram", "radial"];
 
+/** p-distance (share of differing non-gap positions) — enough to demo the matrix. */
+function pDistances(rows: AlignedSequences): number[][] {
+  return rows.map((a) =>
+    rows.map((b) => {
+      let compared = 0;
+      let differing = 0;
+      for (let i = 0; i < a.sequence.length; i += 1) {
+        if (a.sequence[i] === "-" || b.sequence[i] === "-") continue;
+        compared += 1;
+        if (a.sequence[i] !== b.sequence[i]) differing += 1;
+      }
+      return compared > 0 ? differing / compared : 0;
+    })
+  );
+}
+
+/**
+ * One row order shared by the alignment and the distance matrix: both bind the same store, so
+ * dragging a label in either reorders both — the external-store seam every component supports.
+ */
+function useSharedRowOrder(): StoreController<string[]> {
+  return useMemo(() => {
+    const store = createControllableStore<string[]>([]);
+    return createZustandStoreController(
+      store,
+      (order) => order,
+      (s, next) => s.setState((prev) => (typeof next === "function" ? next(prev) : next))
+    );
+  }, []);
+}
+
+const MSA_TRACKS: MSATrack[] = ["conservation", "logo"];
+
 export default function App(): JSX.Element {
   const [state, dispatch] = useReducer(stateReducer, {
     layout: "rectangular" as LayoutMode,
@@ -97,6 +150,31 @@ export default function App(): JSX.Element {
   const [blastSelection, setBlastSelection] = useState<HitSelection>({ selectedHitIds: [] });
   // Left undefined so the MSA picks a scheme from the alignment's own alphabet.
   const [msaColorStyle, setMsaColorStyle] = useState<ColorStyle | undefined>(undefined);
+
+  // The alignment is edited here, not by the component: it reports renames and removals, and the
+  // demo keeps an undo stack of whole alignments.
+  const [history, setHistory] = useState<AlignedSequences[]>([msa.map((s) => ({ ...s, id: s.header }))]);
+  const alignment = history[history.length - 1];
+  const edit = (next: AlignedSequences) => setHistory((h) => [...h, next]);
+  const [msaSelection, setMsaSelection] = useState<MSASelection>({ rows: [], columns: [] });
+  const rowOrderStore = useSharedRowOrder();
+  const distances = useMemo(() => pDistances(alignment), [alignment]);
+
+  const [treeSelection, setTreeSelection] = useState<TreeSelection>({ collapsed: [] });
+  const [nodeStyles, setNodeStyles] = useState<Record<string, TreeNodeStyle>>({});
+  const [panelNode, setPanelNode] = useState<TreeNodeInfo | null>(null);
+  const [showBranchLengths, setShowBranchLengths] = useState(false);
+  const treeSvg = useRef<SVGSVGElement>(null);
+
+  const exportTree = () => {
+    if (!treeSvg.current) return;
+    const url = URL.createObjectURL(new Blob([serializeSvg(treeSvg.current, { background: "white" })], { type: "image/svg+xml" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "tree.svg";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="container" style={{ margin: 0, padding: 0 }}>
@@ -161,7 +239,51 @@ export default function App(): JSX.Element {
             ))}
           </select>
         </label>
-        <MultipleSequenceAlignment msa={msa} options={{ colorStyle: msaColorStyle }} />
+        <button type="button" disabled={history.length < 2} onClick={() => setHistory((h) => h.slice(0, -1))}>
+          Undo edit
+        </button>
+        <p>
+          Drag labels to reorder (the distance matrix follows), double-click a label to rename, Shift-drag to select
+          columns, Delete to remove the selection. Selected: {msaSelection.rows.length} rows, {msaSelection.columns.length}{" "}
+          columns.
+        </p>
+        <MultipleSequenceAlignment
+          msa={alignment}
+          width={1200}
+          height={520}
+          options={{ colorStyle: msaColorStyle, tracks: MSA_TRACKS }}
+          selection={msaSelection}
+          onSelectionChange={setMsaSelection}
+          rowOrderStore={rowOrderStore}
+          onRenameRow={(id, name) => edit(alignment.map((s) => (s.id === id ? { ...s, header: name } : s)))}
+          onRemoveRows={(ids) => edit(alignment.filter((s) => !ids.includes(s.id ?? s.header)))}
+          onRemoveColumns={(columns) => {
+            const removed = new Set(columns);
+            edit(
+              alignment.map((s) => ({
+                ...s,
+                sequence: s.sequence
+                  .split("")
+                  .filter((_, i) => !removed.has(i))
+                  .join(""),
+              }))
+            );
+          }}
+        />
+      </section>
+      <hr />
+
+      <section className="section">
+        <h1 className="title">Distance matrix</h1>
+        <p>p-distances of the alignment above, sharing its row order.</p>
+        <DistanceMatrix
+          labels={alignment.map((s) => s.id ?? s.header)}
+          labelNames={Object.fromEntries(alignment.map((s) => [s.id ?? s.header, s.header]))}
+          matrix={distances}
+          width={1200}
+          height={500}
+          rowOrderStore={rowOrderStore}
+        />
       </section>
 
       <hr />
@@ -253,6 +375,66 @@ export default function App(): JSX.Element {
             }}
           />
         </label>
+        <label>
+          <input type="checkbox" checked={showBranchLengths} onChange={() => setShowBranchLengths((v) => !v)} />
+          Branch lengths
+        </label>
+        <br />
+        <button type="button" onClick={() => setTreeSelection((s) => ({ ...s, ...midpointRoot(tree) }))}>
+          Midpoint root
+        </button>
+        <button type="button" onClick={() => setTreeSelection((s) => ({ ...s, order: ladderizeOrder(tree, s, "desc") }))}>
+          Ladderize
+        </button>
+        <button type="button" onClick={() => setTreeSelection({ collapsed: [] })}>
+          Reset
+        </button>
+        <button type="button" onClick={exportTree}>
+          Export SVG
+        </button>
+        <p>Click a node for actions; drag a node to reorder, or past either end of the tree to reroot on it.</p>
+        {panelNode && (
+          <div style={{ position: "fixed", left: panelNode.clientX + 8, top: panelNode.clientY + 8, background: "white", border: "1px solid #ccc", padding: 6, zIndex: 10 }}>
+            <strong>{panelNode.isLeaf ? panelNode.name : `${panelNode.leafNames.length} leaves`}</strong>
+            <br />
+            {panelNode.rerootAbove && (
+              <button type="button" onClick={() => { setTreeSelection((s) => ({ ...s, ...panelNode.rerootAbove })); setPanelNode(null); }}>
+                Reroot here
+              </button>
+            )}
+            {!panelNode.isLeaf && (
+              <>
+                <button type="button" onClick={() => { setTreeSelection((s) => ({ ...s, order: rotateOrder(tree, s, panelNode.id) })); setPanelNode(null); }}>
+                  Rotate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTreeSelection((s) => ({
+                      ...s,
+                      collapsed: s.collapsed.includes(panelNode.id) ? s.collapsed.filter((c) => c !== panelNode.id) : [...s.collapsed, panelNode.id],
+                    }));
+                    setPanelNode(null);
+                  }}
+                >
+                  {panelNode.isCollapsed ? "Expand" : "Collapse"}
+                </button>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setNodeStyles((styles) => ({ ...styles, ...Object.fromEntries(panelNode.descendantIds.map((id) => [id, { color: "crimson" }])) }));
+                setPanelNode(null);
+              }}
+            >
+              Colour clade
+            </button>
+            <button type="button" onClick={() => setPanelNode(null)}>
+              ×
+            </button>
+          </div>
+        )}
         <PhyloTree
           tree={tree}
           layout={state.layout}
@@ -262,6 +444,14 @@ export default function App(): JSX.Element {
           width={state.width}
           height={state.height}
           interactive
+          selection={treeSelection}
+          onSelectionChange={setTreeSelection}
+          onNodeClick={setPanelNode}
+          activeNodeId={panelNode?.id}
+          nodeStyles={nodeStyles}
+          branchStyles={nodeStyles}
+          showBranchLengths={showBranchLengths}
+          svgRef={treeSvg}
         />
       </section>
       <hr />

@@ -6,7 +6,8 @@
   "description": "esbuild bundle of the react-bio-viz components for the anywidget/Jupyter package (not published to npm; the artifact ships inside the PyPI wheel)",
   "scripts": {
     "build": "node build.mjs",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@react-bio-viz/core": "workspace:*",
