@@ -45,10 +45,12 @@ function legacyPanToViewport(
 
 /**
  * @public
+ * @group Components
  * GeneModel component, genome browser style. Visualizes gene, mRNA, CDS and exon relationships.
  * Exons have popovers that display additional information. Pan/zoom over the genomic coordinate
  * window is controllable like every other stateful prop in this library — see `viewport`/
- * `defaultViewport`/`onViewportChange`/`viewportStore` and the `bio-viz-conventions` project skill.
+ * `defaultViewport`/`onViewportChange`/`viewportStore` and
+ * {@link https://holmrenser.github.io/react-bio-viz/concepts/controllable-state/ | Controllable state}.
  *
  * @example A minimal setting:
  *
@@ -66,19 +68,20 @@ function legacyPanToViewport(
  *
  * @returns SVG visualisation of a (potentially spliced) gene model containing mRNA, exons, and CDSs
  */
-export function GeneModel({
-  gene,
-  width = 500,
-  colorSeed = "42",
-  showScale = true,
-  exonPopoverFn = defaultPopoverFn,
-  panMin = 0,
-  panMax = 100,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-}: GeneModelProps): JSX.Element {
+export function GeneModel(props: GeneModelProps): JSX.Element {
+  const {
+    gene,
+    width = 500,
+    colorSeed = "42",
+    showScale = true,
+    exonPopoverFn = defaultPopoverFn,
+    panMin = 0,
+    panMax = 100,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+  } = props;
   const geneLength = gene.end - gene.start;
   const padding = Math.round(VIEWPORT_PADDING_RATIO * geneLength);
 

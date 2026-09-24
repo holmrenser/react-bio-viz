@@ -45,6 +45,7 @@ const NO_ORDER: string[] = [];
 
 /**
  * @public
+ * @group Components
  * A pairwise distance matrix as a heatmap: row names on the left, rotated column names on top,
  * cells shaded by distance (four palettes) with the value written in once cells are large enough.
  * Rendered on canvas and windowed, so it scales to thousands of sequences where a DOM grid can't.
@@ -54,27 +55,28 @@ const NO_ORDER: string[] = [];
  * in this library — and `rowOrder` has the same shape as the MSA's, so one store can keep an
  * alignment, its tree and its distance matrix in the same order.
  */
-export function DistanceMatrix({
-  labels,
-  matrix,
-  labelNames,
-  width = 650,
-  height = 500,
-  options,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-  rowOrder: rowOrderProp,
-  defaultRowOrder,
-  onRowOrderChange,
-  rowOrderStore,
-  panelSizes: panelSizesProp,
-  defaultPanelSizes,
-  onPanelSizesChange,
-  panelSizesStore,
-  onHoverChange,
-}: DistanceMatrixProps): React.JSX.Element {
+export function DistanceMatrix(props: DistanceMatrixProps): React.JSX.Element {
+  const {
+    labels,
+    matrix,
+    labelNames,
+    width = 650,
+    height = 500,
+    options,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+    rowOrder: rowOrderProp,
+    defaultRowOrder,
+    onRowOrderChange,
+    rowOrderStore,
+    panelSizes: panelSizesProp,
+    defaultPanelSizes,
+    onPanelSizesChange,
+    panelSizesStore,
+    onHoverChange,
+  } = props;
   const systemDarkMode = useDarkMode();
   const {
     showNumbers = true,

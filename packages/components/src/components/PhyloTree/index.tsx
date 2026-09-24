@@ -68,12 +68,15 @@ interface MarkerPress {
   nodeId: string;
   startClientX: number;
   startClientY: number;
+  /** The tree's `<svg>`, to map the pointer onto rows. */
+  svg: SVGSVGElement | null;
   /** Set once the pointer travels past the drag threshold. */
   dragging: boolean;
 }
 
 /**
  * @public
+ * @group Components
  * An interactive phylogenetic tree (SVG): rectangular phylogram, cladogram or radial layout, with
  * pan/zoom (scroll to pan, Ctrl/⌘-scroll to zoom), branch rerooting, collapsible clades, drag-to-
  * reorder siblings, per-node and per-branch styling, node/branch click callbacks for context
@@ -86,46 +89,47 @@ interface MarkerPress {
  * {@link ladderizeOrder}, {@link rotateOrder}, {@link orderForLeafNames}, {@link collapseBySupport},
  * {@link applyTreeSelection}, {@link leafOrder}, {@link parseNewick} and {@link toNewick}.
  */
-export function PhyloTree({
-  tree,
-  height = 900,
-  width = 1000,
-  cladogram = false,
-  layout,
-  showSupportValues = true,
-  supportThreshold = 0,
-  shadeBranchBySupport = true,
-  colorFunction = defaultColorFunction,
-  leafMarkerColor,
-  fontSize = 10,
-  alignTips = true,
-  leafTextComponent = defaultLeafText,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-  selection,
-  defaultSelection,
-  onSelectionChange,
-  selectionStore,
-  interactive = false,
-  searchQuery,
-  searchUseRegex = false,
-  showScaleBar = true,
-  showBranchLengths = false,
-  branchWidth = BRANCH_WIDTH,
-  nodeRadius = NODE_RADIUS,
-  labelFontSize = LABEL_FONT_SIZE,
-  leafSpacing,
-  nodeStyles,
-  branchStyles,
-  activeNodeId,
-  onNodeClick,
-  onBranchClick,
-  dragEnabled = interactive,
-  onLeafOrderChange,
-  svgRef,
-}: PhyloTreeProps): JSX.Element {
+export function PhyloTree(props: PhyloTreeProps): JSX.Element {
+  const {
+    tree,
+    height = 900,
+    width = 1000,
+    cladogram = false,
+    layout,
+    showSupportValues = true,
+    supportThreshold = 0,
+    shadeBranchBySupport = true,
+    colorFunction = defaultColorFunction,
+    leafMarkerColor,
+    fontSize = 10,
+    alignTips = true,
+    leafTextComponent = defaultLeafText,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+    selection,
+    defaultSelection,
+    onSelectionChange,
+    selectionStore,
+    interactive = false,
+    searchQuery,
+    searchUseRegex = false,
+    showScaleBar = true,
+    showBranchLengths = false,
+    branchWidth = BRANCH_WIDTH,
+    nodeRadius = NODE_RADIUS,
+    labelFontSize = LABEL_FONT_SIZE,
+    leafSpacing,
+    nodeStyles,
+    branchStyles,
+    activeNodeId,
+    onNodeClick,
+    onBranchClick,
+    dragEnabled = interactive,
+    onLeafOrderChange,
+    svgRef,
+  } = props;
   const effectiveLayout: LayoutMode = layout ?? (cladogram ? "cladogram" : "rectangular");
   const isRadial = effectiveLayout === "radial";
   // Rectangular/cladogram tips all point right, so only that side needs label room. Radial labels
@@ -283,68 +287,74 @@ export function PhyloTree({
     [setSelection]
   );
 
+  // A drag listens on the window from press to release rather than capturing the pointer on the
+  // marker: the live preview reorders the tree, React moves marker elements to match, and moving a
+  // captured element silently drops the capture — the release then never arrives and the preview
+  // sticks. Window listeners don't depend on any element staying put.
+  const endGestureRef = useRef<(() => void) | null>(null);
+  const suppressClickRef = useRef<string | null>(null);
+  useEffect(() => () => endGestureRef.current?.(), []);
+
   const markerHandlers: NodeMarkerHandlers = useMemo(
     () => ({
       onPointerDown: (nodeId, event) => {
         if (event.button > 0) return;
         event.stopPropagation();
         // Suppresses the compatibility mousedown, which would start a text selection across the
-        // leaf labels as the pointer is dragged.
+        // leaf labels as the pointer is dragged (the click that follows a plain press still fires).
         event.preventDefault();
-        pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, dragging: false };
-        try {
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-        } catch {
-          // ignore
-        }
-      },
-      onPointerMove: (event) => {
-        const press = pressRef.current;
-        if (!press) return;
-        const {
-          dragEnabled: canDrag,
-          isRadial: radialLayout,
-          unitsPerPixelY: perPixel,
-          viewportY0: y0,
-          marginTop: top,
-          root: displayRoot,
-          collapsedSet: collapsed,
-        } = latest.current;
-        if (!press.dragging) {
-          if (!canDrag || radialLayout || Math.hypot(event.clientX - press.startClientX, event.clientY - press.startClientY) < DRAG_THRESHOLD_PX) return;
-          press.dragging = true;
-        }
-        // The row under the pointer: its position in layout units along the tip axis.
-        const tips = displayTips(displayRoot, collapsed);
-        if (tips.length < 2) return;
-        const spacing = (tips[tips.length - 1].x - tips[0].x) / (tips.length - 1) || 1;
-        const svgTop = (event.currentTarget as SVGGraphicsElement).ownerSVGElement?.getBoundingClientRect().top ?? 0;
-        const y = (event.clientY - svgTop) * perPixel + y0 - top;
-        const { tree: source, currentSelection: selectionNow } = latest.current;
-        let next: TreeSelection | null;
-        if (y < tips[0].x - REROOT_DRAG_ZONE * spacing) {
-          next = planDragReroot(source, selectionNow, press.nodeId, "above");
-        } else if (y > tips[tips.length - 1].x + REROOT_DRAG_ZONE * spacing) {
-          next = planDragReroot(source, selectionNow, press.nodeId, "below");
-        } else {
-          const order = planTipMove(source, selectionNow, press.nodeId, Math.round((y - tips[0].x) / spacing));
-          next = order ? { ...selectionNow, order } : null;
-        }
-        if (JSON.stringify(next) !== JSON.stringify(previewRef.current)) setPreview(next);
-      },
-      onPointerUp: (event) => {
-        const press = pressRef.current;
-        pressRef.current = null;
-        try {
-          event.currentTarget.releasePointerCapture?.(event.pointerId);
-        } catch {
-          // ignore
-        }
-        if (!press) return;
-        if (press.dragging) {
+        endGestureRef.current?.();
+        const press: MarkerPress = {
+          nodeId,
+          startClientX: event.clientX,
+          startClientY: event.clientY,
+          svg: (event.currentTarget as SVGGraphicsElement).ownerSVGElement,
+          dragging: false,
+        };
+        pressRef.current = press;
+
+        const onMove = (move: PointerEvent) => {
+          const {
+            dragEnabled: canDrag,
+            isRadial: radialLayout,
+            unitsPerPixelY: perPixel,
+            viewportY0: y0,
+            marginTop: top,
+            root: displayRoot,
+            collapsedSet: collapsed,
+          } = latest.current;
+          if (!press.dragging) {
+            if (!canDrag || radialLayout || Math.hypot(move.clientX - press.startClientX, move.clientY - press.startClientY) < DRAG_THRESHOLD_PX) return;
+            press.dragging = true;
+          }
+          // The row under the pointer: its position in layout units along the tip axis.
+          const tips = displayTips(displayRoot, collapsed);
+          if (tips.length < 2) return;
+          const spacing = (tips[tips.length - 1].x - tips[0].x) / (tips.length - 1) || 1;
+          const svgTop = press.svg?.getBoundingClientRect().top ?? 0;
+          const y = (move.clientY - svgTop) * perPixel + y0 - top;
+          const { tree: source, currentSelection: selectionNow } = latest.current;
+          let next: TreeSelection | null;
+          if (y < tips[0].x - REROOT_DRAG_ZONE * spacing) {
+            next = planDragReroot(source, selectionNow, press.nodeId, "above");
+          } else if (y > tips[tips.length - 1].x + REROOT_DRAG_ZONE * spacing) {
+            next = planDragReroot(source, selectionNow, press.nodeId, "below");
+          } else {
+            const order = planTipMove(source, selectionNow, press.nodeId, Math.round((y - tips[0].x) / spacing));
+            next = order ? { ...selectionNow, order } : null;
+          }
+          if (JSON.stringify(next) !== JSON.stringify(previewRef.current)) setPreview(next);
+        };
+
+        const onEnd = (end: PointerEvent) => {
+          cleanup();
+          pressRef.current = null;
+          if (!press.dragging) return;
+          // A drag that ends back on the marker still produces a click; it isn't one.
+          suppressClickRef.current = press.nodeId;
           const committed = previewRef.current;
           setPreview(null);
-          if (committed && event.type !== "pointercancel") {
+          if (committed && end.type !== "pointercancel") {
             setSelection((prev: TreeSelection) => ({
               ...prev,
               rerootedAt: committed.rerootedAt,
@@ -352,13 +362,28 @@ export function PhyloTree({
               order: committed.order,
             }));
           }
-          return;
-        }
-        if (event.type === "pointercancel") return;
-        const node = findNode(press.nodeId);
+        };
+
+        const cleanup = () => {
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onEnd);
+          window.removeEventListener("pointercancel", onEnd);
+          endGestureRef.current = null;
+        };
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onEnd);
+        window.addEventListener("pointercancel", onEnd);
+        endGestureRef.current = cleanup;
+      },
+      onClick: (nodeId, event) => {
+        event.stopPropagation();
+        const suppressed = suppressClickRef.current === nodeId;
+        suppressClickRef.current = null;
+        if (suppressed) return;
+        const node = findNode(nodeId);
         if (!node) return;
-        const { onNodeClick: onClick, interactive: canCollapse, collapsedSet: collapsedNow } = latest.current;
-        if (onClick) onClick(describe(node, event), event);
+        const { onNodeClick: onNodeClickNow, interactive: canCollapse, collapsedSet: collapsedNow } = latest.current;
+        if (onNodeClickNow) onNodeClickNow(describe(node, event), event);
         else if (canCollapse && (node.children || collapsedNow.has(node.id))) toggleCollapse(node.id);
       },
     }),

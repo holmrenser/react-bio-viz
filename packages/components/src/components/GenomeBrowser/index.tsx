@@ -49,23 +49,25 @@ const BUILTIN_RENDERERS: Record<string, TrackRenderer> = {
 
 /**
  * @public
+ * @group Components
  * A multi-track genome browser: a shared genomic-coordinate viewport (pan/zoom, controllable like
  * every other stateful prop in this library) with `"feature"`, `"coverage"`, and `"genemodel"`
  * tracks stacked underneath a position ruler. `trackRenderers` lets a consumer add a custom track
- * kind or override a built-in one — see the `bio-viz-conventions` project skill.
+ * kind or override a built-in one.
  */
-export function GenomeBrowser({
-  tracks,
-  referenceLength,
-  referenceName = "",
-  width = 1000,
-  showScale = true,
-  trackRenderers,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-}: GenomeBrowserProps): JSX.Element {
+export function GenomeBrowser(props: GenomeBrowserProps): JSX.Element {
+  const {
+    tracks,
+    referenceLength,
+    referenceName = "",
+    width = 1000,
+    showScale = true,
+    trackRenderers,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+  } = props;
   const mainWidth = Math.max(1, width - MARGIN.left - MARGIN.right);
 
   const extent = useMemo(() => ({ xMin: 0, xMax: referenceLength, yMin: 0, yMax: 1 }), [referenceLength]);

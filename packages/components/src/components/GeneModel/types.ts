@@ -39,7 +39,10 @@ export type SequenceInterval = {
   children?: SequenceInterval[];
 };
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface GeneModelProps {
   /** Recursively defined gene model object: SequenceInterval children are also SequenceIntervals. */
   gene: SequenceInterval;

@@ -36,7 +36,10 @@ export interface DistanceMatrixPanelSizes {
   labelWidth: number;
 }
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface DistanceMatrixProps {
   /** Row/column identities, in `matrix` order. */
   labels: string[];

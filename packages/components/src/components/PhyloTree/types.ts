@@ -15,7 +15,7 @@ export type Tree = {
  * `id` for addressing it from {@link TreeSelection}, and the `x`/`y` pixel position a layout
  * produces. Named to match d3-hierarchy's `HierarchyPointNode` (which this used to be, directly)
  * so the public `LeafFn`/`ColorFn` API shape stays the same even though layout is computed
- * locally instead of via d3 — see the `bio-viz-conventions` project skill.
+ * locally instead of via d3.
  */
 export type HierarchyPointNode<T> = {
   /** `data.ID` when present, else a positional path (stable across renders, not across re-sorts). */
@@ -136,7 +136,10 @@ export interface TreeBranchStyle {
   color?: string;
 }
 
-/** @public */
+/**
+ * @public
+ * @group Component props
+ */
 export interface PhyloTreeProps {
   /** Recursively defined tree object: `children` of a Tree are also a Tree. */
   tree: Tree;

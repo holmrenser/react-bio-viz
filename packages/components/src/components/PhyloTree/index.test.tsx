@@ -205,6 +205,27 @@ describe("PhyloTree selection", () => {
     expect(branch!.getAttribute("d")!.startsWith(`M${marker("nested").getAttribute("cx")},${marker("nested").getAttribute("cy")}`)).toBe(true);
   });
 
+  it("commits a drag whose move and release land elsewhere (regression: a captured marker moved by the preview lost its release)", () => {
+    const onSelectionChange = vi.fn();
+    const { container } = render(<PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />);
+    fireEvent.pointerDown(container.querySelector('circle[data-node-id="shallow"]')!, { clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(document.body, { clientX: 0, clientY: 400 });
+    fireEvent.pointerMove(document.body, { clientX: 0, clientY: 850 });
+    fireEvent.pointerUp(document.body, { clientX: 0, clientY: 850 });
+    expect(leafOrder(tree, onSelectionChange.mock.calls[0][0] as TreeSelection)).toEqual(["deep-leaf-a", "deep-leaf-b", "shallow-leaf"]);
+  });
+
+  it("does not treat the click that ends a drag as a node click", () => {
+    const onNodeClick = vi.fn();
+    const { container } = render(<PhyloTree tree={tree} interactive onNodeClick={onNodeClick} />);
+    const handle = container.querySelector('circle[data-node-id="shallow"]')!;
+    fireEvent.pointerDown(handle, { clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 850 });
+    fireEvent.pointerUp(handle, { clientX: 0, clientY: 850 });
+    fireEvent.click(handle, { clientX: 0, clientY: 850 });
+    expect(onNodeClick).not.toHaveBeenCalled();
+  });
+
   it("drags internal nodes too", () => {
     const onSelectionChange = vi.fn();
     const { container } = render(<PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />);
@@ -227,11 +248,12 @@ describe("PhyloTree selection", () => {
   });
 });
 
-/** A press and release on the same spot: a click, as far as the marker gesture is concerned. */
+/** A press and release on the same spot, and the click a browser fires for it. */
 function click(element: Element, init: { clientX?: number; clientY?: number } = {}) {
   const at = { clientX: init.clientX ?? 5, clientY: init.clientY ?? 5 };
   fireEvent.pointerDown(element, at);
   fireEvent.pointerUp(element, at);
+  fireEvent.click(element, at);
 }
 
 describe("PhyloTree node and branch interaction", () => {

@@ -19,7 +19,8 @@ export type ControllableStateChangeSource = "internal" | "external" | "programma
 /**
  * @public
  * Options accepted by `useControllableState` (in `@react-bio-viz/core`). Every stateful prop in this library is a
- * thin, domain-named wrapper around this shape — see the `bio-viz-conventions` project skill.
+ * thin, domain-named wrapper around this shape — see
+ * {@link https://holmrenser.github.io/react-bio-viz/concepts/controllable-state/ | Controllable state}.
  */
 export interface ControllableStateOptions<T> {
   /** Present (not `undefined`) to fully control the value from the consumer. */

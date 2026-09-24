@@ -80,6 +80,7 @@ function trackKey(track: MSATrack, index: number): string {
 
 /**
  * @public
+ * @group Components
  * Renders a multiple sequence alignment: a canvas that draws only the visible window (so there is
  * no size limit, and letters stay crisp at any zoom), with a sequence-name column, a consensus row,
  * a column ruler, an interactive minimap, optional tracks (conservation, sequence logo, or any
@@ -92,36 +93,37 @@ function trackKey(track: MSATrack, index: number): string {
  *
  * Every piece of interactive state is controllable like every other stateful prop in this library
  * — `viewport`, `selection`, `rowOrder` and `panelSizes`, each with its `default*`/`on*Change`/
- * `*Store` companions (see the `bio-viz-conventions` project skill). The alignment itself is never
+ * `*Store` companions (see {@link https://holmrenser.github.io/react-bio-viz/concepts/controllable-state/ | Controllable state}). The alignment itself is never
  * mutated: renames and removals are reported through `onRenameRow`/`onRemoveRows`/
  * `onRemoveColumns` for the caller to apply, which keeps undo/redo and edit logs in the caller's hands.
  */
-export function MultipleSequenceAlignment({
-  msa,
-  width = 650,
-  height = 400,
-  options,
-  viewport,
-  defaultViewport,
-  onViewportChange,
-  viewportStore,
-  selection: selectionProp,
-  defaultSelection,
-  onSelectionChange,
-  selectionStore,
-  rowOrder: rowOrderProp,
-  defaultRowOrder,
-  onRowOrderChange,
-  rowOrderStore,
-  panelSizes: panelSizesProp,
-  defaultPanelSizes: defaultPanelSizesProp,
-  onPanelSizesChange,
-  panelSizesStore,
-  onRenameRow,
-  onRemoveRows,
-  onRemoveColumns,
-  onHoverChange,
-}: MultipleSequenceAlignmentProps): React.JSX.Element {
+export function MultipleSequenceAlignment(props: MultipleSequenceAlignmentProps): React.JSX.Element {
+  const {
+    msa,
+    width = 650,
+    height = 400,
+    options,
+    viewport,
+    defaultViewport,
+    onViewportChange,
+    viewportStore,
+    selection: selectionProp,
+    defaultSelection,
+    onSelectionChange,
+    selectionStore,
+    rowOrder: rowOrderProp,
+    defaultRowOrder,
+    onRowOrderChange,
+    rowOrderStore,
+    panelSizes: panelSizesProp,
+    defaultPanelSizes: defaultPanelSizesProp,
+    onPanelSizesChange,
+    panelSizesStore,
+    onRenameRow,
+    onRemoveRows,
+    onRemoveColumns,
+    onHoverChange,
+  } = props;
   const systemDarkMode = useDarkMode();
   const {
     cellSize = CELL_SIZE,
