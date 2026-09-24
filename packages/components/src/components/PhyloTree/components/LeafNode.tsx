@@ -1,9 +1,8 @@
-import randomColor from "randomcolor";
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
 
 import { RADIAL_LABEL_GAP, RADIAL_LABEL_MAX_CHARS } from "../constants";
 import { toCartesian, truncate } from "../utils/geometry";
-import type { ColorFn, HierarchyPointNode, LeafFn, Tree } from "../types";
+import type { HierarchyPointNode, LeafFn, Tree } from "../types";
 
 export function defaultLeafText({
   node,
@@ -16,13 +15,11 @@ export function defaultLeafText({
     data: { name },
   } = node;
   return (
-    <text x={0} y={0} fill="currentColor" className={css({ fontFamily: "sans-serif", fontSize: `${fontSize}` })}>
+    <text x={0} y={0} fill="currentColor" className={css({ fontFamily: "sans-serif", fontSize })}>
       {name}
     </text>
   );
 }
-
-const DRAGGABLE_CSS = css({ cursor: "grab" });
 
 const TIP_CONNECTOR_CSS = css({
   stroke: "currentColor",
@@ -38,33 +35,28 @@ export interface RadialLeafOptions {
 }
 
 /**
- * A leaf/tip: a dashed connector from the branch tip to the label position, a colored node
- * marker, and the label itself. When `alignTips` is set, every leaf's label sits at the same
- * `tipColumnY` depth (flush-aligned) instead of immediately after its own (possibly much shorter
- * or longer) branch — matters in `"rectangular"` layout, where branch length varies per leaf.
+ * A leaf/tip: a dashed connector from the branch tip to the label position, and the label itself
+ * (the node's marker is drawn separately, above every branch — see `NodeMarker`). When `alignTips`
+ * is set, every leaf's label sits at the same `tipColumnY` depth (flush-aligned) instead of
+ * immediately after its own (possibly much shorter or longer) branch — matters in `"rectangular"`
+ * layout, where branch length varies per leaf.
  *
  * Under `radial`, labels instead sit just outside the outermost radius and are rotated onto their
  * own spoke, flipping on the left half of the circle so no label reads upside down.
- *
- * When `onReorderPointerDown` is supplied, the node marker becomes draggable (vertically, among
- * its siblings) — marked `data-pan-ignore` so the surface's own pan-drag doesn't capture the
- * pointer first, same convention as `CollapseMarker`.
  */
 export function LeafNode({
   node,
-  colorFunction,
   leafTextComponent,
   alignTips,
   tipColumnY,
   isSearchMatch,
   isSearchActive,
   radial,
-  onReorderPointerDown,
-  onReorderPointerMove,
-  onReorderPointerUp,
+  color,
+  bold,
+  fontSize,
 }: {
   node: HierarchyPointNode<Tree>;
-  colorFunction?: ColorFn;
   leafTextComponent?: LeafFn;
   alignTips?: boolean;
   tipColumnY: number;
@@ -74,32 +66,23 @@ export function LeafNode({
   isSearchActive?: boolean;
   /** Supplied only by the radial layout; its presence selects the radial label geometry. */
   radial?: RadialLeafOptions;
-  onReorderPointerDown?: (node: HierarchyPointNode<Tree>, event: React.PointerEvent<SVGCircleElement>) => void;
-  onReorderPointerMove?: (event: React.PointerEvent<SVGCircleElement>) => void;
-  onReorderPointerUp?: (event: React.PointerEvent<SVGCircleElement>) => void;
+  /** Label colour (from `nodeStyles`). */
+  color?: string;
+  /** Bold label (from `nodeStyles`). */
+  bold?: boolean;
+  fontSize: number;
 }) {
   const {
     data: { name },
     x,
     y,
   } = node;
-  const colorSeed = typeof colorFunction !== "undefined" ? colorFunction(node) : name;
   const LeafTextComponent = typeof leafTextComponent === "undefined" ? defaultLeafText : leafTextComponent;
-  const labelStyle = isSearchActive
-    ? { fontWeight: isSearchMatch ? "bold" : "normal", opacity: isSearchMatch ? 1 : 0.3 }
-    : undefined;
-
-  const marker = (
-    <circle
-      className={cx(css({ fill: randomColor({ seed: colorSeed }) }), onReorderPointerDown && DRAGGABLE_CSS)}
-      r="4.5"
-      data-pan-ignore={onReorderPointerDown ? true : undefined}
-      onPointerDown={onReorderPointerDown ? (event) => onReorderPointerDown(node, event) : undefined}
-      onPointerMove={onReorderPointerMove}
-      onPointerUp={onReorderPointerUp}
-      onPointerCancel={onReorderPointerUp}
-    />
-  );
+  const labelStyle: React.CSSProperties = {
+    color,
+    fontWeight: (isSearchActive && isSearchMatch) || bold ? "bold" : undefined,
+    opacity: isSearchActive && !isSearchMatch ? 0.3 : undefined,
+  };
 
   if (radial) {
     const angle = node.angle ?? 0;
@@ -112,14 +95,16 @@ export function LeafNode({
       <g className="tipnode">
         <title>{name}</title>
         <line x1={y} y1={x} x2={labelPoint.x} y2={labelPoint.y} className={TIP_CONNECTOR_CSS} />
-        <g transform={`translate(${y},${x})`}>{marker}</g>
         <g
           transform={`translate(${labelPoint.x},${labelPoint.y}) rotate(${degrees})`}
           style={labelStyle}
           textAnchor={isFlipped ? "end" : "start"}
           dominantBaseline="central"
         >
-          <LeafTextComponent node={{ ...node, data: { ...node.data, name: truncate(name, RADIAL_LABEL_MAX_CHARS) } }} />
+          <LeafTextComponent
+            node={{ ...node, data: { ...node.data, name: truncate(name, RADIAL_LABEL_MAX_CHARS) } }}
+            fontSize={fontSize}
+          />
         </g>
       </g>
     );
@@ -132,9 +117,8 @@ export function LeafNode({
     <g className="tipnode">
       <title>{name}</title>
       <line x1={nodeY} x2={textY} y1={x} y2={x} className={TIP_CONNECTOR_CSS} />
-      <g transform={`translate(${nodeY},${x})`}>{marker}</g>
-      <g transform={`translate(${textY},${x + 4})`} style={labelStyle}>
-        <LeafTextComponent node={node} />
+      <g transform={`translate(${textY},${x + fontSize / 3})`} style={labelStyle}>
+        <LeafTextComponent node={node} fontSize={fontSize} />
       </g>
     </g>
   );

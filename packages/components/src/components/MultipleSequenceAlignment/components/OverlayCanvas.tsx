@@ -26,9 +26,14 @@ export function OverlayCanvas({
   selectedColumns,
   marquee,
   darkMode,
+  dataColumns,
+  dataRows,
   interaction,
 }: {
   window: AlignmentWindow;
+  /** Size of the alignment itself: bands stop at its edge rather than running into blank canvas. */
+  dataColumns: number;
+  dataRows: number;
   width: number;
   height: number;
   hoverRow: number | null;
@@ -64,26 +69,28 @@ export function OverlayCanvas({
     const rowY = (row: number) => (row - window.y0) * cellH;
     const visibleCol = (col: number) => col + 1 > window.x0 && col < window.x1;
     const visibleRow = (row: number) => row + 1 > window.y0 && row < window.y1;
+    const dataWidth = Math.min(width, colX(dataColumns));
+    const dataHeight = Math.min(height, rowY(dataRows));
 
     ctx.fillStyle = SELECTION_LITERAL.fill;
     ctx.strokeStyle = SELECTION_LITERAL.stroke;
     ctx.lineWidth = 1;
     for (const col of selectedColumns) {
       if (!visibleCol(col)) continue;
-      ctx.fillRect(colX(col), 0, cellW, height);
-      if (cellW >= 3) ctx.strokeRect(colX(col) + 0.5, 0.5, cellW - 1, height - 1);
+      ctx.fillRect(colX(col), 0, cellW, dataHeight);
+      if (cellW >= 3) ctx.strokeRect(colX(col) + 0.5, 0.5, cellW - 1, dataHeight - 1);
     }
     for (const row of selectedDisplayRows) {
       if (!visibleRow(row)) continue;
-      ctx.fillRect(0, rowY(row), width, cellH);
-      if (cellH >= 3) ctx.strokeRect(0.5, rowY(row) + 0.5, width - 1, cellH - 1);
+      ctx.fillRect(0, rowY(row), dataWidth, cellH);
+      if (cellH >= 3) ctx.strokeRect(0.5, rowY(row) + 0.5, dataWidth - 1, cellH - 1);
     }
 
     const accent = darkMode ? ACCENT_LITERAL.dark : ACCENT_LITERAL.light;
     ctx.fillStyle = accent;
     ctx.globalAlpha = 0.12;
-    if (hoverCol !== null && visibleCol(hoverCol)) ctx.fillRect(colX(hoverCol), 0, Math.max(1, cellW), height);
-    if (hoverRow !== null && visibleRow(hoverRow)) ctx.fillRect(0, rowY(hoverRow), width, Math.max(1, cellH));
+    if (hoverCol !== null && visibleCol(hoverCol)) ctx.fillRect(colX(hoverCol), 0, Math.max(1, cellW), dataHeight);
+    if (hoverRow !== null && visibleRow(hoverRow)) ctx.fillRect(0, rowY(hoverRow), dataWidth, Math.max(1, cellH));
     ctx.globalAlpha = 1;
     if (hoverCol !== null && hoverRow !== null && visibleCol(hoverCol) && visibleRow(hoverRow) && cellW >= 3 && cellH >= 3) {
       ctx.strokeStyle = accent;
@@ -100,7 +107,7 @@ export function OverlayCanvas({
       ctx.strokeRect(x + 0.5, y + 0.5, Math.abs(marquee.x1 - marquee.x0), Math.abs(marquee.y1 - marquee.y0));
       ctx.setLineDash([]);
     }
-  }, [window.x0, window.x1, window.y0, window.y1, width, height, hoverRow, hoverCol, selectedDisplayRows, selectedColumns, marquee, darkMode]);
+  }, [window.x0, window.x1, window.y0, window.y1, width, height, hoverRow, hoverCol, selectedDisplayRows, selectedColumns, marquee, darkMode, dataColumns, dataRows]);
 
   return (
     <canvas

@@ -1,32 +1,36 @@
 import { describe, expect, it } from "vitest";
 
 import { buildHierarchy, descendants } from "./hierarchy";
-import { rerootTree } from "./reroot";
-import type { Tree } from "../types";
+import { REROOT_ID, rerootOnBranch } from "./reroot";
+import type { HierarchyPointNode, Tree } from "../types";
 
-// A-B-C-D linear chain: A(root) -> B -> C -> D, each edge length 1.
-const linear: Tree = {
-  ID: "A",
-  name: "A",
+// ((A:1,B:2)AB:3,(C:4,D:5)CD:6)root;
+const binary: Tree = {
+  name: "root",
   length: 0,
   children: [
     {
-      ID: "B",
-      name: "B",
-      length: 1,
+      ID: "AB",
+      name: "AB",
+      length: 3,
       children: [
-        {
-          ID: "C",
-          name: "C",
-          length: 1,
-          children: [{ ID: "D", name: "D", length: 1, children: [] }],
-        },
+        { ID: "A", name: "A", length: 1, children: [] },
+        { ID: "B", name: "B", length: 2, children: [] },
+      ],
+    },
+    {
+      ID: "CD",
+      name: "CD",
+      length: 6,
+      children: [
+        { ID: "C", name: "C", length: 4, children: [] },
+        { ID: "D", name: "D", length: 5, children: [] },
       ],
     },
   ],
 };
 
-// A balanced tree with a multifurcation at the root: root -> (X, Y, Z), X -> (leaf1, leaf2).
+// root -> (X(leaf1, leaf2), Y, Z): a multifurcating root.
 const multifurcating: Tree = {
   ID: "root",
   name: "root",
@@ -46,82 +50,77 @@ const multifurcating: Tree = {
   ],
 };
 
-function names(tree: Tree): string[] {
-  return descendants(buildHierarchy(tree))
-    .map((n) => n.data.name)
-    .sort();
-}
+type Node = HierarchyPointNode<Tree>;
+const leaves = (root: Node) => descendants(root).filter((n) => !n.children).map((n) => n.data.name).sort();
+const totalLength = (root: Node) => descendants(root).reduce((sum, n) => sum + (n.parent ? n.data.length : 0), 0);
+const byId = (root: Node, id: string) => descendants(root).find((n) => n.id === id)!;
 
-describe("rerootTree", () => {
-  it("is a no-op when rerooting at the current root", () => {
-    const root = buildHierarchy(linear);
-    const rerooted = rerootTree(root, "A");
-    expect(rerooted).toBe(root);
+describe("rerootOnBranch", () => {
+  it("inserts a bifurcating root on the branch above a leaf, keeping every leaf", () => {
+    const original = buildHierarchy(binary);
+    const rerooted = rerootOnBranch(original, "A");
+    expect(rerooted.id).toBe(REROOT_ID);
+    expect(rerooted.children).toHaveLength(2);
+    expect(leaves(rerooted)).toEqual(["A", "B", "C", "D"]);
+    // A hangs directly off the new root, with half its branch.
+    expect(byId(rerooted, "A").parent?.id).toBe(REROOT_ID);
+    expect(byId(rerooted, "A").data.length).toBeCloseTo(0.5);
   });
 
-  it("is a no-op when the target id doesn't exist", () => {
-    const root = buildHierarchy(linear);
-    const rerooted = rerootTree(root, "nonexistent");
-    expect(rerooted).toBe(root);
-  });
-
-  it("preserves every original node and every original branch length, just reattributed", () => {
-    const root = buildHierarchy(linear);
-    const rerooted = rerootTree(root, "D");
-
-    // Same set of node names.
-    expect(names(rerooted.data)).toEqual(["A", "B", "C", "D"]);
-
-    // D is now the root, with a single child chain D -> C -> B -> A, and the edge lengths are
-    // the original A-B, B-C, C-D lengths (all 1 here), just walked in the opposite direction.
-    expect(rerooted.data.name).toBe("D");
-    expect(rerooted.data.length).toBe(0);
-    const c = rerooted.data.children[0];
-    expect(c.name).toBe("C");
-    expect(c.length).toBe(1); // original C-D edge length
-    const b = c.children[0];
-    expect(b.name).toBe("B");
-    expect(b.length).toBe(1); // original B-C edge length
-    const a = b.children[0];
-    expect(a.name).toBe("A");
-    expect(a.length).toBe(1); // original A-B edge length
-    expect(a.children).toHaveLength(0);
-  });
-
-  it("keeps sibling subtrees attached to the inverted ancestor in a multifurcating tree", () => {
-    const root = buildHierarchy(multifurcating);
-    const rerooted = rerootTree(root, "leaf1");
-
-    expect(names(rerooted.data)).toEqual(["X", "Y", "Z", "leaf1", "leaf2", "root"]);
-
-    // leaf1 is the new root; its child is X, which keeps leaf2 (its original sibling under X)
-    // and gains the inverted old root (carrying Y and Z, X's original siblings) as its other child.
-    expect(rerooted.data.name).toBe("leaf1");
-    const x = rerooted.data.children[0];
-    expect(x.name).toBe("X");
-    expect(x.length).toBe(1); // original X-leaf1 edge length
-
-    const leaf2 = x.children.find((c) => c.name === "leaf2");
-    expect(leaf2?.length).toBe(1); // original X-leaf2 edge length, untouched
-
-    const invertedOldRoot = x.children.find((c) => c.name === "root");
-    expect(invertedOldRoot?.length).toBe(2); // original root-X edge length
-    expect(invertedOldRoot?.children.map((c) => c.name).sort()).toEqual(["Y", "Z"]);
-    expect(invertedOldRoot?.children.find((c) => c.name === "Y")?.length).toBe(3);
-    expect(invertedOldRoot?.children.find((c) => c.name === "Z")?.length).toBe(4);
-  });
-
-  it("round-trips: rerooting back to the original root reproduces an equivalent tree", () => {
-    const root = buildHierarchy(linear);
-    const rerooted = rerootTree(root, "D");
-    const rerootedRoot = buildHierarchy(rerooted.data);
-    const backToA = rerootTree(rerootedRoot, "A");
-
-    expect(names(backToA.data)).toEqual(names(linear));
-
-    function totalLength(tree: Tree): number {
-      return tree.children.reduce((sum, c) => sum + c.length + totalLength(c), 0);
+  it("preserves total branch length, dissolving the old binary root", () => {
+    const original = buildHierarchy(binary);
+    for (const id of ["A", "B", "C", "D", "AB", "CD"]) {
+      const rerooted = rerootOnBranch(original, id);
+      expect(totalLength(rerooted)).toBeCloseTo(totalLength(original));
+      expect(leaves(rerooted)).toEqual(["A", "B", "C", "D"]);
+      // The old root had two children; once re-hung it would be unary, so it must be gone.
+      expect(descendants(rerooted).some((n) => n.id === "0")).toBe(false);
     }
-    expect(totalLength(backToA.data)).toBe(totalLength(linear));
+  });
+
+  it("merges the old root's two edges into one when rerooting inside a clade", () => {
+    const rerooted = rerootOnBranch(buildHierarchy(binary), "A");
+    // AB now hangs below A's new root; CD reaches AB through the dissolved root: 3 + 6.
+    expect(byId(rerooted, "CD").parent?.id).toBe("AB");
+    expect(byId(rerooted, "CD").data.length).toBeCloseTo(9);
+  });
+
+  it("places the root at the requested fraction of the branch", () => {
+    const rerooted = rerootOnBranch(buildHierarchy(binary), "C", 0.25);
+    expect(byId(rerooted, "C").data.length).toBeCloseTo(1);
+    const other = rerooted.children!.find((n) => n.id !== "C")!;
+    expect(other.id).toBe("CD");
+    expect(other.data.length).toBeCloseTo(3);
+  });
+
+  it("keeps ids stable, so a node can be addressed before and after", () => {
+    const original = buildHierarchy(binary);
+    const ids = descendants(original).map((n) => n.id).filter((id) => id !== "0").sort();
+    const rerooted = rerootOnBranch(original, "D");
+    expect(descendants(rerooted).map((n) => n.id).filter((id) => id !== REROOT_ID).sort()).toEqual(ids);
+  });
+
+  it("keeps a multifurcating old root as an internal node", () => {
+    const rerooted = rerootOnBranch(buildHierarchy(multifurcating), "leaf1");
+    const oldRoot = byId(rerooted, "root");
+    expect(oldRoot.children?.map((n) => n.id).sort()).toEqual(["Y", "Z"]);
+    expect(totalLength(rerooted)).toBeCloseTo(totalLength(buildHierarchy(multifurcating)));
+  });
+
+  it("is a no-op for the root or an unknown id", () => {
+    const original = buildHierarchy(binary);
+    expect(rerootOnBranch(original, "0")).toBe(original);
+    expect(rerootOnBranch(original, "nope")).toBe(original);
+  });
+
+  it("links parents, depth and data.children consistently", () => {
+    const rerooted = rerootOnBranch(buildHierarchy(binary), "B");
+    for (const node of descendants(rerooted)) {
+      for (const child of node.children ?? []) {
+        expect(child.parent).toBe(node);
+        expect(child.depth).toBe(node.depth + 1);
+      }
+      expect(node.data.children).toHaveLength(node.children?.length ?? 0);
+    }
   });
 });

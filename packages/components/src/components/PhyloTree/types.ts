@@ -32,6 +32,8 @@ export type HierarchyPointNode<T> = {
   radius?: number;
   /** Angle in radians, 0 pointing right. Populated by `"radial"` only. */
   angle?: number;
+  /** For a collapsed clade drawn as a single tip: how many leaves it hides. */
+  collapsedLeafCount?: number;
 };
 
 /**
@@ -63,25 +65,70 @@ export type ColorFn = (node: HierarchyPointNode<Tree>) => string;
 /**
  * @public
  * `rectangular` scales branches by length (a phylogram); `cladogram` ignores branch lengths and
- * aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a typed
- * placeholder for a future circular layout — selecting it currently falls back to `rectangular`
- * with a console warning.
+ * aligns every tip flush at the right edge, regardless of topology imbalance; `radial` is a
+ * circular phylogram, with leaves spread over a full turn.
  */
 export type LayoutMode = "rectangular" | "cladogram" | "radial";
 
 /**
  * @public
- * Which node the tree is rerooted at, and which internal nodes have their subtrees collapsed.
- * Controllable like every other stateful prop in this library — see `selection`/
- * `defaultSelection`/`onSelectionChange`/`selectionStore`.
+ * Where the tree is rooted, which clades are collapsed, and how siblings are ordered. Controllable
+ * like every other stateful prop in this library — see `selection`/`defaultSelection`/
+ * `onSelectionChange`/`selectionStore`. All ids are those of the tree as passed in (see
+ * {@link HierarchyPointNode}), and stay valid across reroots.
  */
 export interface TreeSelection {
-  /** `id` (see {@link HierarchyPointNode}) of the node to treat as the root, or undefined for the original root. */
+  /**
+   * `id` of the node whose *branch* (the edge to its parent) holds the root — a new bifurcating root
+   * is inserted on it — or undefined for the tree's own root. See also {@link midpointRoot}.
+   */
   rerootedAt?: string;
-  /** `id`s of internal nodes whose subtrees are hidden. */
+  /**
+   * Where on that branch the root sits, as a fraction from the node (0) to its parent (1).
+   * @defaultValue 0.5
+   */
+  rerootPosition?: number;
+  /** `id`s of internal nodes whose clades are drawn collapsed, as a triangle. */
   collapsed: string[];
-  /** Maps a node's `id` to a reordered sequence of its children's `id`s, overriding the source data's sibling order (set by dragging a leaf up/down). */
+  /**
+   * Maps a node's `id` to a reordered sequence of its children's `id`s, overriding the source
+   * data's sibling order (set by dragging a node, or by {@link ladderizeOrder}/{@link rotateOrder}/
+   * {@link orderForLeafNames}).
+   */
   order?: Record<string, string[]>;
+}
+
+/** @public What a node or branch click reports about the node (for a branch: the node below it). */
+export interface TreeNodeInfo {
+  id: string;
+  name: string;
+  /** A tip of the displayed tree that is not a collapsed clade. */
+  isLeaf: boolean;
+  isRoot: boolean;
+  isCollapsed: boolean;
+  /** Length of the branch above the node. */
+  length: number;
+  /** The internal node's numeric label (bootstrap support), if it has one. */
+  support?: number;
+  /** Every leaf below the node (the node's own name, for a leaf). */
+  leafNames: string[];
+  /** The node and all its descendants — e.g. to style a whole clade in `nodeStyles`/`branchStyles`. */
+  descendantIds: string[];
+  clientX: number;
+  clientY: number;
+}
+
+/** @public Per-node styling, keyed by node `id` in {@link PhyloTreeProps.nodeStyles}. */
+export interface TreeNodeStyle {
+  /** Colour of the node marker and, for a leaf, its label. */
+  color?: string;
+  /** Bold leaf label. */
+  bold?: boolean;
+}
+
+/** @public Per-branch styling, keyed by the `id` of the node below the branch. */
+export interface TreeBranchStyle {
+  color?: string;
 }
 
 /** @public */
@@ -96,9 +143,15 @@ export interface PhyloTreeProps {
   cladogram?: boolean;
   /** Tree layout mode — see {@link LayoutMode}. @defaultValue "rectangular" */
   layout?: LayoutMode;
+  /** Label internal nodes with their name (typically bootstrap support). @defaultValue true */
   showSupportValues?: boolean;
+  /** Only label support values at or above this value. @defaultValue 0 */
+  supportThreshold?: number;
+  /** Fade branches whose parent's support (a 0–1 value) is low. @defaultValue true */
   shadeBranchBySupport?: boolean;
+  /** Seeds the default colour of each leaf's marker; `nodeStyles` overrides it. */
   colorFunction?: ColorFn;
+  /** Font size of support-value labels, in pixels. @defaultValue 10 */
   fontSize?: number;
   /** Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch. @defaultValue true */
   alignTips?: boolean;
@@ -120,8 +173,9 @@ export interface PhyloTreeProps {
   /** Delegates selection state to an external store instead of local state. */
   selectionStore?: StoreController<TreeSelection>;
   /**
-   * Render a clickable marker on internal nodes that toggles `selection.collapsed`, and let leaves
-   * be dragged vertically to reorder them among their siblings (writes to `selection.order`).
+   * Render a clickable marker on internal nodes that toggles `selection.collapsed` (or calls
+   * `onNodeClick`), and let nodes be dragged vertically among their siblings (writes to
+   * `selection.order`; see `dragEnabled`).
    * @defaultValue false
    */
   interactive?: boolean;
@@ -131,4 +185,39 @@ export interface PhyloTreeProps {
   searchUseRegex?: boolean;
   /** Show a branch-length scale bar below the tree (only meaningful in `"rectangular"` layout). @defaultValue true */
   showScaleBar?: boolean;
+  /** Label every branch with its length. @defaultValue false */
+  showBranchLengths?: boolean;
+  /** Branch stroke width, in pixels. @defaultValue 0.75 */
+  branchWidth?: number;
+  /** Radius of node markers, in pixels (0 hides them). @defaultValue 4 */
+  nodeRadius?: number;
+  /** Leaf label font size, in pixels. @defaultValue 11 */
+  labelFontSize?: number;
+  /**
+   * Vertical pixels per leaf. When set, the tree is laid out that tall (instead of fitting
+   * `height`) and the view scrolls through it — a large tree stays readable. Ignored for `"radial"`.
+   */
+  leafSpacing?: number;
+  /** Per-node colour/bold, keyed by node `id` (see {@link TreeNodeInfo.descendantIds} for clades). */
+  nodeStyles?: Record<string, TreeNodeStyle>;
+  /** Per-branch colour, keyed by the `id` of the node below the branch. */
+  branchStyles?: Record<string, TreeBranchStyle>;
+  /** Node drawn highlighted — e.g. the one whose context panel is open. */
+  activeNodeId?: string | null;
+  /**
+   * Called when a node marker is clicked (without dragging). When provided, clicking an internal
+   * node's marker calls this instead of toggling collapse, so the caller can offer a menu.
+   */
+  onNodeClick?: (node: TreeNodeInfo, event: React.MouseEvent) => void;
+  /** Called when a branch is clicked; makes branches clickable. Reports the node below the branch. */
+  onBranchClick?: (node: TreeNodeInfo, event: React.MouseEvent) => void;
+  /**
+   * Let nodes be dragged vertically among their siblings (writes `selection.order`).
+   * @defaultValue the value of `interactive`
+   */
+  dragEnabled?: boolean;
+  /** Called with the leaf names in display order whenever it changes (e.g. to order alignment rows to match). */
+  onLeafOrderChange?: (leafNames: string[]) => void;
+  /** Ref to the rendered `<svg>`, e.g. to export it as SVG or PNG. */
+  svgRef?: React.Ref<SVGSVGElement>;
 }

@@ -674,6 +674,8 @@ export function MultipleSequenceAlignment({
             selectedColumns={selection.columns}
             marquee={gestures.marquee}
             darkMode={darkMode}
+            dataColumns={numColumns}
+            dataRows={numSeqs}
             interaction={{
               ...gestures.handlers,
               ref: wheel.ref,

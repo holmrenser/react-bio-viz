@@ -1,13 +1,10 @@
 import { css } from "@emotion/css";
 
+import { BRANCH_HIT_WIDTH, DEFAULT_BRANCH_OPACITY } from "../constants";
 import { arcPath, toCartesian } from "../utils/geometry";
 import type { HierarchyPointNode, Tree } from "../types";
 
-const BRANCH_CSS = css({
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 0.75,
-});
+const HIT_CSS = css({ cursor: "pointer", "&:hover + path": { stroke: "var(--rbv-accent)" } });
 
 /** The elbow a rectangular/cladogram layout uses: out along the parent's depth, then across. */
 function elbowPath(node: HierarchyPointNode<Tree>): string {
@@ -37,7 +34,17 @@ function radialPath(node: HierarchyPointNode<Tree>, center: { cx: number; cy: nu
   return path;
 }
 
-const DEFAULT_BRANCH_OPACITY = 0.9;
+/** Just this node's own segment (no sibling arc/connector) — the part a click on the branch means. */
+function ownSegment(node: HierarchyPointNode<Tree>, center?: { cx: number; cy: number }): string {
+  const parent = node.parent!;
+  if (center) {
+    const angle = node.angle ?? 0;
+    const from = toCartesian(parent.radius ?? 0, angle, center.cx, center.cy);
+    const to = toCartesian(node.radius ?? 0, angle, center.cx, center.cy);
+    return `M${from.x},${from.y} L${to.x},${to.y}`;
+  }
+  return `M${parent.y},${node.x} L${node.y},${node.x}`;
+}
 
 /**
  * How strongly to draw a branch: its parent's support value when shading is on and that value is
@@ -56,17 +63,44 @@ export function TreeBranch({
   node,
   shadeBranchBySupport,
   center,
+  color,
+  width,
+  onClick,
 }: {
   node: HierarchyPointNode<Tree>;
   shadeBranchBySupport?: boolean;
   /** Circle centre, supplied only by the radial layout; its presence selects the geometry. */
   center?: { cx: number; cy: number };
+  color?: string;
+  width: number;
+  /** When set, the branch gets a wide invisible hit area and reports clicks with the node's id. */
+  onClick?: (nodeId: string, event: React.MouseEvent) => void;
 }) {
   return (
-    <path
-      d={center ? radialPath(node, center) : elbowPath(node)}
-      className={BRANCH_CSS}
-      opacity={branchOpacity(node, shadeBranchBySupport)}
-    />
+    <>
+      {onClick && (
+        <path
+          d={ownSegment(node, center)}
+          className={HIT_CSS}
+          fill="none"
+          stroke="transparent"
+          strokeWidth={Math.max(BRANCH_HIT_WIDTH, width + 4)}
+          data-pan-ignore
+          data-branch-id={node.id}
+          onClick={(event) => {
+            event.stopPropagation();
+            onClick(node.id, event);
+          }}
+        />
+      )}
+      <path
+        d={center ? radialPath(node, center) : elbowPath(node)}
+        fill="none"
+        stroke={color ?? "currentColor"}
+        strokeWidth={width}
+        opacity={branchOpacity(node, shadeBranchBySupport)}
+        pointerEvents="none"
+      />
+    </>
   );
 }
