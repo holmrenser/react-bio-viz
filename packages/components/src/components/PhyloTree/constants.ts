@@ -48,3 +48,9 @@ export const BRANCH_WIDTH = 0.75;
 
 /** Default leaf label font size, in pixels. */
 export const LABEL_FONT_SIZE = 11;
+
+/**
+ * Dragging a node more than this many tip rows past the first or last tip asks to reroot on it
+ * (with its clade at that end) rather than to reorder — acacia's drag-to-reroot.
+ */
+export const REROOT_DRAG_ZONE = 1.5;

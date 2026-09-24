@@ -2,7 +2,7 @@ import { fireEvent, render } from "@testing-library/react";
 import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
-import { PhyloTree } from "./index";
+import { leafOrder, PhyloTree } from "./index";
 import type { Tree, TreeSelection } from "./types";
 
 // An intentionally unbalanced tree: one leaf hangs directly off an early ancestor while a sibling
@@ -162,24 +162,49 @@ describe("PhyloTree selection", () => {
     const { container } = render(
       <PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} defaultSelection={{ collapsed: [] }} />
     );
+    // Three tips spread over 850px (900 minus margins and scale bar): rows at 0, 425 and 850.
     const handle = container.querySelector('circle[data-node-id="shallow"]')!;
     fireEvent.pointerDown(handle, { clientX: 0, clientY: 0 });
-    fireEvent.pointerMove(handle, { clientX: 0, clientY: 500 });
-    fireEvent.pointerMove(handle, { clientX: 0, clientY: 1000 });
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 400 });
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 850 });
     expect(onSelectionChange).not.toHaveBeenCalled();
-    fireEvent.pointerUp(handle, { clientX: 0, clientY: 1000 });
+    fireEvent.pointerUp(handle, { clientX: 0, clientY: 850 });
     expect(onSelectionChange).toHaveBeenCalledTimes(1);
-    expect((onSelectionChange.mock.calls[0][0] as TreeSelection).order).toEqual({ "0": ["clade", "shallow"] });
+    const next = onSelectionChange.mock.calls[0][0] as TreeSelection;
+    expect(leafOrder(tree, next)).toEqual(["deep-leaf-a", "deep-leaf-b", "shallow-leaf"]);
+    expect(next.rerootedAt).toBeUndefined();
+  });
+
+  it("previews a drag live, before anything is committed", () => {
+    const { container } = render(<PhyloTree tree={tree} interactive />);
+    const handle = container.querySelector('circle[data-node-id="shallow"]')!;
+    fireEvent.pointerDown(handle, { clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 850 });
+    const names = Array.from(container.querySelectorAll("g.tipnode title")).map((t) => t.textContent);
+    expect(names).toEqual(["deep-leaf-a", "deep-leaf-b", "shallow-leaf"]);
+  });
+
+  it("reroots on a node dragged past either end of the tree, its clade at that end", () => {
+    const onSelectionChange = vi.fn();
+    const { container } = render(<PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />);
+    const handle = container.querySelector('circle[data-node-id="deep-b"]')!;
+    fireEvent.pointerDown(handle, { clientX: 0, clientY: 850 });
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: -2000 });
+    fireEvent.pointerUp(handle, { clientX: 0, clientY: -2000 });
+    const next = onSelectionChange.mock.calls[0][0] as TreeSelection;
+    expect(next.rerootedAt).toBe("deep-b");
+    expect(leafOrder(tree, next)[0]).toBe("deep-leaf-b");
   });
 
   it("drags internal nodes too", () => {
     const onSelectionChange = vi.fn();
     const { container } = render(<PhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />);
+    // "clade" sits between its two leaves (rows 425 and 850): drag it up to row 0.
     const handle = container.querySelector('circle[data-node-id="clade"]')!;
-    fireEvent.pointerDown(handle, { clientX: 0, clientY: 1000 });
+    fireEvent.pointerDown(handle, { clientX: 0, clientY: 637 });
     fireEvent.pointerMove(handle, { clientX: 0, clientY: 0 });
     fireEvent.pointerUp(handle, { clientX: 0, clientY: 0 });
-    expect((onSelectionChange.mock.calls[0][0] as TreeSelection).order).toEqual({ "0": ["clade", "shallow"] });
+    expect(leafOrder(tree, onSelectionChange.mock.calls[0][0] as TreeSelection)).toEqual(["deep-leaf-a", "deep-leaf-b", "shallow-leaf"]);
   });
 
   it("does not drag when dragEnabled is false", () => {
@@ -211,6 +236,7 @@ describe("PhyloTree node and branch interaction", () => {
     expect(onSelectionChange).not.toHaveBeenCalled();
     expect(onNodeClick).toHaveBeenCalledTimes(1);
     expect(onNodeClick.mock.calls[0][0]).toMatchObject({
+      rerootAbove: { rerootedAt: "nested", rerootPosition: 0.5 },
       id: "nested",
       isLeaf: false,
       isRoot: false,

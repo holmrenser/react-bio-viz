@@ -49,6 +49,7 @@ export {
   midpointRoot,
   orderForLeafNames,
   parseNewick,
+  rerootAbove,
   rotateOrder,
   toNewick,
 } from './components/PhyloTree';

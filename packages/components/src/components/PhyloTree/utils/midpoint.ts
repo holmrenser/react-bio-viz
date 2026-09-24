@@ -1,5 +1,6 @@
 import type { HierarchyPointNode, Tree, TreeSelection } from "../types";
 import { buildHierarchy, descendants } from "./hierarchy";
+import { rootAtPathPoint } from "./paths";
 
 type Node = HierarchyPointNode<Tree>;
 
@@ -49,20 +50,5 @@ export function midpointRoot(tree: Tree): Pick<TreeSelection, "rerootedAt" | "re
   const { distance: diameter, path } = farthest(a);
   if (diameter <= 0) return {};
 
-  const half = diameter / 2;
-  let walked = 0;
-  for (let i = 0; i < path.length - 1; i += 1) {
-    const u = path[i];
-    const v = path[i + 1];
-    const child = v.parent === u ? v : u;
-    const length = child.data.length || 0;
-    if (walked + length >= half) {
-      // Distance from `u` to the midpoint along this edge, re-expressed from the edge's child end.
-      const fromU = half - walked;
-      const fromChild = child === u ? fromU : length - fromU;
-      return { rerootedAt: child.id, rerootPosition: length > 0 ? fromChild / length : 0.5 };
-    }
-    walked += length;
-  }
-  return {};
+  return rootAtPathPoint(path, diameter / 2);
 }

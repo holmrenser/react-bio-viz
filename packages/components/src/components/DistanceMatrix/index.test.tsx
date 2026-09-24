@@ -84,6 +84,6 @@ describe("DistanceMatrix", () => {
     const handle = screen.getByLabelText("Resize labels");
     fireEvent.pointerDown(handle, { clientX: 100 });
     fireEvent.pointerMove(handle, { clientX: 60 });
-    expect(onPanelSizesChange.mock.calls.at(-1)[0]).toEqual({ labelWidth: 120 });
+    expect(onPanelSizesChange.mock.calls.at(-1)?.[0]).toEqual({ labelWidth: 120 });
   });
 });

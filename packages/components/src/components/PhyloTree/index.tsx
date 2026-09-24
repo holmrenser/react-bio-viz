@@ -17,6 +17,7 @@ import {
   LABEL_WIDTH,
   MARGIN,
   NODE_RADIUS,
+  REROOT_DRAG_ZONE,
   SCALE_BAR_HEIGHT,
   SCALE_BAR_OFFSET,
   SCALE_BAR_TARGET_PIXELS,
@@ -26,10 +27,10 @@ import { computeLayout } from "./layouts";
 import type { HierarchyPointNode, LayoutMode, PhyloTreeProps, Tree, TreeSelection } from "./types";
 import { pruneCollapsed } from "./utils/collapse";
 import { buildHierarchy, countLeaves, descendants } from "./utils/hierarchy";
-import { applyOrder, computeReordered } from "./utils/reorder";
+import { applyOrder } from "./utils/reorder";
 import { rerootOnBranch } from "./utils/reroot";
 import { matchesQuery } from "./utils/search";
-import { nodeInfo } from "./utils/treeOps";
+import { displayTips, nodeInfo, planDragReroot, planTipMove, rerootAbove } from "./utils/treeOps";
 
 export type {
   ColorFn,
@@ -52,6 +53,7 @@ export {
   ladderizeOrder,
   leafOrder,
   orderForLeafNames,
+  rerootAbove,
   rotateOrder,
 } from "./utils/treeOps";
 
@@ -61,13 +63,15 @@ function defaultColorFunction(node: Node): string {
   return node.data.name.split(" ").slice(0, -1).join();
 }
 
-/** A press on a node marker that may become a click or a sibling-reorder drag. */
+/** A press on a node marker that may become a click or a drag. */
 interface MarkerPress {
   nodeId: string;
   startClientX: number;
   startClientY: number;
-  /** Set once the pointer travels past the drag threshold and the node can be reordered. */
-  drag: { parentId: string; order: string[]; startIndex: number } | null;
+  /** The node's tip-axis position when pressed, in layout units. */
+  startX: number;
+  /** Set once the pointer travels past the drag threshold. */
+  dragging: boolean;
 }
 
 /**
@@ -143,16 +147,15 @@ export function PhyloTree({
     selectionStore,
   });
 
-  // Live preview of an in-progress sibling reorder drag — kept as local, ephemeral state (not
-  // part of the controllable `selection`) so dragging doesn't spam `onSelectionChange` on every
-  // pixel of movement; the real `selection.order` update happens once, on release.
-  const [previewOrder, setPreviewOrderState] = useState<{ parentId: string; order: string[] } | null>(null);
-  // Mirrored in a ref so the release handler can commit the final preview without a state updater
-  // with side effects (StrictMode runs updaters twice).
-  const previewRef = useRef<{ parentId: string; order: string[] } | null>(null);
-  const setPreviewOrder = useCallback((next: { parentId: string; order: string[] } | null) => {
+  // Live preview of an in-progress drag (a reorder, or a reroot past either end of the tree) — kept
+  // as local, ephemeral state (not part of the controllable `selection`) so dragging doesn't spam
+  // `onSelectionChange` on every pixel of movement; the real update happens once, on release.
+  // Mirrored in a ref so the release handler can commit it without a side-effecting state updater.
+  const [preview, setPreviewState] = useState<TreeSelection | null>(null);
+  const previewRef = useRef<TreeSelection | null>(null);
+  const setPreview = useCallback((next: TreeSelection | null) => {
     previewRef.current = next;
-    setPreviewOrderState(next);
+    setPreviewState(next);
   }, []);
 
   // Cladogram ignores branch length, so it never gets a scale bar (its layout reports no scaling
@@ -162,19 +165,27 @@ export function PhyloTree({
   // Topology for the current selection, before collapse: ids here are the original tree's, which
   // is what keeps every id in the selection meaningful across reroots.
   const baseRoot = useMemo(() => buildHierarchy(tree), [tree]);
-  const arranged = useMemo(() => {
-    let root = baseRoot;
-    if (currentSelection.rerootedAt) root = rerootOnBranch(root, currentSelection.rerootedAt, currentSelection.rerootPosition);
-    const order = currentSelection.order ?? {};
-    if (Object.keys(order).length > 0) root = applyOrder(root, order);
-    return root;
-  }, [baseRoot, currentSelection.rerootedAt, currentSelection.rerootPosition, currentSelection.order]);
+  const arrangeWith = useCallback(
+    (arrangement: Pick<TreeSelection, "rerootedAt" | "rerootPosition" | "order">) => {
+      let root = baseRoot;
+      if (arrangement.rerootedAt) root = rerootOnBranch(root, arrangement.rerootedAt, arrangement.rerootPosition);
+      const order = arrangement.order ?? {};
+      if (Object.keys(order).length > 0) root = applyOrder(root, order);
+      return root;
+    },
+    [baseRoot]
+  );
+  const arranged = useMemo(
+    () => arrangeWith(currentSelection),
+    // Only the arrangement fields matter; `collapsed` is applied separately.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [arrangeWith, currentSelection.rerootedAt, currentSelection.rerootPosition, currentSelection.order]
+  );
 
   const collapsedSet = useMemo(() => new Set(currentSelection.collapsed), [currentSelection.collapsed]);
 
   const { nodes, root, tipColumnY, layoutResult, sizeX, contentHeight } = useMemo(() => {
-    let displayRoot = arranged;
-    if (previewOrder) displayRoot = applyOrder(displayRoot, { [previewOrder.parentId]: previewOrder.order });
+    let displayRoot = preview ? arrangeWith(preview) : arranged;
     if (currentSelection.collapsed.length > 0) displayRoot = pruneCollapsed(displayRoot, currentSelection.collapsed);
 
     const tipCount = countLeaves(displayRoot);
@@ -191,7 +202,7 @@ export function PhyloTree({
       sizeX: sizeXValue,
       contentHeight: Math.max(height, sizeXValue + margin.top + margin.bottom + scaleBarSpace),
     };
-  }, [arranged, previewOrder, currentSelection.collapsed, effectiveLayout, height, width, margin, scaleBarSpace, leafSpacing, isRadial]);
+  }, [arranged, arrangeWith, preview, currentSelection.collapsed, effectiveLayout, height, width, margin, scaleBarSpace, leafSpacing, isRadial]);
 
   // Report leaf order (collapsed clades' leaves included) whenever the committed arrangement changes.
   const onLeafOrderChangeRef = useRef(onLeafOrderChange);
@@ -251,14 +262,16 @@ export function PhyloTree({
     }),
   });
 
-  // ---- node gestures: click (inspect/collapse) vs drag (reorder among siblings) ----------------
+  // ---- node gestures: click (inspect/collapse) vs drag (reorder, or reroot past either end) -----
   // Everything a gesture reads lives in refs, so the handlers are stable and the memoised tree body
   // below doesn't re-render on every pan.
-  const latest = useRef({ root, nodes, unitsPerPixelY, sizeX, collapsedSet, onNodeClick, interactive, dragEnabled });
-  latest.current = { root, nodes, unitsPerPixelY, sizeX, collapsedSet, onNodeClick, interactive, dragEnabled };
+  const latest = useRef({ tree, currentSelection, root, nodes, unitsPerPixelY, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial });
+  latest.current = { tree, currentSelection, root, nodes, unitsPerPixelY, collapsedSet, onNodeClick, interactive, dragEnabled, isRadial };
   const pressRef = useRef<MarkerPress | null>(null);
 
   const findNode = (id: string) => latest.current.nodes.find((node) => node.id === id);
+  const describe = (node: Node, event: { clientX: number; clientY: number }) =>
+    nodeInfo(node, latest.current.collapsedSet, event, rerootAbove(latest.current.tree, latest.current.currentSelection, node.id));
 
   const toggleCollapse = useCallback(
     (id: string) =>
@@ -274,7 +287,8 @@ export function PhyloTree({
       onPointerDown: (nodeId, event) => {
         if (event.button > 0) return;
         event.stopPropagation();
-        pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, drag: null };
+        const node = findNode(nodeId);
+        pressRef.current = { nodeId, startClientX: event.clientX, startClientY: event.clientY, startX: node?.x ?? 0, dragging: false };
         try {
           event.currentTarget.setPointerCapture?.(event.pointerId);
         } catch {
@@ -284,22 +298,27 @@ export function PhyloTree({
       onPointerMove: (event) => {
         const press = pressRef.current;
         if (!press) return;
-        const { dragEnabled: canDrag, unitsPerPixelY: perPixel, sizeX: spread, root: displayRoot } = latest.current;
-        if (!press.drag) {
-          if (!canDrag || Math.hypot(event.clientX - press.startClientX, event.clientY - press.startClientY) < DRAG_THRESHOLD_PX) return;
-          const node = findNode(press.nodeId);
-          if (!node?.parent?.children) return;
-          const order = node.parent.children.map((child) => child.id);
-          press.drag = { parentId: node.parent.id, order, startIndex: order.indexOf(node.id) };
+        const { dragEnabled: canDrag, isRadial: radialLayout, unitsPerPixelY: perPixel, root: displayRoot, collapsedSet: collapsed } = latest.current;
+        if (!press.dragging) {
+          if (!canDrag || radialLayout || Math.hypot(event.clientX - press.startClientX, event.clientY - press.startClientY) < DRAG_THRESHOLD_PX) return;
+          press.dragging = true;
         }
-        const tipCount = countLeaves(displayRoot);
-        const siblingSpacing = tipCount > 1 ? spread / (tipCount - 1) : spread;
-        const steps = siblingSpacing > 0 ? Math.round(((event.clientY - press.startClientY) * perPixel) / siblingSpacing) : 0;
-        const next = computeReordered(press.drag.order, press.nodeId, press.drag.startIndex + steps);
-        const current = previewRef.current;
-        if (!current || current.parentId !== press.drag.parentId || current.order.join() !== next.join()) {
-          setPreviewOrder({ parentId: press.drag.parentId, order: next });
+        // Where the pointer is, in layout units along the tip axis, relative to the tip rows.
+        const tips = displayTips(displayRoot, collapsed);
+        if (tips.length < 2) return;
+        const spacing = (tips[tips.length - 1].x - tips[0].x) / (tips.length - 1) || 1;
+        const y = press.startX + (event.clientY - press.startClientY) * perPixel;
+        const { tree: source, currentSelection: selectionNow } = latest.current;
+        let next: TreeSelection | null;
+        if (y < tips[0].x - REROOT_DRAG_ZONE * spacing) {
+          next = planDragReroot(source, selectionNow, press.nodeId, "above");
+        } else if (y > tips[tips.length - 1].x + REROOT_DRAG_ZONE * spacing) {
+          next = planDragReroot(source, selectionNow, press.nodeId, "below");
+        } else {
+          const order = planTipMove(source, selectionNow, press.nodeId, Math.round((y - tips[0].x) / spacing));
+          next = order ? { ...selectionNow, order } : null;
         }
+        if (JSON.stringify(next) !== JSON.stringify(previewRef.current)) setPreview(next);
       },
       onPointerUp: (event) => {
         const press = pressRef.current;
@@ -310,32 +329,37 @@ export function PhyloTree({
           // ignore
         }
         if (!press) return;
-        if (press.drag) {
-          const preview = previewRef.current;
-          setPreviewOrder(null);
-          if (preview && event.type !== "pointercancel") {
-            setSelection((prev: TreeSelection) => ({ ...prev, order: { ...prev.order, [preview.parentId]: preview.order } }));
+        if (press.dragging) {
+          const committed = previewRef.current;
+          setPreview(null);
+          if (committed && event.type !== "pointercancel") {
+            setSelection((prev: TreeSelection) => ({
+              ...prev,
+              rerootedAt: committed.rerootedAt,
+              rerootPosition: committed.rerootPosition,
+              order: committed.order,
+            }));
           }
           return;
         }
         if (event.type === "pointercancel") return;
         const node = findNode(press.nodeId);
         if (!node) return;
-        const { onNodeClick: onClick, interactive: canCollapse, collapsedSet: collapsed } = latest.current;
-        if (onClick) onClick(nodeInfo(node, collapsed, event), event);
-        else if (canCollapse && (node.children || collapsed.has(node.id))) toggleCollapse(node.id);
+        const { onNodeClick: onClick, interactive: canCollapse, collapsedSet: collapsedNow } = latest.current;
+        if (onClick) onClick(describe(node, event), event);
+        else if (canCollapse && (node.children || collapsedNow.has(node.id))) toggleCollapse(node.id);
       },
     }),
     // Reads everything else through `latest`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setSelection, toggleCollapse, setPreviewOrder]
+    [setSelection, toggleCollapse, setPreview]
   );
 
   const onBranchClickRef = useRef(onBranchClick);
   onBranchClickRef.current = onBranchClick;
   const handleBranchClick = useCallback((nodeId: string, event: React.MouseEvent) => {
     const node = findNode(nodeId);
-    if (node) onBranchClickRef.current?.(nodeInfo(node, latest.current.collapsedSet, event), event);
+    if (node) onBranchClickRef.current?.(describe(node, event), event);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

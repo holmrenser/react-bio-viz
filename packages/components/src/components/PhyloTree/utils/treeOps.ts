@@ -1,7 +1,8 @@
 import type { HierarchyPointNode, Tree, TreeNodeInfo, TreeSelection } from "../types";
 import { buildHierarchy, countLeaves, descendants } from "./hierarchy";
+import { pathBetween, rootAtPathPoint } from "./paths";
 import { applyOrder } from "./reorder";
-import { rerootOnBranch } from "./reroot";
+import { REROOT_ID, rerootOnBranch } from "./reroot";
 
 type Node = HierarchyPointNode<Tree>;
 
@@ -118,8 +119,88 @@ export function collapseBySupport(tree: Tree, threshold: number): Tree {
   return changed ? result : tree;
 }
 
+/**
+ * @public
+ * The `rerootedAt`/`rerootPosition` that put the root halfway along the branch *as displayed* above
+ * `nodeId`. Use this (rather than `{ rerootedAt: nodeId }`) for a "reroot here" action on a tree that
+ * may already be rerooted: `rerootedAt` names a branch of the tree as passed in, and after a reroot
+ * the branch drawn above a node can be a different one — or two merged through the old root.
+ * Returns `null` for the root.
+ */
+export function rerootAbove(
+  tree: Tree,
+  selection: Partial<TreeSelection>,
+  nodeId: string
+): Pick<TreeSelection, "rerootedAt" | "rerootPosition"> | null {
+  const displayed = displayedHierarchy(tree, selection);
+  const node = descendants(displayed).find((candidate) => candidate.id === nodeId);
+  if (!node?.parent) return null;
+  // A child of an inserted root: its displayed branch continues, through the root, into its
+  // sibling's — together they are one branch of the original tree.
+  const other = node.parent.id === REROOT_ID ? node.parent.children!.find((child) => child !== node)! : node.parent;
+  const original = new Map(descendants(buildHierarchy(tree)).map((n) => [n.id, n]));
+  const from = original.get(node.id);
+  const to = original.get(other.id);
+  if (!from || !to) return null;
+  return rootAtPathPoint(pathBetween(from, to), (node.data.length || 0) / 2);
+}
+
+/** Tips as displayed: leaves, and collapsed clades (which stand in for all their leaves). */
+export function displayTips(root: Node, collapsed: ReadonlySet<string>): Node[] {
+  const tips: Node[] = [];
+  (function walk(node: Node) {
+    if (!node.children || collapsed.has(node.id)) tips.push(node);
+    else node.children.forEach(walk);
+  })(root);
+  return tips;
+}
+
+/**
+ * The `selection.order` that moves the tips under `draggedId` to row `toIndex` of the displayed
+ * tips, as far as rotations allow (the topology never changes). `null` when nothing would move.
+ */
+export function planTipMove(tree: Tree, selection: TreeSelection, draggedId: string, toIndex: number): Record<string, string[]> | null {
+  const root = displayedHierarchy(tree, selection);
+  const collapsed = new Set(selection.collapsed);
+  const dragged = descendants(root).find((node) => node.id === draggedId);
+  if (!dragged?.parent) return null;
+  const tips = displayTips(root, collapsed);
+  const block = displayTips(dragged, collapsed);
+  const inBlock = new Set(block);
+  const rest = tips.filter((tip) => !inBlock.has(tip));
+  const at = Math.max(0, Math.min(rest.length, toIndex));
+  const desired = [...rest.slice(0, at), ...block, ...rest.slice(at)];
+  const leafNames = desired.flatMap((tip) => descendants(tip).filter((n) => !n.children).map((n) => n.data.name));
+  const order = orderForLeafNames(tree, selection, leafNames);
+  const before = leafOrder(tree, selection).join("\u0000");
+  const after = leafOrder(tree, { ...selection, order }).join("\u0000");
+  return before === after ? null : order;
+}
+
+/**
+ * The selection that reroots on the branch above `draggedId` and puts its clade at the top
+ * (`"above"`) or bottom (`"below"`) — what dragging a node past either end of the tree asks for.
+ */
+export function planDragReroot(tree: Tree, selection: TreeSelection, draggedId: string, side: "above" | "below"): TreeSelection | null {
+  const reroot = rerootAbove(tree, selection, draggedId);
+  if (!reroot) return null;
+  const next: TreeSelection = { ...selection, ...reroot };
+  const root = displayedHierarchy(tree, next);
+  const ids = root.children?.map((child) => child.id) ?? [];
+  // Which of the new root's two sides holds the dragged clade.
+  const draggedSide = root.children?.find((child) => descendants(child).some((n) => n.id === draggedId))?.id;
+  if (!draggedSide || ids.length !== 2) return next;
+  const otherSide = ids.find((id) => id !== draggedSide)!;
+  return { ...next, order: { ...next.order, [root.id]: side === "above" ? [draggedSide, otherSide] : [otherSide, draggedSide] } };
+}
+
 /** Describes `node` for a click callback. */
-export function nodeInfo(node: Node, collapsed: ReadonlySet<string>, event: { clientX: number; clientY: number }): TreeNodeInfo {
+export function nodeInfo(
+  node: Node,
+  collapsed: ReadonlySet<string>,
+  event: { clientX: number; clientY: number },
+  reroot: Pick<TreeSelection, "rerootedAt" | "rerootPosition"> | null = null
+): TreeNodeInfo {
   const all = descendants(node);
   const support = Number.parseFloat(node.data.name);
   return {
@@ -132,6 +213,7 @@ export function nodeInfo(node: Node, collapsed: ReadonlySet<string>, event: { cl
     support: node.children && Number.isFinite(support) ? support : undefined,
     leafNames: all.filter((n) => !n.children).map((n) => n.data.name),
     descendantIds: all.map((n) => n.id),
+    rerootAbove: reroot,
     clientX: event.clientX,
     clientY: event.clientY,
   };

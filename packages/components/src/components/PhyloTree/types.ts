@@ -114,6 +114,11 @@ export interface TreeNodeInfo {
   leafNames: string[];
   /** The node and all its descendants — e.g. to style a whole clade in `nodeStyles`/`branchStyles`. */
   descendantIds: string[];
+  /**
+   * Spread into the selection to reroot halfway along the branch drawn above this node (`null` for
+   * the root) — correct even when the tree is already rerooted; see {@link rerootAbove}.
+   */
+  rerootAbove: Pick<TreeSelection, "rerootedAt" | "rerootPosition"> | null;
   clientX: number;
   clientY: number;
 }
