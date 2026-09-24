@@ -1,0 +1,26 @@
+---
+title: GenomeBrowser
+description: Feature, coverage and gene-model tracks stacked on one genomic viewport.
+sidebar:
+  order: 5
+---
+import GenomeBrowserExample from "../../../examples/GenomeBrowserExample.tsx";
+
+```tsx
+import { GenomeBrowser, type GenomeTrack } from "react-bio-viz";
+
+const tracks: GenomeTrack[] = [
+  { id: "repeats", label: "Repeats", kind: "feature", data: [{ id: "r1", start: 1200, end: 1800, label: "LINE" }] },
+  { id: "rnaseq", label: "RNA-seq", kind: "coverage", data: [{ position: 1000, value: 12 }, /* … */] },
+  { id: "gene", label: "My gene", kind: "genemodel", data: gene },
+];
+
+<GenomeBrowser tracks={tracks} referenceLength={50_000} referenceName="chr1" width={900} />;
+```
+
+All tracks share one pan/zoom viewport and a position ruler. Overlapping features are stacked into
+rows automatically. `trackRenderers` adds your own track kinds or replaces the built-in ones.
+
+<GenomeBrowserExample client:only="react" />
+
+[All props →](../../reference/interfaces/genomebrowserprops/)

@@ -1,0 +1,111 @@
+---
+title: MultipleSequenceAlignment
+description: A canvas alignment viewer with colour schemes, tracks, selection, row reordering and editing — fast at any size.
+sidebar:
+  order: 1
+---
+import { Aside } from "@astrojs/starlight/components";
+import MsaFeatures from "../../../examples/MsaFeatures.tsx";
+
+```tsx
+import { MultipleSequenceAlignment } from "react-bio-viz";
+
+<MultipleSequenceAlignment msa={msa} width={900} height={500} />;
+```
+
+`msa` is an array of `{ header, sequence, id? }`, all sequences the same length. The view draws only
+the visible window, so alignment size doesn't matter — thousands of sequences or columns render
+as quickly as ten — and residue letters are redrawn at every zoom level, so they stay sharp.
+
+Try the colour schemes, tracks and selection modes; <kbd>Shift</kbd>-drag across the alignment
+to select, click the conservation track, drag a label to reorder:
+
+<MsaFeatures client:only="react" />
+
+## Options
+
+Rendering toggles go in one `options` object ([`MSADrawOptions`](../../reference/interfaces/msadrawoptions/)):
+
+```tsx
+<MultipleSequenceAlignment
+  msa={msa}
+  options={{
+    colorStyle: "AA Zappo",          // default: picked from the alignment's alphabet
+    tracks: ["conservation", "logo"],
+    showConsensus: true,
+    showMinimap: true,
+    showOnlyDifferences: false,       // draw residues equal to the consensus as "·"
+    highlightPattern: "N[^P][ST]",    // highlight matches (substring, or regex with highlightUseRegex)
+    highlightUseRegex: true,
+    zoomAxes: "columns",              // Ctrl-scroll zooms along the sequence only
+  }}
+/>
+```
+
+## Colour styles
+
+| Group | Styles |
+| --- | --- |
+| Nucleotide | `DNA`, `DNA ClustalX` |
+| Protein | `AA ClustalX`, `AA Zappo`, `AA Taylor` |
+| Analysis | `Conserved`, `Variable`, `Parsimony Informative`, `% Conserved` (with `conservationThreshold`) |
+| Quality | `Column score`, `Cell score` — your own 0–1 scores |
+
+The analysis styles colour whole columns. The quality styles colour by scores you compute —
+TRIDENT, TCS, anything on a 0–1 scale — through `options.columnScores` (one per column) or
+`options.cellScores` (`[row][column]`, in `msa` order):
+
+```tsx
+<MultipleSequenceAlignment msa={msa} options={{ colorStyle: "Column score", columnScores: trident }} />
+```
+
+`COLOR_STYLE_GROUPS` lists them grouped, ready for a picker.
+
+## Tracks
+
+Tracks sit below the alignment and share its horizontal pan and zoom. Clicking one selects
+columns.
+
+```tsx
+options={{
+  tracks: [
+    "conservation",                                  // share of residues matching the consensus
+    "logo",                                          // sequence logo
+    { label: "TRIDENT", scores: trident },           // any per-column 0–1 score
+  ],
+}}
+```
+
+## State
+
+| State | Shape | Changes when the user… |
+| --- | --- | --- |
+| `viewport` | [`Viewport`](../../reference/interfaces/viewport/), in columns × rows | pans or zooms |
+| `selection` | `{ rows: string[]; columns: number[] }` | drags, clicks labels or tracks, presses <kbd>Esc</kbd> |
+| `rowOrder` | `string[]` of row ids | drags a label |
+| `panelSizes` | `{ labelWidth, trackHeight, minimapHeight }` | drags a divider |
+
+Each has its `default*` / `on*Change` / `*Store` companions ([Controllable state](../../concepts/controllable-state/)).
+Rows are identified by `id` when given, else by `header` — set `id` when headers can repeat, or to
+keep a row's identity through renames.
+
+`rowOrder` tolerates ids it doesn't know and appends rows it doesn't mention, so a tree's leaf
+order can be passed straight in — see [Linking views](../../guides/linked-views/).
+
+## Editing
+
+Pass `onRenameRow`, `onRemoveRows` and `onRemoveColumns` to enable double-click rename, the ×
+button on labels, and <kbd>Delete</kbd> on a selection. The component reports; you apply — see
+[Editing an alignment](../../guides/editing/).
+
+<Aside>
+  A removal never covers every row or every column: at least one of each always remains.
+</Aside>
+
+## Hover
+
+`onHoverChange` reports the cell under the pointer — row, row id, label, column and residue — for a
+status bar of your own; `options.showCursorBadge` and `options.showCursorTooltip` turn off the
+built-in ones.
+
+[All props →](../../reference/interfaces/multiplesequencealignmentprops/)

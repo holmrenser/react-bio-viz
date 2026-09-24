@@ -1,0 +1,71 @@
+---
+title: Linking an alignment, its distances and its tree
+description: Share one row order between a MultipleSequenceAlignment, a DistanceMatrix and a PhyloTree.
+sidebar:
+  order: 1
+---
+import LinkedViews from "../../../examples/LinkedViews.tsx";
+
+The alignment below was turned into p-distances and a neighbour-joining tree in the browser. All
+three views share one row order: **drag a tree node, an alignment label or a matrix label** and the
+other two follow. When you reorder the alignment, the tree rotates to match as closely as its
+topology allows, and the other views then settle on the tree's order.
+
+<LinkedViews client:only="react" />
+
+## How it works
+
+The alignment and matrix take the same `rowOrder` shape — ids in display order — so they can bind
+the **same store**:
+
+```tsx
+const orderStore = createControllableStore<string[]>([]);
+const rowOrder = createZustandStoreController(
+  orderStore,
+  (order) => order,
+  (store, next) => store.setState((prev) => (typeof next === "function" ? next(prev) : next))
+);
+
+<MultipleSequenceAlignment msa={alignment} rowOrderStore={rowOrder} />
+<DistanceMatrix labels={labels} matrix={distances} rowOrderStore={rowOrder} />
+```
+
+The tree's order isn't a list — it's its topology plus which way each node's children face — so it
+joins in both directions with two small bridges:
+
+```tsx
+const [selection, setSelection] = useState<TreeSelection>({ collapsed: [], ...midpointRoot(tree) });
+const order = useSyncExternalStore(orderStore.subscribe, orderStore.getState);
+
+// tree → rows: report the leaf order whenever the tree is rearranged
+<PhyloTree
+  tree={tree}
+  interactive
+  selection={selection}
+  onSelectionChange={setSelection}
+  onLeafOrderChange={(names) => rowOrder.setValue(names)}
+/>;
+
+// rows → tree: rotate the tree to follow a reordered alignment, as far as its topology allows
+useEffect(() => {
+  if (order.join() !== leafOrder(tree, selection).join()) {
+    setSelection((s) => ({ ...s, order: orderForLeafNames(tree, s, order) }));
+  }
+}, [order]);
+```
+
+The loop settles immediately: the tree reports the order closest to the one requested, which
+it already matches.
+
+Leaf names and row ids must agree. `rowOrder` ignores ids it doesn't know and appends rows it
+isn't given, so a tree covering only some sequences still works.
+
+<details>
+<summary>The analysis used here</summary>
+
+`pDistances` and `neighborJoining` live in this site's source
+([`src/lib/phylo.ts`](https://github.com/holmrenser/react-bio-viz/blob/main/apps/docs/src/lib/phylo.ts)) —
+the library only visualizes. A real app would use a dedicated tool; acacia, for example, runs
+[nj.rs](https://github.com/holmrenser/nj) in a web worker.
+
+</details>

@@ -1,0 +1,22 @@
+---
+title: BlastHitDistribution
+description: BLAST hits along the query, row-stacked and coloured by e-value, bit score or identity, with selection.
+sidebar:
+  order: 6
+---
+import BlastExample from "../../../examples/BlastExample.tsx";
+
+```tsx
+import { BlastHitDistribution } from "react-bio-viz";
+
+<BlastHitDistribution hits={hits} queryLength={2000} width={900} />;
+```
+
+Each hit is `{ id, subjectId, queryStart, queryEnd, evalue, bitScore, percentIdentity }`. Hits are
+stacked so none overlap and coloured by the chosen metric; click hits to select them.
+
+<BlastExample client:only="react" />
+
+`viewport` (along the query), `selection` (`{ selectedHitIds }`) and `metric` are controllable.
+
+[All props →](../../reference/interfaces/blasthitdistributionprops/)

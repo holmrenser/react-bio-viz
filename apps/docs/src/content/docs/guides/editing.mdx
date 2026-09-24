@@ -1,0 +1,51 @@
+---
+title: Editing an alignment
+description: Rename and remove rows and columns, keeping the edit history — and undo — in your own state.
+sidebar:
+  order: 2
+---
+import MsaEditing from "../../../examples/MsaEditing.tsx";
+
+The alignment never edits its data. It reports what the user asked for, and you decide what
+happens. Double-click a name to rename it, hover a name for its ×, select columns
+(<kbd>Shift</kbd>-drag) and press <kbd>Delete</kbd>:
+
+<MsaEditing client:only="react" />
+
+## The simplest version: a history of alignments
+
+```tsx
+const [history, setHistory] = useState([initial]);
+const alignment = history[history.length - 1];
+const apply = (next) => setHistory((h) => [...h, next]);
+const undo = () => setHistory((h) => h.slice(0, -1));
+
+<MultipleSequenceAlignment
+  msa={alignment}
+  onRenameRow={(id, name) => apply(alignment.map((s) => (s.id === id ? { ...s, header: name } : s)))}
+  onRemoveRows={(ids) => apply(alignment.filter((s) => !ids.includes(s.id)))}
+  onRemoveColumns={(cols) => {
+    const removed = new Set(cols);
+    apply(alignment.map((s) => ({ ...s, sequence: [...s.sequence].filter((_, i) => !removed.has(i)).join("") })));
+  }}
+/>;
+```
+
+Give every row an `id` (e.g. its original header) so a renamed row keeps its identity — selection
+and row order are keyed by it.
+
+## An edit log
+
+For reproducibility, record edits instead of snapshots and replay them over the original, as
+[acacia](https://github.com/wur-bioinformatics/acacia) does:
+
+```ts
+type Edit =
+  | { type: "rename"; id: string; name: string }
+  | { type: "remove_row"; id: string }
+  | { type: "remove_column"; originalIndex: number };
+```
+
+Columns are reported as indices into the alignment *as displayed*; map them back to original
+indices before logging, so the log stays valid as earlier columns disappear. The log can be saved
+as JSON and replayed later on the same input.

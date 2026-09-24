@@ -1,0 +1,40 @@
+---
+title: DistanceMatrix
+description: A pairwise distance heatmap on canvas that scales to thousands of rows and shares its row order with an alignment.
+sidebar:
+  order: 3
+---
+import DistanceMatrixBasic from "../../../examples/DistanceMatrixBasic.tsx";
+
+```tsx
+import { DistanceMatrix } from "react-bio-viz";
+
+<DistanceMatrix labels={ids} matrix={distances} width={900} height={500} />;
+```
+
+`labels` identifies each row/column; `matrix` is the symmetric `labels.length × labels.length`
+distances. Cells shade from white by distance relative to the largest one; the value is written in
+once a cell is large enough. `labelNames` maps ids to display names.
+
+Only the visible cells are drawn, so a matrix of thousands of sequences stays responsive. Hover a
+cell, zoom with <kbd>Ctrl</kbd>/<kbd>⌘</kbd>-scroll, drag a name to reorder:
+
+<DistanceMatrixBasic client:only="react" />
+
+## Options
+
+| Option | Default | |
+| --- | --- | --- |
+| `colorScheme` | `"warm"` | `"warm"`, `"cool"`, `"green"` or `"grayscale"` |
+| `showNumbers` | `true` | write distances into cells that fit them |
+| `cellWidth`, `cellHeight` | `44`, `22` | cell size at the default zoom |
+| `showLabels`, `showToolbar` | `true` | |
+
+## State
+
+`viewport` (in cells), `rowOrder` and `panelSizes` (`{ labelWidth }`), each with its
+[controllable-state](../../concepts/controllable-state/) companions. `rowOrder` has the same shape
+as the alignment's, so one store can order both — see [Linking views](../../guides/linked-views/).
+`onHoverChange` reports the hovered pair and distance.
+
+[All props →](../../reference/interfaces/distancematrixprops/)

@@ -1,0 +1,56 @@
+---
+title: Theming
+description: Light and dark mode, theme tokens, and how the components fit into your app's styling.
+sidebar:
+  order: 3
+---
+import { Aside } from "@astrojs/starlight/components";
+
+## Dark mode
+
+The components follow a `dark` class on `<html>` — the convention of Tailwind and shadcn/ui. SVG
+views (trees, gene models) follow it through CSS; canvas views (alignments, distance matrices)
+re-render when the class changes. Toggle this site's theme (top right) to see it.
+
+To force a mode regardless of the page, canvas components take `options.darkMode`:
+
+```tsx
+<MultipleSequenceAlignment msa={msa} options={{ darkMode: true }} />
+```
+
+If your app marks its theme differently, mirror it onto the class. This site does exactly that
+for Starlight's `data-theme` attribute:
+
+```js
+const root = document.documentElement;
+const sync = () => root.classList.toggle("dark", root.dataset.theme === "dark");
+sync();
+new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+```
+
+## Theme tokens
+
+Colours come from the [shadcn/ui](https://ui.shadcn.com/docs/theming) CSS variables —
+`--background`, `--foreground`, `--muted-foreground`, `--border`, `--popover`, … — plus one of
+the library's own:
+
+| Variable | Used for |
+| --- | --- |
+| `--rbv-accent` | Hover outlines, the cursor caret, active nodes — the one saturated colour reserved for "you can interact with this". |
+
+`react-bio-viz/style.css` defines defaults for all of them at zero specificity, so **any value your
+app sets wins**, whichever stylesheet loads first. An app already using shadcn/ui gets matching
+components with no extra work.
+
+<Aside>
+  The stylesheet never touches anything outside the components: no CSS reset, no `html`/`body`
+  rules. Everything it styles is scoped to the components' own `.rbv` root class.
+</Aside>
+
+## Colour schemes
+
+Residue colours follow the standard schemes — `DNA`, `DNA ClustalX` for nucleotides and
+`AA ClustalX`, `AA Zappo`, `AA Taylor` for proteins — each with a dark-mode variant. The alignment
+picks one from its own alphabet unless you set `options.colorStyle`. See the
+[alignment page](../../components/multiple-sequence-alignment/#colour-styles) for the analysis and
+score styles.

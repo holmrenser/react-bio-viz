@@ -1,0 +1,53 @@
+---
+title: Interaction
+description: Mouse, trackpad and keyboard controls for every component.
+sidebar:
+  order: 2
+---
+
+All pan/zoom surfaces behave the same way:
+
+| Gesture | Effect |
+| --- | --- |
+| Scroll / two-finger swipe | Pan (<kbd>Shift</kbd>+scroll pans sideways with a mouse wheel) |
+| <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + scroll, or pinch | Zoom around the pointer |
+| Drag the background | Pan |
+| Toolbar buttons | Pan by half a view, zoom in/out, reset |
+
+Scrolling a component never scrolls the page underneath it.
+
+## MultipleSequenceAlignment
+
+| Gesture | Effect |
+| --- | --- |
+| <kbd>Alt</kbd> + <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + scroll | Zoom columns only (always, with `zoomAxes: "columns"`) |
+| <kbd>Shift</kbd>-drag / <kbd>Ctrl</kbd>/<kbd>⌘</kbd>-drag | Add to / toggle the selection (columns or rows, per `selectionAxis`) |
+| Plain drag with `interactionMode: "select"` | Replace the selection |
+| Click a track | Select that column (<kbd>Shift</kbd> extends, <kbd>Ctrl</kbd>/<kbd>⌘</kbd> toggles) |
+| Click a label | Select that row (same modifiers) |
+| Drag a label | Reorder rows |
+| Double-click a label, or its ✎ | Rename (with `onRenameRow`) |
+| × on a hovered label | Remove the row (with `onRemoveRows`) |
+| <kbd>Delete</kbd> / <kbd>Backspace</kbd> | Remove the selected rows/columns (with the matching callbacks) |
+| <kbd>Esc</kbd> | Clear the selection |
+| Minimap: click / drag the box / drag its edges | Jump / pan / zoom |
+| Drag a panel divider | Resize labels, tracks or minimap |
+
+Keyboard shortcuts apply once the alignment has focus (click it).
+
+## PhyloTree
+
+| Gesture | Effect |
+| --- | --- |
+| Click a node marker | `onNodeClick` if provided; otherwise, with `interactive`, collapse/expand |
+| Click a branch | `onBranchClick` (with the node below it) |
+| Drag a node marker to another row | Rotate nodes so its clade lands there (topology never changes) |
+| Drag a node past the first or last row | Reroot on it, with its clade at that end |
+
+## DistanceMatrix
+
+| Gesture | Effect |
+| --- | --- |
+| Hover a cell | Shows the pair and their distance |
+| Drag a row name | Reorder rows and columns together |
+| Drag the label divider | Resize the name column |

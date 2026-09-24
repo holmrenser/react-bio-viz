@@ -1,0 +1,89 @@
+---
+title: Getting started
+description: Install react-bio-viz, import its stylesheet, and render your first alignment and tree.
+---
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+## Install
+
+```bash
+npm install react-bio-viz
+```
+
+`react-bio-viz` works with **React 18 and 19** and has no other runtime dependencies — everything
+it uses is bundled. It is safe to import in server-rendered apps (Next.js, Remix, Astro); the
+visualizations themselves draw in the browser.
+
+## Import the stylesheet once
+
+```ts
+import "react-bio-viz/style.css";
+```
+
+It carries the styling for the components' own chrome (toolbars, menus) and default theme tokens.
+It never restyles the rest of your page, and if your app already defines the
+[shadcn/ui](https://ui.shadcn.com) theme tokens (`--background`, `--foreground`, `--font-sans`, …)
+the components use yours instead — see [Theming](../concepts/theming/).
+
+## Your first views
+
+<Steps>
+
+1. **An alignment** is an array of `{ header, sequence }` records, all of the same length:
+
+   ```tsx
+   import { MultipleSequenceAlignment } from "react-bio-viz";
+
+   const msa = [
+     { header: "seq1", sequence: "MKTAYIAKQR-QISFVKSHFSRQ" },
+     { header: "seq2", sequence: "MKTAYIAKQRQQISFVKSHFSRQ" },
+     { header: "seq3", sequence: "MKSAYIAKQR-QLSFVKSHFS-Q" },
+   ];
+
+   <MultipleSequenceAlignment msa={msa} width={800} height={300} />;
+   ```
+
+2. **A tree** is nested `{ name, length, children }` nodes. Parse Newick with the bundled helper:
+
+   ```tsx
+   import { PhyloTree, parseNewick } from "react-bio-viz";
+
+   const tree = parseNewick("((seq1:0.1,seq2:0.12)95:0.05,seq3:0.2);");
+
+   <PhyloTree tree={tree} width={800} height={400} interactive />;
+   ```
+
+3. **Observe what the user does** — every interactive component reports its state changes:
+
+   ```tsx
+   <MultipleSequenceAlignment
+     msa={msa}
+     onViewportChange={(viewport) => console.log("showing columns", viewport.x0, "–", viewport.x1)}
+     onSelectionChange={(selection) => console.log(selection.columns)}
+   />
+   ```
+
+</Steps>
+
+## Sizing
+
+Components take their size in pixels (`width`, and a maximum `height`). To fill a responsive
+container, measure it:
+
+```tsx
+function Responsive({ msa }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  useLayoutEffect(() => {
+    const observer = new ResizeObserver(([entry]) => setWidth(Math.floor(entry.contentRect.width)));
+    observer.observe(ref.current!);
+    return () => observer.disconnect();
+  }, []);
+  return <div ref={ref}>{width > 0 && <MultipleSequenceAlignment msa={msa} width={width} />}</div>;
+}
+```
+
+<Aside title="Next">
+  Read [Controllable state](../concepts/controllable-state/) — the one contract every
+  interactive prop follows — then pick a component from the sidebar.
+</Aside>

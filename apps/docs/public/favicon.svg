@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Three alignment rows of coloured residues. -->
+  <rect width="32" height="32" rx="6" fill="#1e2330"/>
+  <g>
+    <rect x="5" y="7" width="5" height="5" rx="1" fill="#33cc33"/>
+    <rect x="11" y="7" width="5" height="5" rx="1" fill="#f08080"/>
+    <rect x="17" y="7" width="5" height="5" rx="1" fill="#80a0f0"/>
+    <rect x="23" y="7" width="4" height="5" rx="1" fill="#f0c000"/>
+    <rect x="5" y="13.5" width="5" height="5" rx="1" fill="#33cc33"/>
+    <rect x="11" y="13.5" width="5" height="5" rx="1" fill="#c048c0"/>
+    <rect x="17" y="13.5" width="5" height="5" rx="1" fill="#80a0f0"/>
+    <rect x="23" y="13.5" width="4" height="5" rx="1" fill="#f0c000"/>
+    <rect x="5" y="20" width="5" height="5" rx="1" fill="#33cc33"/>
+    <rect x="11" y="20" width="5" height="5" rx="1" fill="#f08080"/>
+    <rect x="17" y="20" width="5" height="5" rx="1" fill="#f01505"/>
+    <rect x="23" y="20" width="4" height="5" rx="1" fill="#f0c000"/>
+  </g>
+</svg>

@@ -1,0 +1,102 @@
+---
+title: Jupyter widgets
+description: The same components as Jupyter widgets, with every piece of interactive state a synced traitlet.
+sidebar:
+  order: 1
+---
+import { Aside } from "@astrojs/starlight/components";
+
+```bash
+pip install react-bio-viz
+```
+
+The Python package wraps the React components as [anywidget](https://anywidget.dev) widgets. They
+run in JupyterLab, Jupyter Notebook 7, VS Code and Google Colab, with no extra installation step.
+
+```python
+from react_bio_viz import MSA, read_fasta
+
+msa = MSA(msa=read_fasta("alignment.fasta"), width=900, options={"tracks": ["conservation"]})
+msa
+```
+
+<Aside type="tip">
+  The [example notebook](./notebook/) walks through everything on this page with real data.
+</Aside>
+
+## Widgets
+
+| Class | Data | Interactive traits (read, write, observe) |
+| --- | --- | --- |
+| `MSA` | `msa` | `viewport`, `selection`, `row_order`, `panel_sizes` |
+| `PhyloTree` | `tree` | `viewport`, `selection`; `leaf_order` (read-only) |
+| `DistanceMatrix` | `labels`, `matrix` | `viewport`, `row_order`, `panel_sizes` |
+| `GeneModel` | `gene` | `viewport` |
+| `GenomeBrowser` | `tracks`, `reference_length` | `viewport` |
+| `BlastHitDistribution` | `hits`, `query_length` | `viewport`, `selection` |
+
+Trait names are the React props in `snake_case` (`show_branch_lengths`, `leaf_spacing`, …). Values
+that are data — viewports, selections, `options` — keep their camelCase keys, as documented for the
+[components](../components/multiple-sequence-alignment/). The one exception is
+`PhyloTree.tree_layout` (the React `layout` prop), because ipywidgets reserves `layout`;
+`PhyloTree(layout="radial")` is accepted as a shorthand.
+
+## State is traitlets
+
+Every piece of interactive state is a synced traitlet, so the usual traitlets tools work:
+
+```python
+msa.selection                                   # read what the user selected
+msa.viewport = {**msa.viewport, "x0": 0, "x1": 60}  # move the view
+msa.observe(lambda change: print(change["new"]["columns"]), names="selection")
+```
+
+Callbacks run outside any cell. To see their output, print into an
+[`ipywidgets.Output`](https://ipywidgets.readthedocs.io/en/stable/examples/Output%20Widget.html).
+
+## Linking widgets
+
+`row_order` has the same shape on `MSA` and `DistanceMatrix`, and a tree's `leaf_order` is a valid
+row order, so linking views is one line each:
+
+```python
+import traitlets
+
+traitlets.link((msa, "row_order"), (matrix, "row_order"))    # both ways
+traitlets.dlink((tree, "leaf_order"), (msa, "row_order"))    # rows follow the tree
+```
+
+## Events
+
+User actions that aren't state arrive through callbacks. The widgets never change their own data,
+so you apply the edit and assign the new data back:
+
+| Method | Called with |
+| --- | --- |
+| `MSA.on_rename_row(fn)` | `row_id, new_name` |
+| `MSA.on_remove_rows(fn)` | `row_ids` |
+| `MSA.on_remove_columns(fn)` | `columns` (indices into the current alignment) |
+| `PhyloTree.on_node_click(fn)` | `node`: `id`, `name`, `isLeaf`, `leafNames`, `descendantIds`, `rerootAbove`, … |
+| `PhyloTree.on_branch_click(fn)` | `node` below the branch |
+
+```python
+def remove_rows(row_ids):
+    msa.msa = [r for r in msa.msa if r.get("id", r["header"]) not in row_ids]
+
+msa.on_remove_rows(remove_rows)
+```
+
+Registering a handler also turns on the matching control, such as the × on a label or
+<kbd>Delete</kbd> on a selection.
+
+## Reading files
+
+| Function | Returns |
+| --- | --- |
+| `read_fasta(path)`, `parse_fasta(text)` | `[{"header", "sequence"}, …]` |
+| `read_newick(path)`, `parse_newick(text)` | `{"name", "length", "children"}` |
+| `to_newick(tree)` | a Newick string (names quoted where needed) |
+
+Any other parser works too, as long as it produces these plain structures. Biopython records, for
+example, convert in one line:
+`[{"header": r.id, "sequence": str(r.seq)} for r in AlignIO.read(path, "fasta")]`.

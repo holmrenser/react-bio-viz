@@ -1,0 +1,14 @@
+{
+  // TypeDoc's view of the library: react-bio-viz's source, with @react-bio-viz/core resolved to its
+  // source too (not its built .d.ts), so re-exported types document and link to real files.
+  "extends": "../../packages/components/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@react-bio-viz/core": ["../../packages/core/src/main.ts"],
+      "@/*": ["../../packages/core/src/*"]
+    }
+  },
+  "include": ["../../packages/components/src", "../../packages/core/src"],
+  "exclude": ["../../**/*.test.ts", "../../**/*.test.tsx"]
+}
