@@ -32,10 +32,10 @@ export function useControllableState<T>(
     isControlled ? (value as T) : (defaultValue as T)
   );
 
-  const storeValue = useSyncExternalStore(
-    store ? store.subscribe : noopSubscribe,
-    store ? store.getValue : getEmptySnapshot
-  );
+  const getSnapshot = store ? store.getValue : getEmptySnapshot;
+  // The same snapshot on the server: a store's current value is as valid there as in the browser,
+  // and React refuses to server-render useSyncExternalStore without one.
+  const storeValue = useSyncExternalStore(store ? store.subscribe : noopSubscribe, getSnapshot, getSnapshot);
 
   const currentValue = store ? (storeValue as T) : isControlled ? (value as T) : internalValue;
 
