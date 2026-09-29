@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
+import { createControllableStore, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
-import { MultipleSequenceAlignment } from "./index";
+import { MultipleSequenceAlignment, SimpleMultipleSequenceAlignment } from "./index";
 import type { AlignedSequences, MSASelection } from "./types";
 
 const msa: AlignedSequences = [
@@ -41,12 +41,7 @@ describe("MultipleSequenceAlignment", () => {
       yMin: 0,
       yMax: 3,
     });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: Viewport) => Viewport)(prev) : next))
-    );
-    render(<MultipleSequenceAlignment msa={msa} width={300} height={200} viewportStore={controller} />);
+    render(<MultipleSequenceAlignment msa={msa} width={300} height={200} viewportStore={store} />);
     expect(screen.getByText("seq3")).toBeInTheDocument();
   });
 
@@ -219,25 +214,20 @@ describe("MultipleSequenceAlignment selection", () => {
         onRemoveColumns={onRemoveColumns}
       />
     );
-    fireEvent.keyDown(container.firstElementChild!, { key: "Delete" });
+    fireEvent.keyDown(container.querySelector("[tabindex]")!, { key: "Delete" });
     expect(onRemoveColumns).toHaveBeenCalledWith([0]);
     expect(onSelectionChange).toHaveBeenCalledWith({ rows: [], columns: [] }, expect.anything());
   });
 
   it("can live in an external store", () => {
     const store = createControllableStore<MSASelection>({ rows: ["c"], columns: [] });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: MSASelection) => MSASelection)(prev) : next))
-    );
     const onRemoveRows = vi.fn();
     const { container } = render(
-      <MultipleSequenceAlignment msa={plain} options={compact} selectionStore={controller} onRemoveRows={onRemoveRows} />
+      <MultipleSequenceAlignment msa={plain} options={compact} selectionStore={store} onRemoveRows={onRemoveRows} />
     );
-    fireEvent.keyDown(container.firstElementChild!, { key: "Backspace" });
+    fireEvent.keyDown(container.querySelector("[tabindex]")!, { key: "Backspace" });
     expect(onRemoveRows).toHaveBeenCalledWith(["c"]);
-    expect(store.getState()).toEqual({ rows: [], columns: [] });
+    expect(store.getValue()).toEqual({ rows: [], columns: [] });
   });
 
   it("clears on Escape", () => {
@@ -245,7 +235,7 @@ describe("MultipleSequenceAlignment selection", () => {
     const { container } = render(
       <MultipleSequenceAlignment msa={plain} options={compact} defaultSelection={{ rows: ["a"], columns: [1] }} onSelectionChange={onSelectionChange} />
     );
-    fireEvent.keyDown(container.firstElementChild!, { key: "Escape" });
+    fireEvent.keyDown(container.querySelector("[tabindex]")!, { key: "Escape" });
     expect(onSelectionChange).toHaveBeenLastCalledWith({ rows: [], columns: [] }, expect.anything());
   });
 
@@ -261,7 +251,7 @@ describe("MultipleSequenceAlignment selection", () => {
         onRemoveColumns={onRemoveColumns}
       />
     );
-    fireEvent.keyDown(container.firstElementChild!, { key: "Delete" });
+    fireEvent.keyDown(container.querySelector("[tabindex]")!, { key: "Delete" });
     expect(onRemoveRows).not.toHaveBeenCalled();
     expect(onRemoveColumns).not.toHaveBeenCalled();
   });
@@ -318,15 +308,10 @@ describe("MultipleSequenceAlignment row order", () => {
 
   it("can share an external store (e.g. with a tree's leaf order)", () => {
     const store = createControllableStore<string[]>(["d", "c", "b", "a"]);
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: string[]) => string[])(prev) : next))
-    );
-    render(<MultipleSequenceAlignment msa={plain} options={compact} rowOrderStore={controller} />);
+    render(<MultipleSequenceAlignment msa={plain} options={compact} rowOrderStore={store} />);
     const labels = () => Array.from(document.querySelectorAll("[data-row-index]")).map((el) => el.textContent);
     expect(labels()).toEqual(["d", "c", "b", "a"]);
-    act(() => store.setState(["a", "b", "c", "d"]));
+    act(() => store.setValue(["a", "b", "c", "d"]));
     expect(labels()).toEqual(["a", "b", "c", "d"]);
   });
 });
@@ -360,5 +345,34 @@ describe("MultipleSequenceAlignment editing and panels", () => {
     withBox(surface, 160, 64);
     fireEvent.pointerMove(surface, { clientX: 20, clientY: 20 });
     expect(onHoverChange).toHaveBeenLastCalledWith(expect.objectContaining({ row: 1, rowId: "b", col: 1, residue: "C" }));
+  });
+});
+
+describe("SimpleMultipleSequenceAlignment", () => {
+  it("renders the alignment without a toolbar", () => {
+    const { container } = render(<SimpleMultipleSequenceAlignment msa={msa} width={300} height={200} />);
+    expect(screen.getByText("seq3")).toBeInTheDocument();
+    expect(container.querySelector("button")).toBeNull();
+  });
+
+  it("only reports a selection: it shows once passed back", () => {
+    const onSelectionChange = vi.fn();
+    function Controlled() {
+      const [selection, setSelection] = useState<MSASelection>({ rows: [], columns: [] });
+      return (
+        <SimpleMultipleSequenceAlignment
+          msa={msa}
+          selection={selection}
+          onSelectionChange={(next) => {
+            onSelectionChange(next);
+            setSelection(next);
+          }}
+        />
+      );
+    }
+    render(<Controlled />);
+    fireEvent.pointerDown(screen.getByText("seq2"), { clientX: 10, clientY: 10 });
+    fireEvent.pointerUp(screen.getByText("seq2"), { clientX: 10, clientY: 10 });
+    expect(onSelectionChange).toHaveBeenLastCalledWith({ rows: ["seq2"], columns: [] });
   });
 });

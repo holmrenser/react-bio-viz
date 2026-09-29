@@ -3,14 +3,10 @@ import { toCartesian } from "../utils/geometry";
 import type { HierarchyPointNode, LayoutResult, Tree } from "../types";
 
 /**
- * Circular phylogram: leaves are spread evenly around a full turn, and a node's distance from the
- * centre is its cumulative branch length scaled so the deepest tip reaches `maxRadius` — the polar
- * equivalent of {@link computeRectangularLayout}. Internal nodes sit at the
- * midpoint of their children's angles, so a branch fans out symmetrically over its subtree.
- *
- * Writes `radius`/`angle` for the renderer's arcs and rotated labels, and also writes the derived
- * cartesian position into `x`/`y` (in the same screen convention as every other layout: `y` is the
- * horizontal position, `x` the vertical) so node markers and hit-testing need no special case.
+ * Circular phylogram: leaves spread evenly around a full turn, radius by cumulative branch length
+ * (the deepest tip at `maxRadius`), internal nodes at the middle of their children's angles. Writes
+ * `radius`/`angle`, and the cartesian position into `x`/`y` like every layout, so markers need no
+ * special case.
  */
 export function computeRadialLayout(
   root: HierarchyPointNode<Tree>,

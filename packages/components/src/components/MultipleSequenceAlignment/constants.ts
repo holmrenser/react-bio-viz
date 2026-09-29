@@ -1,3 +1,4 @@
+/** Default size of a residue cell, in pixels. */
 export const CELL_SIZE = 16;
 
 /** Width of the sequence-name gutter to the left of the alignment. */
@@ -18,7 +19,7 @@ export const SCALEBAR_HEIGHT = 22;
 /** Fill used for a residue that matches the highlight pattern. */
 export const HIGHLIGHT_MATCH_COLOR = "#ffe000";
 
-/** Share of a cell its colour fills once cells are big enough to show a gap between them (acacia's look). */
+/** Share of a cell its colour fills once cells are big enough to show a gap between them. */
 export const CELL_FILL_RATIO = 0.95;
 
 /** Cell size (px) from which the gap between cells is drawn. */
@@ -47,7 +48,7 @@ export const CONSENSUS_LABEL = "Consensus";
 /** Thickness of the draggable dividers between panels. */
 export const DIVIDER_SIZE = 6;
 
-/** Height reserved for the pan/zoom toolbar (32px buttons + margin). */
+/** Height reserved for the wrapper's pan/zoom toolbar (32px buttons + margin). */
 export const TOOLBAR_HEIGHT = 40;
 
 /** Height reserved for the hovered-cell readout. */
@@ -55,3 +56,11 @@ export const BADGE_HEIGHT = 16;
 
 /** Largest cell (px) zooming in can reach. */
 export const MAX_CELL_SIZE = 64;
+
+/** Residue letters, per theme. */
+export const LETTER_COLOR = { light: "#1a1a1a", dark: "#e8e8e8" } as const;
+
+export const LABEL_FONT_FAMILY = "ui-monospace, SFMono-Regular, Menlo, monospace";
+
+/** No explicit order: rows in `msa` order. */
+export const NO_ORDER: string[] = [];

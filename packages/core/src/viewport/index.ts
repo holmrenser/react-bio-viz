@@ -5,6 +5,7 @@ export {
   panBy,
   zoomBy,
   zoomAt,
+  limitZoomIn,
 } from "./Viewport";
 export type { Viewport } from "./Viewport";
 export { useViewport } from "./useViewport";

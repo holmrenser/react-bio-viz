@@ -1,9 +1,6 @@
 /**
  * @public
- * A minimal linear scale: maps a numeric domain to a numeric range (and back), with the small
- * subset of the d3-scale `scaleLinear` API this library actually uses (`domain`/`range`/
- * `invert`). Hand-rolled to avoid depending on d3 for what is, here, always a single linear
- * interpolation — see the `bio-viz-conventions` project skill.
+ * A minimal linear scale: maps a numeric domain to a numeric range (and back)
  */
 export interface LinearScale {
   (value: number): number;
@@ -14,7 +11,10 @@ export interface LinearScale {
 }
 
 /** @public */
-export function createLinearScale(domain: [number, number], range: [number, number]): LinearScale {
+export function createLinearScale(
+  domain: [number, number],
+  range: [number, number],
+): LinearScale {
   const [d0, d1] = domain;
   const [r0, r1] = range;
 

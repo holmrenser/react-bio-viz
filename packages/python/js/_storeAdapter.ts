@@ -1,10 +1,6 @@
 import type { StoreController } from "@react-bio-viz/core";
 
-/**
- * The slice of anywidget's `AnyModel` this adapter uses. Declared structurally rather than
- * imported from `@anywidget/types` so the bundle has no build-time dependency on anywidget itself
- * — the model object is handed to `render()` at runtime.
- */
+/** The part of anywidget's `AnyModel` the bridge uses — structural, so it needs no anywidget types. */
 export interface AnyModel {
   get(key: string): unknown;
   set(key: string, value: unknown): void;
@@ -16,23 +12,16 @@ export interface AnyModel {
 }
 
 /**
- * Wraps one synced trait of an anywidget model as a {@link StoreController} — the same seam
- * `useControllableState` uses for a consumer's Zustand store.
- *
- * This is the whole Jupyter integration: an anywidget model is structurally already a
- * `StoreController` (`get`/`set`+`save_changes`/`on("change:key")` ↔ `getValue`/`setValue`/
- * `subscribe`), so no component needs a "Jupyter mode" branch. A trait written from Python
- * re-renders the component; an interaction in the browser writes the trait back, which is what
- * makes `widget.observe("viewport", cb)` fire on the kernel side.
+ * One synced trait as a {@link StoreController} — the seam a JavaScript app fills with a Zustand
+ * store, so no component has Jupyter-specific code. A trait written from Python re-renders the
+ * component; an interaction writes the trait back, firing `widget.observe` in the kernel.
  *
  * @param model - The anywidget model passed to `render({ model, el })`.
  * @param key - The synced trait name to bind, e.g. `"viewport"` or `"selection"`.
  */
 export function createAnywidgetStoreController<T>(model: AnyModel, key: string): StoreController<T> {
-  // `useSyncExternalStore` re-renders whenever `getValue()` returns a new reference and will spin
-  // if it is not stable between notifications, so the last non-null value is cached rather than
-  // re-derived. It also guards the window before Python has seeded the trait: a `null` snapshot
-  // would propagate straight into the component as its viewport/selection.
+  // The last non-null value, cached: `useSyncExternalStore` needs a stable snapshot between
+  // notifications, and a `null` one (before Python seeds the trait) would reach the component.
   let snapshot = model.get(key) as T;
 
   return {

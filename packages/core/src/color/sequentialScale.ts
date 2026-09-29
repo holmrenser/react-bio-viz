@@ -13,10 +13,8 @@ export type SequentialColorScale = (value: number) => string;
 
 /**
  * @public
- * A continuous color scale for a numeric metric (e.g. BLAST e-value/bit score/percent identity),
- * as opposed to {@link createCategoricalColorScale}'s discrete category→color mapping. Linearly
- * interpolates through RGB space between `range`'s two colors; values outside `domain` are
- * clamped to the nearest end rather than extrapolated.
+ * A continuous colour scale for a numeric metric: interpolates between `range`'s two colours, and
+ * clamps values outside `domain` to its ends.
  */
 export function createSequentialColorScale(options: SequentialColorScaleOptions): SequentialColorScale {
   const { domain, range = ["#deebf7", "#08306b"] } = options;

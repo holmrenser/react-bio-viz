@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clampToExtent, fitToExtent, panBy, zoomAt, zoomBy, type Viewport } from "./Viewport";
+import { clampToExtent, fitToExtent, limitZoomIn, panBy, zoomAt, zoomBy, type Viewport } from "./Viewport";
 
 const extent = { xMin: 0, xMax: 100, yMin: 0, yMax: 50 };
 
@@ -104,5 +104,14 @@ describe("zoomAt", () => {
     const v = makeViewport({ x0: 0, x1: 100, y0: 0, y1: 50 });
     const center = { x: 50, y: 25 };
     expect(zoomAt(v, center, 0.5)).toEqual(zoomBy(v, 0.5));
+  });
+});
+
+describe("limitZoomIn", () => {
+  it("passes a factor through until a unit would exceed the maximum size", () => {
+    // 100 units across 1000px: 10px per unit now; 0.5 gives 20px, within a 50px maximum.
+    expect(limitZoomIn(0.5, 100, 1000, 50)).toBe(0.5);
+    // 0.1 would give 100px per unit; the limit stops at 50px, a factor of 0.2.
+    expect(limitZoomIn(0.1, 100, 1000, 50)).toBeCloseTo(0.2);
   });
 });

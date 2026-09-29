@@ -26,11 +26,8 @@ export interface PopoverBodyProps {
 
 /**
  * @public
- * The popover's floating content. Framework-agnostic replacement for the old Bulma-styled
- * popover: built on Radix + Tailwind (compiled away at build time, see the `bio-viz-conventions`
- * skill) instead of `react-popper` + Bulma classes, and with `renderHeader`/`renderBody` override
- * slots so GeneModel/GenomeBrowser/BlastHitDistribution can each customize presentation without a
- * new implementation.
+ * The popover's floating content (shadcn/ui's `PopoverContent`, portalled), with an optional title
+ * and `renderHeader`/`renderBody` slots to customise either part.
  *
  * @example
  * ```tsx

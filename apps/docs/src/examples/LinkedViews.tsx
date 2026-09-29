@@ -4,7 +4,6 @@ import {
   MultipleSequenceAlignment,
   PhyloTree,
   createControllableStore,
-  createZustandStoreController,
   leafOrder,
   midpointRoot,
   orderForLeafNames,
@@ -18,19 +17,14 @@ import { neighborJoining, pDistances } from "../lib/phylo";
 const alignment = subset(24);
 const labels = alignment.map((s) => s.header);
 
-/** One row order for all three views — an ordinary store, bound through each view's `rowOrderStore`. */
-const orderStore = createControllableStore<string[]>([]);
-const rowOrder = createZustandStoreController(
-  orderStore,
-  (order) => order,
-  (store, next) => store.setState((prev) => (typeof next === "function" ? next(prev) : next))
-);
+/** One row order for all three views, bound through each view's `rowOrderStore`. */
+const rowOrder = createControllableStore<string[]>([]);
 
 export default function LinkedViews() {
   const distances = useMemo(() => pDistances(alignment), []);
   const tree = useMemo(() => neighborJoining(labels, distances), [distances]);
   const [selection, setSelection] = useState<TreeSelection>(() => ({ collapsed: [], ...midpointRoot(tree) }));
-  const order = useSyncExternalStore(orderStore.subscribe, orderStore.getState);
+  const order = useSyncExternalStore(rowOrder.subscribe, rowOrder.getValue);
 
   // Rows reordered in the alignment or matrix: rotate the tree to follow, as far as its topology allows.
   useEffect(() => {

@@ -1,6 +1,5 @@
-import type { LinearScale, StoreController, Viewport } from "@react-bio-viz/core";
-
-import type { SequenceInterval } from "../GeneModel/types";
+import type { ReactNode } from "react";
+import type { LinearScale, SequenceInterval, StoreController, Viewport } from "@react-bio-viz/core";
 
 /** @public A single interval feature on a `"feature"` track (e.g. a BED/GFF-style annotation). */
 export interface GenomeFeature {
@@ -21,11 +20,11 @@ export interface CoveragePoint {
 interface BaseTrack {
   id: string;
   label: string;
-  /** Pixel height for this track's lane. Defaults vary by `kind`. */
+  /** Pixel height of the track. Defaults to what its `kind` needs. */
   height?: number;
 }
 
-/** @public A row of non-overlapping-when-possible interval features (auto-stacked when they overlap). */
+/** @public Interval features, stacked into rows where they overlap. */
 export interface FeatureTrack extends BaseTrack {
   kind: "feature";
   data: GenomeFeature[];
@@ -37,19 +36,19 @@ export interface CoverageTrack extends BaseTrack {
   data: CoveragePoint[];
 }
 
-/** @public A gene model (reuses `GeneModel`'s own `Transcript`/`Exon` rendering). */
+/** @public A gene model, drawn like `GeneModel`. */
 export interface GeneModelTrack extends BaseTrack {
   kind: "genemodel";
   data: SequenceInterval;
 }
 
-/** @public @see {@link GenomeBrowserProps.tracks} */
+/** @public One track of a {@link GenomeBrowser}. */
 export type GenomeTrack = FeatureTrack | CoverageTrack | GeneModelTrack;
 
-/** @public Props every built-in and custom track renderer receives. */
+/** @public What every track renderer, built-in or custom, receives. */
 export interface TrackRenderProps<T extends GenomeTrack = GenomeTrack> {
   track: T;
-  /** Genome coordinate → pixel-x scale, already reflecting the current viewport. */
+  /** Genome coordinate → pixel x, for the current viewport. */
   scale: LinearScale;
   viewport: Viewport;
   /** Pixel width of the track's drawable area. */
@@ -58,35 +57,42 @@ export interface TrackRenderProps<T extends GenomeTrack = GenomeTrack> {
   height: number;
 }
 
-/** @public A render function for one track kind — the extensibility seam for custom track types. */
-export type TrackRenderer = (props: TrackRenderProps) => JSX.Element | null;
+/** @public Draws one kind of track: the extension point for custom track kinds. */
+export type TrackRenderer = (props: TrackRenderProps) => ReactNode;
 
 /**
  * @public
  * @group Component props
  */
-export interface GenomeBrowserProps {
+export interface SimpleGenomeBrowserProps {
   /** The tracks to render, top to bottom. */
   tracks: GenomeTrack[];
-  /** Total length of the reference sequence — the full extent of the genomic coordinate axis. */
+  /** Length of the reference sequence: the full extent of the coordinate axis. */
   referenceLength: number;
-  /** Reference sequence name, shown on the position ruler. */
+  /** Reference sequence name, shown on the ruler. */
   referenceName?: string;
-  /** Pixel width of the whole widget. @defaultValue 1000 */
+  /** Pixel width of the whole component. @defaultValue 1000 */
   width?: number;
   /** Show a genomic-position ruler above the tracks. @defaultValue true */
   showScale?: boolean;
   /**
-   * Overrides or adds track renderers by `kind`. Merged over the built-ins (`feature`, `coverage`,
-   * `genemodel`), so a custom kind — or a replacement for a built-in one — is just one more entry.
+   * Track renderers by `kind`, merged over the built-ins (`feature`, `coverage`, `genemodel`): add
+   * a custom kind, or replace a built-in one.
    */
   trackRenderers?: Record<string, TrackRenderer>;
-  /** The visible genomic-coordinate window, fully controlled. */
+  /** The visible genomic window. @defaultValue the whole reference */
   viewport?: Viewport;
-  /** Seeds the visible window when uncontrolled. Defaults to the full reference length. */
-  defaultViewport?: Viewport;
-  /** Called on every pan/zoom, whether user- or programmatically-driven. */
+  /** Called with the next window on every pan/zoom. */
   onViewportChange?: (next: Viewport) => void;
-  /** Delegates viewport state to an external store instead of local state. */
+}
+
+/**
+ * @public
+ * @group Component props
+ */
+export interface GenomeBrowserProps extends SimpleGenomeBrowserProps {
+  /** Seeds the visible window when uncontrolled. */
+  defaultViewport?: Viewport;
+  /** Keeps the visible window in an external store. */
   viewportStore?: StoreController<Viewport>;
 }

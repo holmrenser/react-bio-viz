@@ -1,7 +1,6 @@
 /**
  * Server-rendering smoke test for the built bundle: import it in plain Node (no DOM) and render every
- * component to a string. Catches anything that touches `document`/`window` at import or render time,
- * which would break the package in server-rendered apps. Run after `vite build`.
+ * component to a string, so nothing touches `document`/`window` at import or render time.
  */
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -25,7 +24,7 @@ const gene = {
       strand: "+", phase: ".", attributes: {}, parents: ["t1"], children: [] }] }],
 };
 
-const cases = {
+const props = {
   MultipleSequenceAlignment: { msa: [{ header: "a", sequence: "ACGT" }, { header: "b", sequence: "ACGA" }] },
   PhyloTree: { tree },
   DistanceMatrix: { labels: ["a", "b"], matrix: [[0, 0.1], [0.1, 0]] },
@@ -33,6 +32,13 @@ const cases = {
   GenomeBrowser: { tracks: [], referenceLength: 1000 },
   BlastHitDistribution: { hits: [], queryLength: 1000 },
 };
+// Every component, wrapper and Simple* view alike.
+const cases = Object.fromEntries(
+  Object.entries(props).flatMap(([name, value]) => [
+    [name, value],
+    [`Simple${name}`, value],
+  ])
+);
 
 let failed = false;
 for (const [name, props] of Object.entries(cases)) {

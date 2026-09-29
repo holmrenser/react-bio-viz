@@ -1,8 +1,8 @@
 import { fireEvent, render } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
+import { createControllableStore, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
-import { leafOrder, PhyloTree } from "./index";
+import { leafOrder, PhyloTree, SimplePhyloTree } from "./index";
 import type { Tree, TreeSelection } from "./types";
 
 // An intentionally unbalanced tree: one leaf hangs directly off an early ancestor while a sibling
@@ -84,12 +84,7 @@ describe("PhyloTree viewport", () => {
 
   it("renders with an external Zustand store", () => {
     const store = createControllableStore<Viewport>({ x0: 0, x1: 1000, y0: 0, y1: 900, xMin: 0, xMax: 1000, yMin: 0, yMax: 900 });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: Viewport) => Viewport)(prev) : next))
-    );
-    const { container } = render(<PhyloTree tree={tree} viewportStore={controller} />);
+    const { container } = render(<PhyloTree tree={tree} viewportStore={store} />);
     expect(container.querySelectorAll("g.tipnode")).toHaveLength(3);
   });
 });
@@ -398,5 +393,40 @@ describe("PhyloTree scale bar", () => {
   it("does not render a scale bar when showScaleBar is false", () => {
     const { container } = render(<PhyloTree tree={tree} layout="rectangular" showScaleBar={false} />);
     expect(container.querySelector("g.scale-bar")).toBeNull();
+  });
+});
+
+describe("SimplePhyloTree", () => {
+  it("renders the tree without a toolbar", () => {
+    const { container } = render(<SimplePhyloTree tree={tree} />);
+    expect(container.querySelectorAll("g.tipnode")).toHaveLength(3);
+    expect(container.querySelector("button")).toBeNull();
+  });
+
+  it("only reports a collapse: the clade collapses once the selection is passed back", () => {
+    const onSelectionChange = vi.fn();
+    const { container, rerender } = render(
+      <SimplePhyloTree tree={tree} interactive onSelectionChange={onSelectionChange} />
+    );
+    click(container.querySelector('circle[data-node-id="clade"]')!);
+    const [next] = onSelectionChange.mock.calls[0] as [TreeSelection];
+    expect(next.collapsed).toEqual(["clade"]);
+    expect(container.querySelectorAll("g.tipnode")).toHaveLength(3);
+
+    rerender(<SimplePhyloTree tree={tree} interactive selection={next} onSelectionChange={onSelectionChange} />);
+    expect(container.querySelectorAll("g.tipnode")).toHaveLength(1);
+  });
+
+  it("reports a scroll as a pan from the default window", () => {
+    const onViewportChange = vi.fn();
+    const many: Tree = { name: "", length: 0, children: Array.from({ length: 50 }, (_, i) => ({ name: `L${i}`, length: 1, children: [] })) };
+    const { container } = render(
+      <SimplePhyloTree tree={many} height={300} leafSpacing={20} onViewportChange={onViewportChange} />
+    );
+    const svg = container.querySelector("svg")!;
+    fireEvent.wheel(svg, { deltaY: 100 });
+    const next = onViewportChange.mock.calls.at(-1)?.[0] as Viewport;
+    expect(next.y0).toBeGreaterThan(0);
+    expect(svg.getAttribute("viewBox")).toBe("0 0 1000 300");
   });
 });

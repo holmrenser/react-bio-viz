@@ -1,6 +1,6 @@
 ---
 title: Getting started
-description: Install react-bio-viz, import its stylesheet, and render your first alignment and tree.
+description: Install react-bio-viz and render your first alignment and tree.
 ---
 import { Aside, Steps } from "@astrojs/starlight/components";
 
@@ -14,16 +14,28 @@ npm install react-bio-viz
 it uses is bundled. It is safe to import in server-rendered apps (Next.js, Remix, Astro); the
 visualizations themselves draw in the browser.
 
-## Import the stylesheet once
+## Styling
+
+There is no stylesheet to import: the components add theirs to the page's `<head>` the first time
+`react-bio-viz` is imported in the browser. It carries the styling for the components' own chrome
+(toolbars, menus) and default theme tokens. It never restyles the rest of your page, and if your app
+already defines the [shadcn/ui](https://ui.shadcn.com) theme tokens (`--background`,
+`--foreground`, `--font-sans`, …) the components use yours instead — see
+[Theming](../concepts/theming/).
+
+The same stylesheet ships as a file, for the cases where you should load it yourself:
 
 ```ts
 import "react-bio-viz/style.css";
 ```
 
-It carries the styling for the components' own chrome (toolbars, menus) and default theme tokens.
-It never restyles the rest of your page, and if your app already defines the
-[shadcn/ui](https://ui.shadcn.com) theme tokens (`--background`, `--foreground`, `--font-sans`, …)
-the components use yours instead — see [Theming](../concepts/theming/).
+- **Server-rendered pages**, so the components are styled before the JavaScript loads.
+- **A Content Security Policy without `'unsafe-inline'` styles**, which blocks injected `<style>`
+  elements.
+- **Components rendered inside a shadow root**, which styles in `<head>` don't reach — add the file
+  to the shadow root instead.
+
+Importing it as well is harmless: both copies hold the same rules.
 
 ## Your first views
 

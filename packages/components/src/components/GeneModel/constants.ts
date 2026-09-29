@@ -1,10 +1,4 @@
-/** Vertical space one transcript row occupies, in pixels. */
-export const TRANSCRIPT_HEIGHT = 14;
-
-/** Height of the exon/CDS boxes drawn on a transcript's backbone. */
-export const EXON_HEIGHT = 10;
-
-/** Extra vertical room for the scale ruler and the top/bottom margins. */
+/** Vertical room around the transcripts for the ruler and margins. */
 export const CHROME_HEIGHT = 46;
 
 /** Height reserved for the genomic-position ruler at the bottom of the SVG. */

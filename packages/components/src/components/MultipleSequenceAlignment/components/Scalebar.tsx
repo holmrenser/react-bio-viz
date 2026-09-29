@@ -5,13 +5,7 @@ import { SCALEBAR_HEIGHT } from "../constants";
 const MAJOR_TICK = 7;
 const MINOR_TICK = 4;
 
-/**
- * Column ruler above the main alignment canvas. Shares the alignment's pan/zoom, so ticks stay
- * glued to their columns. SVG rather than canvas: the tick count is bounded by the viewport width,
- * and `currentColor` themes it for free.
- *
- * A hovered column gets a small caret, so the ruler doubles as the cursor's position readout.
- */
+/** The column ruler above the alignment, following its pan/zoom; a caret marks the hovered column. */
 export function Scalebar({
   width,
   columnCount,
@@ -25,7 +19,7 @@ export function Scalebar({
   x0: number;
   pixelsPerColumn: number;
   hoverCol?: number | null;
-}): JSX.Element {
+}): React.JSX.Element {
   // The viewport is expressed in columns; the tick maths wants a pixel offset for column 0.
   const offsetX = -x0 * pixelsPerColumn;
   const ticks = computeColumnTicks({ columnCount, width, offsetX, pixelsPerColumn });

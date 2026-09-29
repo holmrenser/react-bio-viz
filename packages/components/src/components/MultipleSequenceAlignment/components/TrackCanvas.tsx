@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getDevicePixelRatio, qualityGradient, SELECTION_LITERAL } from "@react-bio-viz/core";
+import { ACCENT_LITERAL, qualityGradient, SELECTION_LITERAL, setupCanvas } from "@react-bio-viz/core";
 
 import { CELL_FILL_RATIO } from "../constants";
 import { logoColumn } from "../utils/logo";
@@ -55,15 +55,9 @@ export function TrackCanvas({
   const columnCount = kind === "logo" ? (columnStats?.length ?? 0) : (scores?.length ?? 0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || cellW <= 0) return;
-    const dpr = getDevicePixelRatio();
-    canvas.width = Math.max(1, Math.round(width * dpr));
-    canvas.height = Math.max(1, Math.round(height * dpr));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
+    const frame = cellW > 0 && canvasRef.current && setupCanvas(canvasRef.current, width, height);
+    if (!frame) return;
+    const { ctx } = frame;
 
     const firstCol = Math.max(0, Math.floor(x0));
     const lastCol = Math.min(columnCount, Math.ceil(x1));
@@ -113,8 +107,10 @@ export function TrackCanvas({
     }
 
     if (hoverCol !== null && hoverCol + 1 > x0 && hoverCol < x1) {
-      ctx.fillStyle = "rgba(48, 92, 222, 0.12)";
+      ctx.fillStyle = darkMode ? ACCENT_LITERAL.dark : ACCENT_LITERAL.light;
+      ctx.globalAlpha = 0.12;
       ctx.fillRect(colX(hoverCol), 0, Math.max(1, cellW), height);
+      ctx.globalAlpha = 1;
     }
   }, [kind, scores, columnStats, alphabetSize, letterColor, x0, x1, cellW, width, height, darkMode, selectedColumns, hoverCol, columnCount]);
 

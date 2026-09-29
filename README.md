@@ -32,10 +32,6 @@ Works with React 18 and 19.
 
 ```jsx
 import { GeneModel, MultipleSequenceAlignment, PhyloTree } from 'react-bio-viz';
-// Ships the component chrome and default theme tokens; import it once, anywhere in your app. It
-// never restyles the rest of your page, and your own theme tokens (--background, --font-sans, …)
-// take precedence over its defaults.
-import 'react-bio-viz/style.css';
 
 function App() {
   return (
@@ -53,6 +49,12 @@ function App() {
 }
 ```
 
+There is no stylesheet to import: the components add theirs to the page on import. It never
+restyles the rest of your page, and your own theme tokens (`--background`, `--font-sans`, …) take
+precedence over its defaults. It also ships as `react-bio-viz/style.css`, for server-rendered pages,
+strict Content Security Policies, and shadow roots — see
+[Getting started](https://holmrenser.github.io/react-bio-viz/getting-started/).
+
 ## Controllable state
 
 Every piece of interactive state — a viewport, a tree selection, a set of selected BLAST hits —
@@ -67,10 +69,13 @@ named for its domain (`viewport` / `defaultViewport` / `onViewportChange` / `vie
 // Controlled: you own it, exactly like a controlled <input>.
 <MultipleSequenceAlignment msa={msa} viewport={viewport} onViewportChange={setViewport} />
 
-// External store: hand the state to your own store (Zustand, or anything implementing
-// StoreController) and the component reads and writes it directly.
-<MultipleSequenceAlignment msa={msa} viewportStore={createZustandStoreController(appStore, ...)} />
+// External store: the component reads and writes a store you own, which views can share.
+const viewportStore = createControllableStore(initialViewport);
+<MultipleSequenceAlignment msa={msa} viewportStore={viewportStore} />
 ```
+
+Each component also comes as a bare, fully controlled view — `SimpleMultipleSequenceAlignment`,
+`SimplePhyloTree`, … — without the toolbar and holding no state, for building your own navigation.
 
 The same `StoreController` seam is what the Jupyter bindings below plug into — a notebook is just
 another external-store consumer, so no component contains any Jupyter-specific code.
@@ -128,7 +133,7 @@ pnpm docs:dev       # the documentation site with live reload
 For the Python package, from `packages/python`: `uv pip install -e ".[dev]"` then `pytest`.
 
 Conventions for contributors (and AI agents) live in [`AGENTS.md`](AGENTS.md) and
-`.claude/skills/bio-viz-conventions/SKILL.md`.
+[`.agents/skills/bio-viz-conventions/SKILL.md`](.agents/skills/bio-viz-conventions/SKILL.md).
 
 ## License
 

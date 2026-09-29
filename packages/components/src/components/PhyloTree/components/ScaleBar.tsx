@@ -1,13 +1,8 @@
 import { pickNiceLength } from "@react-bio-viz/core";
-import { css, cx } from "@emotion/css";
 
 import { SCALE_BAR_TARGET_PIXELS } from "../constants";
 
-/**
- * A branch-length legend: a labeled I-beam sized to a "nice" round distance, roughly
- * `targetPixels` wide. Only meaningful when branch length actually drives the layout
- * (`"rectangular"` and `"radial"`); `"cladogram"` reports no scaling factor, so none is drawn.
- */
+/** A branch-length legend: an I-beam of a round length, about `targetPixels` wide. */
 export function ScaleBar({
   scalingFactor,
   targetPixels = SCALE_BAR_TARGET_PIXELS,
@@ -16,7 +11,7 @@ export function ScaleBar({
 }: {
   /** Pixels per branch-length-unit, from the layout function. */
   scalingFactor: number;
-  /** Roughly how wide the bar should be, in pixels; the nearest nice round length is used instead of this exact value. */
+  /** About how wide the bar should be, in pixels. */
   targetPixels?: number;
   x: number;
   y: number;
@@ -28,7 +23,8 @@ export function ScaleBar({
 
   return (
     <g
-      className={cx("scale-bar", css({ fontFamily: "sans-serif" }))}
+      className="scale-bar"
+      style={{ fontFamily: "sans-serif" }}
       transform={`translate(${x},${y})`}
       stroke="currentColor"
       fill="currentColor"

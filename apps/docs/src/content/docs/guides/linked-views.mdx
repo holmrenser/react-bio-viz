@@ -19,12 +19,7 @@ The alignment and matrix take the same `rowOrder` shape — ids in display order
 the **same store**:
 
 ```tsx
-const orderStore = createControllableStore<string[]>([]);
-const rowOrder = createZustandStoreController(
-  orderStore,
-  (order) => order,
-  (store, next) => store.setState((prev) => (typeof next === "function" ? next(prev) : next))
-);
+const rowOrder = createControllableStore<string[]>([]);
 
 <MultipleSequenceAlignment msa={alignment} rowOrderStore={rowOrder} />
 <DistanceMatrix labels={labels} matrix={distances} rowOrderStore={rowOrder} />
@@ -35,7 +30,7 @@ joins in both directions with two small bridges:
 
 ```tsx
 const [selection, setSelection] = useState<TreeSelection>({ collapsed: [], ...midpointRoot(tree) });
-const order = useSyncExternalStore(orderStore.subscribe, orderStore.getState);
+const order = useSyncExternalStore(rowOrder.subscribe, rowOrder.getValue);
 
 // tree → rows: report the leaf order whenever the tree is rearranged
 <PhyloTree

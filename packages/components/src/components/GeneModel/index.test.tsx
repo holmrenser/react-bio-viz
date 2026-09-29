@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { createControllableStore, type SequenceInterval, type Viewport } from "@react-bio-viz/core";
+import { describe, expect, it, vi } from "vitest";
 
-import { GeneModel } from "./index";
-import type { SequenceInterval } from "./types";
+import { GeneModel, SimpleGeneModel } from "./index";
 
 const gene: SequenceInterval = {
   ID: "gene1",
@@ -69,22 +68,8 @@ describe("GeneModel", () => {
   });
 
   it("renders with an external Zustand store", () => {
-    const store = createControllableStore<Viewport>({
-      x0: 900,
-      x1: 2100,
-      y0: 0,
-      y1: 1,
-      xMin: 900,
-      xMax: 2100,
-      yMin: 0,
-      yMax: 1,
-    });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: Viewport) => Viewport)(prev) : next))
-    );
-    const { container } = render(<GeneModel gene={gene} viewportStore={controller} />);
+    const store = createControllableStore<Viewport>({ x0: 900, x1: 2100, y0: 0, y1: 1, xMin: 900, xMax: 2100, yMin: 0, yMax: 1 });
+    const { container } = render(<GeneModel gene={gene} viewportStore={store} />);
     expect(container.querySelectorAll("rect[data-slot='popover-trigger']")).toHaveLength(2);
   });
 
@@ -94,5 +79,32 @@ describe("GeneModel", () => {
     const fullLabels = Array.from(full.querySelectorAll("text")).map((el) => el.textContent);
     const zoomedLabels = Array.from(zoomed.querySelectorAll("text")).map((el) => el.textContent);
     expect(fullLabels).not.toEqual(zoomedLabels);
+  });
+});
+
+describe("SimpleGeneModel", () => {
+  it("renders the gene without a toolbar", () => {
+    const { container } = render(<SimpleGeneModel gene={gene} />);
+    expect(container.querySelectorAll("rect[data-slot='popover-trigger']")).toHaveLength(2);
+    expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
+  });
+
+  it("only reports a pan: the view moves once the new viewport is passed back", () => {
+    const onViewportChange = vi.fn();
+    const viewport: Viewport = { x0: 1000, x1: 1500, y0: 0, y1: 1, xMin: 900, xMax: 2100, yMin: 0, yMax: 1 };
+    const { container } = render(
+      <SimpleGeneModel gene={gene} viewport={viewport} onViewportChange={onViewportChange} />
+    );
+    const svg = container.querySelector("svg")!;
+    const labels = () => Array.from(svg.querySelectorAll("text")).map((el) => el.textContent);
+    const before = labels();
+
+    fireEvent.pointerDown(svg, { clientX: 200, pointerId: 1 });
+    fireEvent.pointerMove(svg, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerUp(svg, { clientX: 100, pointerId: 1 });
+
+    const next = onViewportChange.mock.calls.at(-1)?.[0] as Viewport;
+    expect(next.x0).toBeGreaterThan(1000);
+    expect(labels()).toEqual(before);
   });
 });

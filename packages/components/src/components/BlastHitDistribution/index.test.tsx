@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
+import { createControllableStore, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
-import { BlastHitDistribution } from "./index";
-import type { BlastHit, HitSelection } from "./types";
+import { BlastHitDistribution, SimpleBlastHitDistribution } from "./index";
+import type { BlastHit, BlastMetric, HitSelection } from "./types";
 
 const hits: BlastHit[] = [
   { id: "h1", queryId: "q1", subjectId: "subject-a", queryStart: 10, queryEnd: 200, evalue: 1e-30, bitScore: 300, percentIdentity: 99 },
@@ -47,14 +47,9 @@ describe("BlastHitDistribution", () => {
 
   it("delegates selection state to an external Zustand store", () => {
     const store = createControllableStore<HitSelection>({ selectedHitIds: [] });
-    const controller = createZustandStoreController(
-      store,
-      (s) => s,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: HitSelection) => HitSelection)(prev) : next))
-    );
-    render(<BlastHitDistribution hits={hits} queryLength={1000} width={800} selectionStore={controller} />);
+    render(<BlastHitDistribution hits={hits} queryLength={1000} width={800} selectionStore={store} />);
     fireEvent.click(screen.getByTestId("hit-h3"));
-    expect(store.getState().selectedHitIds).toEqual(["h3"]);
+    expect(store.getValue().selectedHitIds).toEqual(["h3"]);
   });
 
   it("renders a fully controlled viewport", () => {
@@ -65,12 +60,7 @@ describe("BlastHitDistribution", () => {
 
   it("delegates viewport state to an external Zustand store", () => {
     const store = createControllableStore<Viewport>({ x0: 0, x1: 1000, y0: 0, y1: 1, xMin: 0, xMax: 1000, yMin: 0, yMax: 1 });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: Viewport) => Viewport)(prev) : next))
-    );
-    render(<BlastHitDistribution hits={hits} queryLength={1000} viewportStore={controller} />);
+    render(<BlastHitDistribution hits={hits} queryLength={1000} viewportStore={store} />);
     expect(screen.getByTestId("hit-h1")).toBeInTheDocument();
   });
 
@@ -86,5 +76,30 @@ describe("BlastHitDistribution", () => {
     fireEvent.click(screen.getByText("Bit score"));
     const h1FillByBitScore = screen.getByTestId("hit-h1").getAttribute("fill");
     expect(h1FillByEvalue).not.toBe(h1FillByBitScore);
+  });
+
+  it("keeps the metric in an external store, written by the selector", () => {
+    const store = createControllableStore<BlastMetric>("evalue");
+    render(<BlastHitDistribution hits={hits} queryLength={1000} metricStore={store} />);
+    fireEvent.click(screen.getByRole("combobox"));
+    fireEvent.click(screen.getByText("Bit score"));
+    expect(store.getValue()).toBe("bitScore");
+  });
+});
+
+describe("SimpleBlastHitDistribution", () => {
+  it("renders the hits without a toolbar or metric selector", () => {
+    render(<SimpleBlastHitDistribution hits={hits} queryLength={1000} />);
+    expect(screen.getByTestId("hit-h1")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
+  });
+
+  it("only reports a click: the hit shows as selected once the selection is passed back", () => {
+    const onSelectionChange = vi.fn();
+    render(<SimpleBlastHitDistribution hits={hits} queryLength={1000} onSelectionChange={onSelectionChange} />);
+    fireEvent.click(screen.getByTestId("hit-h2"));
+    expect(onSelectionChange).toHaveBeenCalledWith({ selectedHitIds: ["h2"] });
+    expect(screen.getByTestId("hit-h2")).not.toHaveAttribute("data-selected");
   });
 });

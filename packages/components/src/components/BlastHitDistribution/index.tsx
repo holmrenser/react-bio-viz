@@ -1,216 +1,101 @@
 import { useMemo } from "react";
-import { css, cx } from "@emotion/css";
 import {
-  ACCENT_COLOR,
-  createLinearScale,
-  createSequentialColorScale,
-  Popover,
-  PopoverBody,
-  PopoverTrigger,
+  ROOT_CLASS,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  stackIntervals,
   useControllableState,
-  useDragPan,
   useViewport,
-  useWheelZoom,
   ViewportToolbar,
-  ROOT_CLASS,
 } from "@react-bio-viz/core";
 
-import { Scale } from "../GeneModel/components/Scale";
-import {
-  DEFAULT_METRIC,
-  HIT_HEIGHT,
-  HIT_ROW_HEIGHT,
-  MARGIN,
-  METRICS,
-  SCALE_HEIGHT,
-  SELECTED_STROKE_WIDTH,
-} from "./constants";
-import type { BlastHit, BlastHitDistributionProps, BlastMetric, HitSelection } from "./types";
-import { formatMetricValue, metricLabel, metricScore } from "./utils/metrics";
+import { DEFAULT_METRIC, METRICS } from "./constants";
+import { SimpleBlastHitDistribution } from "./SimpleBlastHitDistribution";
+import type { BlastHitDistributionProps, BlastMetric } from "./types";
+import { metricLabel } from "./utils/metrics";
+import { EMPTY_SELECTION } from "./utils/selection";
 
-export type { BlastHit, BlastHitDistributionProps, BlastMetric, HitSelection } from "./types";
-
-const DEFAULT_SELECTION: HitSelection = { selectedHitIds: [] };
-
-function defaultHitPopover(hit: BlastHit): JSX.Element {
-  return (
-    <ul>
-      <li>Subject: {hit.subjectId}</li>
-      <li>
-        Query: {hit.queryStart}..{hit.queryEnd}
-      </li>
-      <li>E-value: {formatMetricValue(hit, "evalue")}</li>
-      <li>Bit score: {formatMetricValue(hit, "bitScore")}</li>
-      <li>% Identity: {formatMetricValue(hit, "percentIdentity")}</li>
-    </ul>
-  );
-}
+export { SimpleBlastHitDistribution } from "./SimpleBlastHitDistribution";
+export type {
+  BlastHit,
+  BlastHitDistributionProps,
+  BlastMetric,
+  HitSelection,
+  SimpleBlastHitDistributionProps,
+} from "./types";
 
 /**
  * @public
  * @group Components
- * Overlaid BLAST hits along a single query sequence, row-stacked to avoid overlap and colored by
- * a chosen metric. Clicking a hit toggles it in `selection.selectedHitIds` — brush-to-select
- * (`selection.brushRange`) is reserved for a future enhancement, not implemented here.
+ * BLAST hits along one query sequence, stacked into rows where they overlap and coloured by a
+ * metric chosen in its selector, with a pan/zoom toolbar. Clicking a hit toggles it in the
+ * selection. The `metric`, `viewport` and `selection` are controllable;
+ * {@link SimpleBlastHitDistribution} is the same view without the toolbar, fully controlled.
  */
-export function BlastHitDistribution(props: BlastHitDistributionProps): JSX.Element {
-  const {
-    hits,
-    queryLength,
-    queryName = "",
-    width = 800,
-    showScale = true,
-    metric,
-    defaultMetric = DEFAULT_METRIC,
-    onMetricChange,
-    hitPopoverFn = defaultHitPopover,
-    viewport,
-    defaultViewport,
-    onViewportChange,
-    viewportStore,
-    selection,
-    defaultSelection,
-    onSelectionChange,
-    selectionStore,
-  } = props;
+export function BlastHitDistribution({
+  metric,
+  defaultMetric = DEFAULT_METRIC,
+  onMetricChange,
+  metricStore,
+  viewport,
+  defaultViewport,
+  onViewportChange,
+  viewportStore,
+  selection,
+  defaultSelection,
+  onSelectionChange,
+  selectionStore,
+  ...viewProps
+}: BlastHitDistributionProps): React.JSX.Element {
   const [currentMetric, setMetric] = useControllableState<BlastMetric>({
     value: metric,
     defaultValue: defaultMetric,
     onChange: onMetricChange,
+    store: metricStore,
   });
-
-  const [currentSelection, setSelection] = useControllableState<HitSelection>({
+  const [currentSelection, setSelection] = useControllableState({
     value: selection,
-    defaultValue: defaultSelection ?? DEFAULT_SELECTION,
+    defaultValue: defaultSelection ?? EMPTY_SELECTION,
     onChange: onSelectionChange,
     store: selectionStore,
   });
-
-  const mainWidth = Math.max(1, width - MARGIN.left - MARGIN.right);
+  const { queryLength, width = 800 } = viewProps;
   const extent = useMemo(() => ({ xMin: 0, xMax: queryLength, yMin: 0, yMax: 1 }), [queryLength]);
   const {
-    viewport: currentViewport,
+    viewport: current,
+    setViewport,
     panBy,
     zoomBy,
-    zoomAt,
     reset,
   } = useViewport({ extent, viewport, defaultViewport, onViewportChange, viewportStore });
-  const scale = createLinearScale([currentViewport.x0, currentViewport.x1], [0, mainWidth]);
-
-  const dragHandlers = useDragPan({
-    onPan: (dx) => panBy(dx, 0),
-    scaleX: mainWidth > 0 ? (currentViewport.x1 - currentViewport.x0) / mainWidth : 0,
-    scaleY: 0,
-  });
-  const wheelHandlers = useWheelZoom({
-    onZoom: (point, factor) => zoomAt(point, factor),
-    toDataPoint: (pixelX) => ({
-      x: currentViewport.x0 + (mainWidth > 0 ? (pixelX / mainWidth) * (currentViewport.x1 - currentViewport.x0) : 0),
-      y: 0,
-    }),
-  });
-
-  const rows = useMemo(
-    () => stackIntervals(hits.map((hit) => ({ id: hit.id, start: hit.queryStart, end: hit.queryEnd }))),
-    [hits]
-  );
-  const rowCount = useMemo(() => {
-    let max = -1;
-    for (const row of rows.values()) max = Math.max(max, row);
-    return max + 1;
-  }, [rows]);
-
-  const colorScale = useMemo(() => {
-    const scores = hits.map((hit) => metricScore(hit, currentMetric));
-    const domain: [number, number] = scores.length > 0 ? [Math.min(...scores), Math.max(...scores)] : [0, 1];
-    return createSequentialColorScale({ domain });
-  }, [hits, currentMetric]);
-
-  const scaleHeight = showScale ? SCALE_HEIGHT : 0;
-  const trackTop = MARGIN.top + scaleHeight;
-  const totalHeight = trackTop + Math.max(1, rowCount) * HIT_ROW_HEIGHT + MARGIN.bottom;
-
-  function toggleHit(hitId: string) {
-    setSelection((prev) => ({
-      ...prev,
-      selectedHitIds: prev.selectedHitIds.includes(hitId)
-        ? prev.selectedHitIds.filter((id) => id !== hitId)
-        : [...prev.selectedHitIds, hitId],
-    }));
-  }
 
   return (
-    <div className={cx(ROOT_CLASS, "text-foreground", css({ display: "flex", flexDirection: "column", width }))}>
-      <div
-        className={css({
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-          flexWrap: "wrap",
-        })}
-      >
-        <ViewportToolbar viewport={currentViewport} panBy={panBy} zoomBy={zoomBy} reset={reset} axes="x" />
+    <div className={`${ROOT_CLASS} text-foreground`} style={{ width }}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ViewportToolbar viewport={current} panBy={panBy} zoomBy={zoomBy} reset={reset} axes="x" />
         <Select value={currentMetric} onValueChange={(next) => setMetric(next as BlastMetric)}>
           <SelectTrigger aria-label="Color by metric">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {METRICS.map((m) => (
-              <SelectItem key={m} value={m}>
-                {metricLabel(m)}
+            {METRICS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {metricLabel(option)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
-      <svg
-        width={width}
-        height={totalHeight}
-        className={css({ touchAction: "none" })}
-        {...dragHandlers}
-        {...wheelHandlers}
-      >
-        {showScale && (
-          <Scale scale={scale} transform={`translate(${MARGIN.left},${MARGIN.top})`} seqid={queryName} />
-        )}
-        <g transform={`translate(${MARGIN.left},${trackTop})`}>
-          {hits.map((hit) => {
-            const row = rows.get(hit.id) ?? 0;
-            const x = scale(hit.queryStart);
-            const w = Math.max(1, scale(hit.queryEnd) - scale(hit.queryStart));
-            const isSelected = currentSelection.selectedHitIds.includes(hit.id);
-            const fill = colorScale(metricScore(hit, currentMetric));
-            return (
-              <Popover key={hit.id}>
-                <PopoverTrigger asChild>
-                  <rect
-                    x={x}
-                    y={row * HIT_ROW_HEIGHT}
-                    width={w}
-                    height={HIT_HEIGHT}
-                    fill={fill}
-                    stroke={isSelected ? ACCENT_COLOR : "none"}
-                    strokeWidth={isSelected ? SELECTED_STROKE_WIDTH : 0}
-                    className={css({ cursor: "pointer" })}
-                    data-pan-ignore
-                    data-testid={`hit-${hit.id}`}
-                    data-selected={isSelected || undefined}
-                    onClick={() => toggleHit(hit.id)}
-                  />
-                </PopoverTrigger>
-                <PopoverBody header={`${hit.queryId} × ${hit.subjectId}`}>{hitPopoverFn(hit)}</PopoverBody>
-              </Popover>
-            );
-          })}
-        </g>
-      </svg>
+      <SimpleBlastHitDistribution
+        {...viewProps}
+        metric={currentMetric}
+        viewport={current}
+        onViewportChange={setViewport}
+        selection={currentSelection}
+        onSelectionChange={setSelection}
+      />
     </div>
   );
 }

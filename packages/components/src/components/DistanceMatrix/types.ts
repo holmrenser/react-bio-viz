@@ -1,24 +1,25 @@
 import type { StoreController, Viewport } from "@react-bio-viz/core";
 
-/** @public The heatmap palettes (acacia's): white fading to red, blue, green or black with distance. */
+/** @public Heatmap palettes: white fading to red, blue, green or black with distance. */
 export type DistanceColorScheme = "warm" | "cool" | "green" | "grayscale";
 
-/** @public Rendering toggles for {@link DistanceMatrix}. */
+/** @public Rendering options for {@link DistanceMatrix}. */
 export interface DistanceMatrixOptions {
-  /** Write each distance in its cell (once cells are large enough). @defaultValue true */
+  /** Write each distance in its cell, once cells are large enough. @defaultValue true */
   showNumbers?: boolean;
   /** @defaultValue "warm" */
   colorScheme?: DistanceColorScheme;
-  /** Cell size at the default zoom, in pixels. @defaultValue 44 × 22 */
+  /** Cell width at the default zoom, in pixels. @defaultValue 44 */
   cellWidth?: number;
+  /** Cell height at the default zoom, in pixels. @defaultValue 22 */
   cellHeight?: number;
-  /** Show the pan/zoom button bar. @defaultValue true */
+  /** Show the pan/zoom toolbar (`DistanceMatrix` only). @defaultValue true */
   showToolbar?: boolean;
   /** Show the row names. @defaultValue true */
   showLabels?: boolean;
-  /** Let rows (and with them, columns) be reordered by dragging their labels. @defaultValue true */
+  /** Let rows (and with them, columns) be reordered by dragging their names. @defaultValue true */
   reorderableRows?: boolean;
-  /** Render for a dark background. Defaults to the host's `dark` class, like every canvas here. */
+  /** Render for a dark background. @defaultValue whether `<html>` has the `dark` class */
   darkMode?: boolean;
 }
 
@@ -40,38 +41,53 @@ export interface DistanceMatrixPanelSizes {
  * @public
  * @group Component props
  */
-export interface DistanceMatrixProps {
-  /** Row/column identities, in `matrix` order. */
+export interface SimpleDistanceMatrixProps {
+  /** Row/column ids, in `matrix` order. */
   labels: string[];
   /** Symmetric `labels.length` × `labels.length` distances. */
   matrix: readonly (readonly number[])[];
-  /** Display text for a label id, when it differs from the id (e.g. a renamed sequence). */
+  /** Display text for a label id, where it differs from the id (e.g. a renamed sequence). */
   labelNames?: Record<string, string>;
-  /** @defaultValue 650 */
+  /** Width in pixels. @defaultValue 650 */
   width?: number;
-  /** Maximum pixel height; a small matrix takes less. @defaultValue 500 */
+  /** Maximum height in pixels; a small matrix takes less. @defaultValue 500 */
   height?: number;
   options?: DistanceMatrixOptions;
-
-  /** Visible window in cells (x: columns, y: rows), fully controlled. */
+  /** The visible window, in cells (x: columns, y: rows). @defaultValue the top-left corner at the default cell size */
   viewport?: Viewport;
-  defaultViewport?: Viewport;
+  /** Called with the next window on every pan/zoom. */
   onViewportChange?: (next: Viewport) => void;
-  viewportStore?: StoreController<Viewport>;
-
   /**
-   * Display order of rows and columns, as label ids — the same shape as the MSA's `rowOrder`, so one
-   * store can keep an alignment, a tree and this matrix in the same order.
+   * Display order of rows and columns, as label ids. Unknown ids are ignored and unlisted rows follow
+   * in `labels` order — the same shape as the MSA's `rowOrder`, so one store can order both.
+   * @defaultValue `labels` order
    */
   rowOrder?: string[];
-  defaultRowOrder?: string[];
+  /** Called with the new order when a row name is dragged. */
   onRowOrderChange?: (next: string[]) => void;
-  rowOrderStore?: StoreController<string[]>;
-
+  /** Panel sizes. @defaultValue a 160px label column */
   panelSizes?: DistanceMatrixPanelSizes;
-  defaultPanelSizes?: Partial<DistanceMatrixPanelSizes>;
+  /** Called while a panel divider is dragged. */
   onPanelSizesChange?: (next: DistanceMatrixPanelSizes) => void;
-  panelSizesStore?: StoreController<DistanceMatrixPanelSizes>;
-
+  /** Called as the pointer moves over the cells (`null` when it leaves). */
   onHoverChange?: (hover: DistanceMatrixHover | null) => void;
+}
+
+/**
+ * @public
+ * @group Component props
+ */
+export interface DistanceMatrixProps extends SimpleDistanceMatrixProps {
+  /** Seeds the visible window when uncontrolled. */
+  defaultViewport?: Viewport;
+  /** Keeps the visible window in an external store. */
+  viewportStore?: StoreController<Viewport>;
+  /** Seeds the row order when uncontrolled. */
+  defaultRowOrder?: string[];
+  /** Keeps the row order in an external store — e.g. one shared with an alignment. */
+  rowOrderStore?: StoreController<string[]>;
+  /** Seeds the panel sizes when uncontrolled; omitted sizes take their defaults. */
+  defaultPanelSizes?: Partial<DistanceMatrixPanelSizes>;
+  /** Keeps the panel sizes in an external store. */
+  panelSizesStore?: StoreController<DistanceMatrixPanelSizes>;
 }

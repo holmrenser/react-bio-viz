@@ -2,7 +2,9 @@
  * A "nice" step ladder — every step divides evenly into the next one that is a multiple of it, so
  * minor ticks always land on a whole number of units.
  */
-const STEPS = [1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000];
+const STEPS = [
+  1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000,
+];
 
 /** Minimum horizontal room a labelled tick needs before labels start to collide, in CSS pixels. */
 const DEFAULT_MIN_LABEL_SPACING = 64;
@@ -23,7 +25,10 @@ export interface Tick {
  * zoom level. Steps above the ladder's top are scaled by powers of ten rather than clamped, so
  * this stays sensible on genome-scale axes.
  */
-export function pickTickStep(pixelsPerUnit: number, minSpacing = DEFAULT_MIN_LABEL_SPACING): number {
+export function pickTickStep(
+  pixelsPerUnit: number,
+  minSpacing = DEFAULT_MIN_LABEL_SPACING,
+): number {
   if (!(pixelsPerUnit > 0)) return STEPS[STEPS.length - 1];
   for (const step of STEPS) {
     if (step * pixelsPerUnit >= minSpacing) return step;
@@ -48,7 +53,7 @@ export function pickNiceLength(target: number): number {
   const magnitude = Math.pow(10, Math.floor(Math.log10(target)));
   const candidates = NICE_MULTIPLIERS.map((m) => m * magnitude);
   return candidates.reduce((best, candidate) =>
-    Math.abs(candidate - target) < Math.abs(best - target) ? candidate : best
+    Math.abs(candidate - target) < Math.abs(best - target) ? candidate : best,
   );
 }
 
@@ -87,12 +92,18 @@ export function computeColumnTicks({
   const minorStep = minorStepFor(majorStep);
 
   const firstCol = Math.max(0, Math.floor(-offsetX / pixelsPerColumn));
-  const lastCol = Math.min(columnCount - 1, Math.ceil((width - offsetX) / pixelsPerColumn));
+  const lastCol = Math.min(
+    columnCount - 1,
+    Math.ceil((width - offsetX) / pixelsPerColumn),
+  );
   if (lastCol < firstCol) return [];
 
   // Walk 1-based positions on the minor grid, starting at the first multiple at or after the
   // leftmost visible column.
-  const firstPos = Math.max(minorStep, Math.ceil((firstCol + 1) / minorStep) * minorStep);
+  const firstPos = Math.max(
+    minorStep,
+    Math.ceil((firstCol + 1) / minorStep) * minorStep,
+  );
   const ticks: Tick[] = [];
   for (let pos = firstPos; pos <= lastCol + 1; pos += minorStep) {
     const col = pos - 1;
@@ -138,11 +149,16 @@ export function computeAxisTicks({
   const ticks: Tick[] = [];
   // Guard against a pathological step/span ratio producing an unbounded loop.
   const maxTicks = Math.ceil(span / step) + 2;
-  for (let i = 0, value = first; value <= d1 && i < maxTicks; i += 1, value = first + i * step) {
+  for (
+    let i = 0, value = first;
+    value <= d1 && i < maxTicks;
+    i += 1, value = first + i * step
+  ) {
     const t = (value - d0) / span;
     // Floating-point drift makes `value % majorStep === 0` unreliable on fractional steps, so
     // compare the rounded multiple instead.
-    const isMajor = Math.abs(Math.round(value / majorStep) * majorStep - value) < step / 1000;
+    const isMajor =
+      Math.abs(Math.round(value / majorStep) * majorStep - value) < step / 1000;
     ticks.push({ value, x: r0 + t * pixels, label: isMajor ? value : null });
   }
   return ticks;

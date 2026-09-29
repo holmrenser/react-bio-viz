@@ -22,11 +22,9 @@ export type ColumnColorStyle = (typeof COLUMN_COLOR_STYLES)[number];
 
 /**
  * @public
- * Styles that tint cells by an externally computed 0–1 quality score (blue → red, via
- * `qualityGradient`): `"Column score"` reads `MSADrawOptions.columnScores` (one per column, e.g.
- * TRIDENT), `"Cell score"` reads `MSADrawOptions.cellScores` (one per residue, e.g. TCS). The
- * library doesn't compute these scores — they are expensive and algorithm-specific — it only
- * renders them. Without scores, cells fall back to the gap colour.
+ * Styles that tint cells blue → red by a 0–1 score you compute: `"Column score"` reads
+ * `MSADrawOptions.columnScores` (e.g. TRIDENT), `"Cell score"` reads `MSADrawOptions.cellScores`
+ * (e.g. TCS). Without scores, cells take the gap colour.
  */
 export const SCORE_COLOR_STYLES = ["Column score", "Cell score"] as const;
 
@@ -109,12 +107,9 @@ export function columnColor(
 }
 
 /**
- * The fill for one alignment cell: residue schemes look the character up, analysis styles ignore
- * it and color the whole column, score styles read the caller's scores. One entry point so the
- * canvas renderer never has to branch on which kind of style is active.
- *
- * `row` is the cell's index in `msa` order, or `-1` for a row with no per-residue scores (the
- * consensus row) — which, like a gap, has no `"Cell score"` and takes the gap colour.
+ * The fill for one cell, under any kind of style: residue schemes look the character up, analysis
+ * styles colour the whole column, score styles read the caller's scores. `row` is the cell's index
+ * in `msa` order, or `-1` for the consensus row, which has no `"Cell score"`.
  */
 export function cellColor(
   char: string,

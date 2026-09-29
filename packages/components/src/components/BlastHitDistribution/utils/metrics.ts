@@ -13,9 +13,8 @@ export function metricValue(hit: BlastHit, metric: BlastMetric): number {
 }
 
 /**
- * A "higher is better" transform of `metricValue`, so the color scale can treat every metric the
- * same way regardless of orientation: bitScore/percentIdentity are already higher-is-better,
- * while evalue is the opposite (lower is a stronger hit), so it's negated log-space instead.
+ * `metricValue` oriented so that higher is always better, for one colour scale over every metric:
+ * the e-value (lower is stronger) as `-log10`.
  */
 export function metricScore(hit: BlastHit, metric: BlastMetric): number {
   const value = metricValue(hit, metric);

@@ -44,7 +44,7 @@ widget.viewport = {**widget.viewport, "x0": 0, "x1": 50}
 | `DistanceMatrix` | `labels`, `matrix` | `viewport`, `row_order`, `panel_sizes` |
 | `GeneModel` | `gene` | `viewport` |
 | `GenomeBrowser` | `tracks`, `reference_length` | `viewport` |
-| `BlastHitDistribution` | `hits`, `query_length` | `viewport`, `selection` |
+| `BlastHitDistribution` | `hits`, `query_length` | `viewport`, `selection`, `metric` |
 
 `viewport` is a plain dict — `{"x0", "x1", "y0", "y1", "xMin", "xMax", "yMin", "yMax"}` — seeded on
 construction to show the whole dataset, so it is readable and observable before any interaction.

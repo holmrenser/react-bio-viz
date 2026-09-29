@@ -2,13 +2,8 @@ import { assignSpread } from "../utils/hierarchy";
 import type { HierarchyPointNode, LayoutResult, Tree } from "../types";
 
 /**
- * Dendrogram/cluster layout: leaves are spread evenly along the x (spread) axis in traversal
- * order, internal nodes centered on their children (shared with {@link computeRectangularLayout});
- * leaves are aligned flush along the y (depth) axis based on subtree height (ignoring branch
- * length), so an unbalanced tree still produces tidy, tip-aligned branches — the same convention
- * as d3-hierarchy's `cluster()`, which this replaces.
- *
- * Reports no `scalingFactor`: with branch lengths ignored there is no distance-per-pixel to label.
+ * Cladogram layout: the rectangular spread axis, with depth by subtree height instead of branch
+ * length, so every tip lines up flush. Reports no `scalingFactor`: there is no distance to label.
  */
 export function computeCladogramLayout(
   root: HierarchyPointNode<Tree>,

@@ -20,9 +20,8 @@ export interface ResizeHandleProps {
 
 /**
  * @public
- * A draggable divider between two panels (an MSA's label column and its canvas, a track and the
- * alignment above it). Deliberately stateless: it reports sizes and the owning component decides
- * where they live — which, per the controllable-state convention, is usually a `panelSizes` prop.
+ * A draggable divider between two panels. Stateless: it reports sizes, and the owner decides where
+ * they live — usually a `panelSizes` prop.
  */
 export function ResizeHandle({
   orientation,

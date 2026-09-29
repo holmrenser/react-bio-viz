@@ -8,10 +8,9 @@ export interface LogoLetter {
 }
 
 /**
- * A sequence-logo column: letter heights are frequency × information content, where information
- * content is `log2(alphabet) − Shannon entropy` over the non-gap residues, normalised to 0–1.
- * Letters are ordered least-frequent first so the most common residue sits on top of the stack's
- * base, matching acacia's logo track.
+ * A sequence-logo column: letter height is frequency × information content (`log2(alphabet)` minus
+ * the Shannon entropy of the non-gap residues, normalised to 0–1), least frequent first, so the
+ * most common residue tops the stack.
  */
 export function logoColumn(stat: ColumnStat | undefined, alphabetSize: number): LogoLetter[] {
   if (!stat) return [];

@@ -1,8 +1,8 @@
 /**
  * @public
- * The display order as indices into `msa`: `order`'s ids first (unknown ids ignored), then any rows
- * `order` doesn't mention, in their original order. So a stale or partial order — e.g. a tree's
- * leaf order that lacks some sequences — degrades gracefully instead of hiding rows.
+ * The display order as indices into `rowIds`: `order`'s ids first (unknown ids ignored), then the
+ * rows it doesn't mention, in their original order — so a partial order (a tree's leaf order that
+ * lacks some sequences) never hides rows.
  */
 export function resolveRowOrder(rowIds: readonly string[], order: readonly string[] | undefined): number[] {
   if (!order || order.length === 0) return rowIds.map((_, index) => index);

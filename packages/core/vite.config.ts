@@ -6,17 +6,14 @@ import dts from "vite-plugin-dts";
 import tailwindcss from "@tailwindcss/vite";
 
 /**
- * Tailwind emits its theme variables (`--spacing`, `--text-sm`, `--color-*`, …) on `:root, :host`.
- * A host page built with Tailwind emits the same names — often customised (fonts, radii) — in the
- * same `theme` layer, so whichever stylesheet loaded last would silently win. Rewriting our copy to
- * `:where(:root, :host)` drops it to zero specificity: the host's values always take precedence,
- * and ours only fill in variables the host doesn't define.
+ * Tailwind declares its theme variables (`--spacing`, `--font-sans`, …) on `:root, :host`, as does a
+ * host page built with Tailwind — often customised. Rewriting ours to `:where(:root, :host)` drops
+ * them to zero specificity, so the host's values win whichever stylesheet loads last.
  */
 function yieldThemeVariablesToHost(): Plugin {
   return {
     name: "rbv-yield-theme-variables",
-    // Runs on the written file: Vite's own CSS plugin emits the stylesheet asset after other
-    // plugins' `generateBundle` hooks, so rewriting it in the bundle is too early.
+    // On the written file: Vite emits the CSS asset after other plugins' `generateBundle` hooks.
     writeBundle(options, bundle) {
       for (const fileName of Object.keys(bundle)) {
         if (!fileName.endsWith(".css")) continue;

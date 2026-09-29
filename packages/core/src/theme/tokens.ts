@@ -1,17 +1,14 @@
 /**
  * @public
- * Class every component's root element (and every portalled overlay) carries. The shipped
- * stylesheet scopes its small element reset to this class instead of resetting the whole page,
- * since it is loaded into a host application it must not restyle.
+ * Class on every component root and portalled overlay. The stylesheet scopes its element reset to
+ * it, so it never restyles the host page.
  */
 export const ROOT_CLASS = "rbv";
 
 /**
  * @public
- * The CSS custom property holding the visualization accent — the one saturated colour the library
- * reserves for "you can interact with this" (hover outlines, selection strokes, the MSA cursor
- * cross-hair). Defined for both themes in the shipped stylesheet, so SVG can use it directly and
- * follow light/dark for free.
+ * The accent: the one saturated colour, reserved for interactive affordances (hover outlines,
+ * selection strokes, the MSA cursor). A CSS variable defined for both themes.
  */
 export const ACCENT_COLOR = "var(--rbv-accent)";
 
@@ -25,16 +22,14 @@ export function accentAlpha(alpha: number): string {
 
 /**
  * @public
- * Literal accent values, for canvas rendering — a `<canvas>` context can't resolve a CSS custom
- * property, so it needs the concrete colour for the current theme. SVG should use
- * {@link ACCENT_COLOR} instead and let CSS pick.
+ * The accent as literal colours, for canvas (which can't resolve CSS variables). SVG uses
+ * {@link ACCENT_COLOR}.
  */
 export const ACCENT_LITERAL = { light: "rgb(48, 92, 222)", dark: "rgb(125, 163, 255)" } as const;
 
 /**
  * @public
- * Selected rows/columns/cells. A warm red rather than the accent, so a selection stays distinct
- * from hover feedback drawn on top of it. Literal (not a CSS variable) because the MSA paints it
- * on canvas; it reads on both light and dark backgrounds.
+ * Selected rows, columns and cells: red rather than the accent, so a selection stays distinct from
+ * hover feedback. Literal, for canvas; it reads on light and dark backgrounds alike.
  */
 export const SELECTION_LITERAL = { fill: "rgba(220, 60, 60, 0.18)", stroke: "rgba(220, 60, 60, 0.8)" } as const;

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ACCENT_LITERAL, getDevicePixelRatio } from "@react-bio-viz/core";
+import { ACCENT_LITERAL, setupCanvas } from "@react-bio-viz/core";
 
 import { DIAGONAL_COLOR, NUMBER_DECIMALS, NUMBER_MIN_CELL } from "../constants";
 import type { DistanceColorScheme } from "../types";
@@ -39,15 +39,9 @@ export function HeatmapCanvas({
   const { ref: interactionRef, ...handlers } = interaction ?? {};
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = getDevicePixelRatio();
-    canvas.width = Math.max(1, Math.round(width * dpr));
-    canvas.height = Math.max(1, Math.round(height * dpr));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
+    const frame = canvasRef.current && setupCanvas(canvasRef.current, width, height);
+    if (!frame) return;
+    const { ctx } = frame;
 
     const spanX = window.x1 - window.x0;
     const spanY = window.y1 - window.y0;

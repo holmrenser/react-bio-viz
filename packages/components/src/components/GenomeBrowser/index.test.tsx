@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController, type Viewport } from "@react-bio-viz/core";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { createControllableStore, type SequenceInterval, type Viewport } from "@react-bio-viz/core";
+import { describe, expect, it, vi } from "vitest";
 
-import type { SequenceInterval } from "../GeneModel/types";
-import { GenomeBrowser } from "./index";
+import { GenomeBrowser, SimpleGenomeBrowser } from "./index";
 import type { CoverageTrack, FeatureTrack, GeneModelTrack, GenomeTrack } from "./types";
 
 const featureTrack: FeatureTrack = {
@@ -71,12 +70,7 @@ describe("GenomeBrowser", () => {
 
   it("renders with an external Zustand store", () => {
     const store = createControllableStore<Viewport>({ x0: 0, x1: 1000, y0: 0, y1: 1, xMin: 0, xMax: 1000, yMin: 0, yMax: 1 });
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: Viewport) => Viewport)(prev) : next))
-    );
-    render(<GenomeBrowser tracks={tracks} referenceLength={1000} viewportStore={controller} />);
+    render(<GenomeBrowser tracks={tracks} referenceLength={1000} viewportStore={store} />);
     expect(screen.getByText("Features")).toBeInTheDocument();
   });
 
@@ -89,5 +83,35 @@ describe("GenomeBrowser", () => {
       />
     );
     expect(screen.getByText("custom!")).toBeInTheDocument();
+  });
+
+  it("draws each gene-model track's arrowheads from a marker of its own", () => {
+    const { container } = render(
+      <GenomeBrowser tracks={[geneModelTrack, { ...geneModelTrack, id: "gene-track-2" }]} referenceLength={1000} />
+    );
+    const markerIds = Array.from(container.querySelectorAll("marker")).map((marker) => marker.id);
+    const references = Array.from(container.querySelectorAll("line[marker-end]")).map((line) =>
+      line.getAttribute("marker-end")
+    );
+    expect(new Set(markerIds).size).toBe(2);
+    expect(references).toEqual(markerIds.map((id) => `url(#${id})`));
+  });
+});
+
+describe("SimpleGenomeBrowser", () => {
+  it("renders the tracks without a toolbar", () => {
+    render(<SimpleGenomeBrowser tracks={tracks} referenceLength={1000} />);
+    expect(screen.getByText("Features")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
+  });
+
+  it("only reports a zoom through onViewportChange", () => {
+    const onViewportChange = vi.fn();
+    const { container } = render(
+      <SimpleGenomeBrowser tracks={tracks} referenceLength={1000} onViewportChange={onViewportChange} />
+    );
+    fireEvent.wheel(container.querySelectorAll("svg")[1], { deltaY: -200, clientX: 100 });
+    const next = onViewportChange.mock.calls.at(-1)?.[0] as Viewport;
+    expect(next.x1 - next.x0).toBeLessThan(1000);
   });
 });
