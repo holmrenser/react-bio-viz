@@ -43,7 +43,7 @@
   "devDependencies": {
     "@microsoft/api-extractor": "^7.47.0",
     "@react-bio-viz/core": "workspace:*",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
