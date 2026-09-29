@@ -3,7 +3,6 @@ import { useMemo, useReducer, useRef, useState } from "react";
 import {
   BlastHitDistribution,
   createControllableStore,
-  createZustandStoreController,
   DistanceMatrix,
   GenomeBrowser,
   GeneModel,
@@ -126,14 +125,7 @@ function pDistances(rows: AlignedSequences): number[][] {
  * dragging a label in either reorders both — the external-store seam every component supports.
  */
 function useSharedRowOrder(): StoreController<string[]> {
-  return useMemo(() => {
-    const store = createControllableStore<string[]>([]);
-    return createZustandStoreController(
-      store,
-      (order) => order,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? next(prev) : next))
-    );
-  }, []);
+  return useMemo(() => createControllableStore<string[]>([]), []);
 }
 
 const MSA_TRACKS: MSATrack[] = ["conservation", "logo"];

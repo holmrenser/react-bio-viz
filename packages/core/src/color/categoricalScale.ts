@@ -11,7 +11,7 @@ export interface CategoricalColor {
 
 /** @public */
 export interface CategoricalColorScaleOptions {
-  /** Distinguishes independent scales that would otherwise collide on the same category names (e.g. two different taxonomies both containing "Homo sapiens"). Omit for a fixed, still-deterministic default. */
+  /** Namespaces the scale, so two scales colour the same category name differently. */
   seed?: string;
 }
 
@@ -20,11 +20,8 @@ export type CategoricalColorScale = (category: string) => CategoricalColor;
 
 /**
  * @public
- * Deterministic, seeded categorical color assignment: the same category string always maps to
- * the same color pair, both within a render and across reloads. Shared by every component that
- * needs to color arbitrary category strings (amino acids, exon/transcript ids, taxon names, BLAST
- * subject ids) — replaces what used to be two independent `randomColor()`+`Color()` call sites
- * (GeneModel and PhyloTree) with subtly different contrast logic.
+ * Deterministic categorical colours: the same category string always maps to the same colour pair,
+ * across renders and reloads. Use it for any per-category colour (feature ids, taxon names, leaves).
  */
 export function createCategoricalColorScale(
   options: CategoricalColorScaleOptions = {}

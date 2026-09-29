@@ -1,8 +1,6 @@
 /**
- * Every cell's fill, resolved once into a compact matrix of palette indices. Rendering then only
- * does array lookups — per visible cell when zoomed in, per *pixel* when zoomed out — instead of
- * re-running colour-scheme logic on every pan/zoom frame, and it never needs a bitmap of the whole
- * alignment (which is what made large alignments exceed the browser's canvas size limit).
+ * Every cell's fill, resolved once into a matrix of palette indices, so drawing a frame is array
+ * lookups rather than colour-scheme logic.
  */
 export interface ColorIndex {
   rows: number;

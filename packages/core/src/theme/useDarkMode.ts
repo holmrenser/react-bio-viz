@@ -1,9 +1,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Reads the theme the way the shipped stylesheet defines it: a `dark` class on the root element.
- * Deliberately not `prefers-color-scheme` — a host app that lets the user override the OS theme
- * toggles the class, and the class is what actually drives the CSS variables in `styles.css`.
+ * The `dark` class on `<html>`, as the shipped stylesheet reads it — not `prefers-color-scheme`,
+ * which a host's own theme switch would not change.
  */
 function readIsDark(): boolean {
   if (typeof document === "undefined") return false;
@@ -22,13 +21,9 @@ const getServerSnapshot = () => false;
 
 /**
  * @public
- * Whether the host app is currently in dark mode, following the same convention the library's
- * stylesheet uses — a `dark` class on `<html>` — and re-rendering when that class is toggled.
- *
- * SVG surfaces should prefer `currentColor` and theme tokens (`text-muted-foreground`, `border`)
- * over this hook: they follow the theme for free. It exists for canvas rendering, which has no
- * access to CSS custom properties and so needs a concrete light/dark decision — see
- * {@link residueColor}'s `darkMode` argument.
+ * Whether the host is in dark mode — a `dark` class on `<html>`, as the stylesheet reads it —
+ * re-rendering when that changes. For canvas, which can't read CSS custom properties; SVG should
+ * use `currentColor` and theme tokens instead.
  */
 export function useDarkMode(): boolean {
   return useSyncExternalStore(subscribe, readIsDark, getServerSnapshot);

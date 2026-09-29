@@ -1,9 +1,8 @@
 /**
  * @public
- * A plain, serializable "virtual coordinate space + visible window" shape shared by every
- * component that needs pan/zoom (MSA, GeneModel, GenomeBrowser, BlastHitDistribution's axis).
- * Deliberately plain data, not a class with mutation methods, so it survives living in a Zustand
- * store, being sent over an anywidget/Jupyter comm channel as JSON, or being diffed by React.
+ * A visible window (`x0..x1`, `y0..y1`) onto a data extent (`xMin..xMax`, `yMin..yMax`), in data
+ * coordinates — the pan/zoom state of every component. Plain JSON, so it can live in a store or
+ * cross the Jupyter bridge unchanged.
  */
 export interface Viewport {
   /** Left edge of the visible window, in data coordinates. */
@@ -31,27 +30,40 @@ export const MIN_VIEWPORT_SPAN = 1e-6;
  * @public
  * A viewport that shows the full extent of `[xMin,xMax] x [yMin,yMax]`, i.e. fully zoomed out.
  */
-export function fitToExtent(extent: Pick<Viewport, "xMin" | "xMax" | "yMin" | "yMax">): Viewport {
-  return { x0: extent.xMin, x1: extent.xMax, y0: extent.yMin, y1: extent.yMax, ...extent };
+export function fitToExtent(
+  extent: Pick<Viewport, "xMin" | "xMax" | "yMin" | "yMax">,
+): Viewport {
+  return {
+    x0: extent.xMin,
+    x1: extent.xMax,
+    y0: extent.yMin,
+    y1: extent.yMax,
+    ...extent,
+  };
 }
 
-function clampSpan(lo: number, hi: number, boundLo: number, boundHi: number): [number, number] {
-  const extent = boundHi - boundLo;
-  let span = hi - lo;
+function clampSpan(
+  low: number,
+  high: number,
+  boundLow: number,
+  boundHigh: number,
+): [number, number] {
+  const extent = boundHigh - boundLow;
+  let span = high - low;
   if (span <= 0) span = MIN_VIEWPORT_SPAN;
   if (span > extent) span = extent;
 
-  let nextLo = lo;
-  let nextHi = lo + span;
-  if (nextLo < boundLo) {
-    nextLo = boundLo;
-    nextHi = boundLo + span;
+  let nextLow = low;
+  let nextHigh = low + span;
+  if (nextLow < boundLow) {
+    nextLow = boundLow;
+    nextHigh = boundLow + span;
   }
-  if (nextHi > boundHi) {
-    nextHi = boundHi;
-    nextLo = boundHi - span;
+  if (nextHigh > boundHigh) {
+    nextHigh = boundHigh;
+    nextLow = boundHigh - span;
   }
-  return [nextLo, nextHi];
+  return [nextLow, nextHigh];
 }
 
 /**
@@ -60,8 +72,18 @@ function clampSpan(lo: number, hi: number, boundLo: number, boundHi: number): [n
  * collapses to (or past) zero width/height.
  */
 export function clampToExtent(viewport: Viewport): Viewport {
-  const [x0, x1] = clampSpan(viewport.x0, viewport.x1, viewport.xMin, viewport.xMax);
-  const [y0, y1] = clampSpan(viewport.y0, viewport.y1, viewport.yMin, viewport.yMax);
+  const [x0, x1] = clampSpan(
+    viewport.x0,
+    viewport.x1,
+    viewport.xMin,
+    viewport.xMax,
+  );
+  const [y0, y1] = clampSpan(
+    viewport.y0,
+    viewport.y1,
+    viewport.yMin,
+    viewport.yMax,
+  );
   return { ...viewport, x0, x1, y0, y1 };
 }
 
@@ -101,7 +123,7 @@ export function zoomAt(
   viewport: Viewport,
   point: { x: number; y: number },
   factor: number,
-  factorY: number = factor
+  factorY: number = factor,
 ): Viewport {
   const halfWidth = ((viewport.x1 - viewport.x0) * factor) / 2;
   const halfHeight = ((viewport.y1 - viewport.y0) * factorY) / 2;
@@ -115,4 +137,18 @@ export function zoomAt(
     y0: point.y - 2 * halfHeight * yRatio,
     y1: point.y + 2 * halfHeight * (1 - yRatio),
   });
+}
+
+/**
+ * @public
+ * `factor`, limited so that zooming in stops once one data unit spans `maxPixelsPerUnit` pixels —
+ * for a view of `span` data units drawn across `pixels` pixels.
+ */
+export function limitZoomIn(
+  factor: number,
+  span: number,
+  pixels: number,
+  maxPixelsPerUnit: number,
+): number {
+  return Math.max(factor, pixels / maxPixelsPerUnit / span);
 }

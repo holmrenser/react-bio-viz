@@ -2,10 +2,8 @@ import type { HierarchyPointNode, Tree } from "../types";
 import { countLeaves } from "./hierarchy";
 
 /**
- * Returns a new tree where every node whose `id` is in `collapsedIds` has its subtree pruned, so
- * layout treats it as a leaf and a collapsed clade takes up the visual space of a single tip
- * instead of its full expansion, recording how many leaves it hides in `collapsedLeafCount`.
- * `x`/`y` are reset since layout runs fresh afterward.
+ * A new tree with the subtrees of `collapsedIds` pruned, so each collapsed clade lays out as one
+ * tip; `collapsedLeafCount` records how many leaves it hides.
  */
 export function pruneCollapsed(root: HierarchyPointNode<Tree>, collapsedIds: string[]): HierarchyPointNode<Tree> {
   if (collapsedIds.length === 0) return root;

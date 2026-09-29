@@ -13,28 +13,17 @@ import "react-bio-viz/style.css";
 
 import { createAnywidgetStoreController, type AnyModel } from "./_storeAdapter";
 
-/**
- * How one Python widget class maps onto a React component.
- *
- * `props` are plain data/display traits, forwarded straight through. `stores` are the controllable
- * ones: each binds a synced trait to the component's `StoreController` prop, which is what makes
- * state two-way (Python writes the trait → the component re-renders; the user pans → the trait is
- * written back and `.observe()` fires on the kernel side).
- */
+/** How one Python widget class maps onto a React component. */
 interface WidgetSpec {
   render: (props: Record<string, unknown>) => ReactElement;
   /**
-   * Plain data/display traits, bound to the camelCased prop of the same name — or, as a
-   * `[trait, prop]` pair, to a differently named prop (a trait can't take a name ipywidgets already
-   * uses, such as `layout`).
+   * Data and display traits, bound to the camelCased prop of the same name — or, as a
+   * `[trait, prop]` pair, to another prop (a trait can't take a name ipywidgets uses, like `layout`).
    */
   props: (string | [string, string])[];
-  /** Synced traits bound as controllable state; each binds to the `<trait>Store` prop (camelCased). */
+  /** Interactive state: each trait binds, two-way, to the component's camelCased `<trait>Store` prop. */
   stores: string[];
-  /**
-   * Callback props that report to the kernel: each builds the handler from the model, typically
-   * sending a custom message (`widget.on_msg`) or writing a read-only trait back.
-   */
+  /** Callback props, each built from the model: a custom message to the kernel, or a trait write. */
   events?: Record<string, (model: AnyModel) => (...args: never[]) => void>;
 }
 
@@ -44,30 +33,20 @@ function nodePayload({ clientX: _x, clientY: _y, ...info }: TreeNodeInfo) {
 }
 
 /**
- * Bridges runtime trait values to a component's static prop type.
- *
- * Props here are assembled from synced traits, so TypeScript cannot check them at this boundary —
- * the Python widget class is what guarantees the required ones are present, and its tests assert
- * the trait set. This helper keeps that one unavoidable assertion in a single documented place
- * instead of scattering casts through the spec table.
+ * Renders a component from props assembled out of traits, which TypeScript can't check: the Python
+ * class guarantees the required ones (and its tests assert the trait set).
  */
 function bridge<P>(Component: ComponentType<P>): (props: Record<string, unknown>) => ReactElement {
   const Dynamic = Component as unknown as ComponentType<Record<string, unknown>>;
   return (props) => createElement(Dynamic, props);
 }
 
-/**
- * Traits are snake_case (idiomatic Python); props are camelCase (idiomatic React). One conversion
- * here keeps both sides natural instead of forcing one language's convention on the other.
- */
+/** snake_case trait → camelCase prop. */
 function toPropName(trait: string): string {
   return trait.replace(/_([a-z])/g, (_match, char: string) => char.toUpperCase());
 }
 
-/**
- * Every component names its store props for their domain (`viewportStore`, `selectionStore`), so
- * a trait binds to its prop by name alone — no per-component mapping table.
- */
+/** Store props are named for their state (`viewportStore`), so a trait binds to its prop by name alone. */
 const SPECS: Record<string, WidgetSpec> = {
   msa: {
     render: bridge(MultipleSequenceAlignment),
@@ -133,8 +112,8 @@ const SPECS: Record<string, WidgetSpec> = {
   },
   blasthitdistribution: {
     render: bridge(BlastHitDistribution),
-    props: ["hits", "query_length", "query_name", "width", "show_scale", "metric"],
-    stores: ["viewport", "selection"],
+    props: ["hits", "query_length", "query_name", "width", "show_scale"],
+    stores: ["viewport", "selection", "metric"],
   },
 };
 
@@ -144,14 +123,12 @@ function buildProps(model: AnyModel, spec: WidgetSpec): Record<string, unknown> 
   for (const entry of spec.props) {
     const [trait, prop] = typeof entry === "string" ? [entry, toPropName(entry)] : entry;
     const value = model.get(trait);
-    // A `None` trait means "not set" — leave the prop off so the component's own default applies,
-    // rather than overriding it with null.
+    // `None` means "not set": leave the prop off, so the component's default applies.
     if (value !== null && value !== undefined) props[prop] = value;
   }
 
   for (const trait of spec.stores) {
-    // Python seeds these at construction; if one is somehow unset, fall back to leaving the
-    // component uncontrolled rather than handing it a null viewport/selection.
+    // Python seeds these; an unset one leaves the state uncontrolled rather than null.
     if (model.get(trait) === null || model.get(trait) === undefined) continue;
     props[`${toPropName(trait)}Store`] = createAnywidgetStoreController(model, trait);
   }
@@ -173,8 +150,7 @@ function render({ model, el }: { model: AnyModel; el: HTMLElement }) {
   const draw = () => root.render(spec.render(buildProps(model, spec)));
   draw();
 
-  // Store-backed traits re-render through `useSyncExternalStore`, so only the plain data/display
-  // traits need to force a re-render from out here.
+  // Store traits re-render through their store; only the plain traits need a redraw from here.
   const watched = spec.props.map((entry) => `change:${typeof entry === "string" ? entry : entry[0]}`);
   for (const event of watched) model.on(event, draw);
 

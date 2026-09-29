@@ -7,11 +7,9 @@ export interface IntervalLike {
 
 /**
  * @public
- * Greedily assigns each interval a row index (0-based) such that no two intervals sharing a row
- * overlap — an interval is placed in the first row whose last-placed interval ends before this
- * one starts, else a new row is opened. Sorts by start position first, so row assignment is
- * deterministic regardless of input order. Shared by any track/lane-style renderer that needs to
- * avoid overlapping intervals (GenomeBrowser's feature track, BlastHitDistribution's hit rows).
+ * Assigns each interval a 0-based row so that no two intervals in a row overlap: greedily, in order
+ * of start position, each goes into the first row that is free by then. Deterministic regardless of
+ * input order.
  */
 export function stackIntervals<T extends IntervalLike>(intervals: T[]): Map<string, number> {
   const rows: number[] = []; // rows[i] = end position of the last interval placed in row i

@@ -3,10 +3,18 @@
  *
  * @packageDocumentation
  */
+import { injectStyleSheet } from "@react-bio-viz/core";
+// Emitted as `dist/style.css` for hosts that prefer to load it themselves (SSR pages that must be
+// styled before hydration, or a strict CSP without inline styles)…
 import "@react-bio-viz/core/style.css";
+// …and inlined, so that `import { PhyloTree } from "react-bio-viz"` alone is enough everywhere else.
+import styles from "@react-bio-viz/core/style.css?inline";
+
+injectStyleSheet(styles, "rbv-styles");
 
 export {
   MultipleSequenceAlignment,
+  SimpleMultipleSequenceAlignment,
   COLOR_STYLES,
   COLOR_STYLE_GROUPS,
   analyseColumns,
@@ -17,6 +25,7 @@ export {
 export type {
   Sequence,
   MultipleSequenceAlignmentProps,
+  SimpleMultipleSequenceAlignmentProps,
   AlignedSequences,
   MSADrawOptions,
   MSAHover,
@@ -29,18 +38,20 @@ export type {
   ColumnAnalysis,
   ColumnStat,
 } from './components/MultipleSequenceAlignment';
-export { DistanceMatrix, distanceColor } from './components/DistanceMatrix';
+export { DistanceMatrix, SimpleDistanceMatrix, distanceColor } from './components/DistanceMatrix';
 export type {
   DistanceColorScheme,
   DistanceMatrixHover,
   DistanceMatrixOptions,
   DistanceMatrixPanelSizes,
   DistanceMatrixProps,
+  SimpleDistanceMatrixProps,
 } from './components/DistanceMatrix';
-export { GeneModel } from './components/GeneModel';
-export type { SequenceInterval, GeneModelProps } from './components/GeneModel';
+export { GeneModel, SimpleGeneModel } from './components/GeneModel';
+export type { GeneModelProps, SimpleGeneModelProps } from './components/GeneModel';
 export {
   PhyloTree,
+  SimplePhyloTree,
   REROOT_ID,
   applyTreeSelection,
   collapseBySupport,
@@ -56,6 +67,7 @@ export {
 export type {
   Tree,
   PhyloTreeProps,
+  SimplePhyloTreeProps,
   LeafFn,
   ColorFn,
   LayoutMode,
@@ -65,9 +77,10 @@ export type {
   TreeBranchStyle,
   HierarchyPointNode,
 } from './components/PhyloTree';
-export { GenomeBrowser } from './components/GenomeBrowser';
+export { GenomeBrowser, SimpleGenomeBrowser } from './components/GenomeBrowser';
 export type {
   GenomeBrowserProps,
+  SimpleGenomeBrowserProps,
   GenomeTrack,
   FeatureTrack,
   CoverageTrack,
@@ -77,13 +90,15 @@ export type {
   TrackRenderer,
   TrackRenderProps,
 } from './components/GenomeBrowser';
-export { BlastHitDistribution } from './components/BlastHitDistribution';
-export type { BlastHit, BlastHitDistributionProps, BlastMetric, HitSelection } from './components/BlastHitDistribution';
-/*
- * The controllable-state seam, re-exported so a consumer who installs only `react-bio-viz` can
- * actually use it: plugging a component into your own store, or driving a controlled viewport,
- * needs these. `@react-bio-viz/core` remains the home for the full primitive set.
- */
+export { BlastHitDistribution, SimpleBlastHitDistribution } from './components/BlastHitDistribution';
+export type {
+  BlastHit,
+  BlastHitDistributionProps,
+  BlastMetric,
+  HitSelection,
+  SimpleBlastHitDistributionProps,
+} from './components/BlastHitDistribution';
+// From core: what driving a component's state, or building your own chrome around a Simple* view, needs.
 export {
   createControllableStore,
   createZustandStoreController,
@@ -96,5 +111,14 @@ export {
   panBy,
   zoomAt,
   zoomBy,
+  ViewportToolbar,
 } from '@react-bio-viz/core';
-export type { SerializeSvgOptions, StoreController, Viewport, ZustandLikeStore } from '@react-bio-viz/core';
+export type {
+  SequenceInterval,
+  SerializeSvgOptions,
+  SetValue,
+  StoreController,
+  Viewport,
+  ViewportToolbarProps,
+  ZustandLikeStore,
+} from '@react-bio-viz/core';

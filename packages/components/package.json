@@ -34,30 +34,22 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint . --max-warnings 0",
-    "docs:extract": "api-extractor run --local --verbose"
+    "lint": "eslint . --max-warnings 0"
   },
   "peerDependencies": {
     "react": "^18.3.1 || ^19.0.0",
     "react-dom": "^18.3.1 || ^19.0.0"
   },
   "devDependencies": {
-    "@emotion/css": "^11.11.2",
-    "@microsoft/api-documenter": "^7.25.4",
     "@microsoft/api-extractor": "^7.47.0",
     "@react-bio-viz/core": "workspace:*",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
-    "@types/color": "^3.0.6",
     "@types/node": "^20.14.9",
-    "@types/randomcolor": "^0.5.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
-    "color": "^4.2.3",
     "jsdom": "^25.0.1",
-    "lucide-react": "^1.47.0",
-    "randomcolor": "^0.6.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.6.3",

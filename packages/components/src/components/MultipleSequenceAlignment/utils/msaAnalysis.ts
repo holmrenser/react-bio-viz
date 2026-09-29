@@ -22,13 +22,8 @@ export interface ColumnAnalysis {
 
 /**
  * @public
- * Single pass over every column, producing the consensus residue plus conservation figures.
- * Gaps are skipped when picking the dominant residue (so a mostly-gapped column is summarized by
- * the residues that are actually there) but still counted in `identity`, which is what makes a
- * gappy column score lower than a clean one.
- *
- * Written without intermediate per-column arrays: this runs over every cell of the alignment, so
- * allocation matters on large inputs.
+ * Each column's dominant residue and conservation, in one pass. Gaps are skipped when picking the
+ * dominant residue but count against `identity`, so a gappy column scores lower than a clean one.
  */
 export function computeColumnStats(msa: AlignedSequences): ColumnStat[] {
   const rowCount = msa.length;

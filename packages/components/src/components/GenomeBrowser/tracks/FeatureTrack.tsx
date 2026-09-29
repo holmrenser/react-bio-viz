@@ -1,25 +1,11 @@
-import {
-  ACCENT_COLOR,
-  createCategoricalColorScale,
-  Popover,
-  PopoverBody,
-  PopoverTrigger,
-  stackIntervals,
-} from "@react-bio-viz/core";
-import { css } from "@emotion/css";
+import { createCategoricalColorScale, Popover, PopoverBody, PopoverTrigger, stackIntervals } from "@react-bio-viz/core";
 
 import { FEATURE_HEIGHT, FEATURE_ROW_HEIGHT } from "../constants";
-import type { FeatureTrack as FeatureTrackData, TrackRenderProps } from "../types";
+import type { FeatureTrack as FeatureTrackData, GenomeFeature, TrackRenderProps } from "../types";
 
 const colorScale = createCategoricalColorScale({ seed: "genome-browser-feature" });
 
-const HOVER_CSS = css({
-  cursor: "pointer",
-  strokeWidth: 1,
-  "&:hover": { stroke: ACCENT_COLOR, strokeWidth: 2 },
-});
-
-function defaultFeaturePopover(feature: FeatureTrackData["data"][number]): JSX.Element {
+function defaultFeaturePopover(feature: GenomeFeature) {
   return (
     <ul>
       <li>ID: {feature.id}</li>
@@ -31,42 +17,27 @@ function defaultFeaturePopover(feature: FeatureTrackData["data"][number]): JSX.E
   );
 }
 
-/** Renders a `"feature"` track: interval features auto-stacked into rows to avoid overlap. */
+/** Renders a `"feature"` track: interval features, stacked into rows where they overlap. */
 export function FeatureTrackRenderer({ track, scale }: TrackRenderProps<FeatureTrackData>) {
   const rows = stackIntervals(track.data);
-
   return (
     <g>
-      {track.data.map((feature) => {
-        const row = rows.get(feature.id) ?? 0;
-        const x = scale(feature.start);
-        const width = Math.max(1, scale(feature.end) - scale(feature.start));
-        const fill = feature.color ?? colorScale(feature.id).base;
-        return (
-          <Popover key={feature.id}>
-            <PopoverTrigger asChild>
-              <rect
-                x={x}
-                y={row * FEATURE_ROW_HEIGHT}
-                width={width}
-                height={FEATURE_HEIGHT}
-                fill={fill}
-                className={HOVER_CSS}
-                data-pan-ignore
-              />
-            </PopoverTrigger>
-            <PopoverBody header={feature.label ?? feature.id}>{defaultFeaturePopover(feature)}</PopoverBody>
-          </Popover>
-        );
-      })}
+      {track.data.map((feature) => (
+        <Popover key={feature.id}>
+          <PopoverTrigger asChild>
+            <rect
+              x={scale(feature.start)}
+              y={(rows.get(feature.id) ?? 0) * FEATURE_ROW_HEIGHT}
+              width={Math.max(1, scale(feature.end) - scale(feature.start))}
+              height={FEATURE_HEIGHT}
+              fill={feature.color ?? colorScale(feature.id).base}
+              className="cursor-pointer stroke-1 hover:stroke-2 hover:stroke-(--rbv-accent)"
+              data-pan-ignore
+            />
+          </PopoverTrigger>
+          <PopoverBody header={feature.label ?? feature.id}>{defaultFeaturePopover(feature)}</PopoverBody>
+        </Popover>
+      ))}
     </g>
   );
-}
-
-/** Pixel height needed to fit every feature in `data` without overlap. */
-export function featureTrackHeight(data: FeatureTrackData["data"]): number {
-  const rows = stackIntervals(data);
-  let maxRow = -1;
-  for (const row of rows.values()) maxRow = Math.max(maxRow, row);
-  return (maxRow + 1) * FEATURE_ROW_HEIGHT;
 }

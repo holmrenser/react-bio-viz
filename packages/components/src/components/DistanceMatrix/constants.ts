@@ -1,4 +1,6 @@
-/** Default cell size, in pixels (acacia's distance grid). */
+import type { DistanceMatrixPanelSizes } from "./types";
+
+/** Default cell size, in pixels. */
 export const CELL_WIDTH = 44;
 export const CELL_HEIGHT = 22;
 
@@ -14,7 +16,7 @@ export const LABEL_WIDTH_LIMITS = { min: 40, max: 600 } as const;
 /** Thickness of the draggable divider between labels and cells. */
 export const DIVIDER_SIZE = 6;
 
-/** Height reserved for the pan/zoom toolbar. */
+/** Height reserved for the wrapper's pan/zoom toolbar. */
 export const TOOLBAR_HEIGHT = 40;
 
 /** Smallest cell (px) numbers are written into. */
@@ -28,3 +30,8 @@ export const MAX_CELL_SIZE = 120;
 
 /** Fill of the diagonal (self-distance) cells. */
 export const DIAGONAL_COLOR = { light: "#f4f4f4", dark: "#2a2a2a" } as const;
+
+export const DEFAULT_PANEL_SIZES: DistanceMatrixPanelSizes = { labelWidth: LABEL_WIDTH };
+
+/** No explicit order: rows in `labels` order. */
+export const NO_ORDER: string[] = [];

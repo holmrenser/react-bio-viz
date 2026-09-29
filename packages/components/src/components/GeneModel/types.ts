@@ -1,75 +1,41 @@
-import type { StoreController, Viewport } from "@react-bio-viz/core";
-
-/**
- * @public
- * Sequence interval object based on gff3 field specs. Recursively defined:
- * SequenceInterval children are SequenceIntervals themselves.
- */
-export type SequenceInterval = {
-  /** Unique identifier for the sequence interval */
-  ID: string;
-  /** Unique identifier of the sequence the interval belongs to */
-  seqid: string;
-  /** Source of the sequence interval, i.e. what tool was used to generate or which organisation provided the annotation */
-  source: string;
-  /** Type of interval following the sequence ontology, e.g. mRNA, CDS, or gene */
-  interval_type: string;
-  /** Start coordinate */
-  start: number;
-  /** End coordinate */
-  end: number;
-  /** Sequence interval confidence score */
-  score: number | string;
-  /** Sequence strand */
-  strand: "+" | "-" | ".";
-  /** Interval phase (only relevant for CDS features) */
-  phase: 0 | 1 | 2 | ".";
-  /**
-   * Additional attributes (AKA gff3 column 9)
-   * @example
-   * ```json
-   * {dbxref: ['InterPro:IPR002376','InterPro:IPR001555'], name:'PurN'}
-   * ```
-   */
-  attributes: Record<string, string[] | string>;
-  /**
-   * Child sequence intervals of the current sequence interval. This makes that genemodels can be
-   * represented as a Directed Acyclic Graph. A common representation is `gene` -\> `mRNA(s)` -\> `exon(s)`
-   */
-  children?: SequenceInterval[];
-};
+import type { ReactNode } from "react";
+import type { SequenceInterval, StoreController, Viewport } from "@react-bio-viz/core";
 
 /**
  * @public
  * @group Component props
  */
-export interface GeneModelProps {
-  /** Recursively defined gene model object: SequenceInterval children are also SequenceIntervals. */
+export interface SimpleGeneModelProps {
+  /** The gene, with its transcripts and their exons/CDSs nested under `children`. */
   gene: SequenceInterval;
-  /** Width in pixels of the rendered SVG element. @defaultValue 500 */
+  /** Width in pixels. @defaultValue 500 */
   width?: number;
-  /** Seed string for the gene's color scheme. @defaultValue "42" */
+  /** Seeds the gene's colours. @defaultValue "42" */
   colorSeed?: string;
-  /** Show a scalebar indicating genomic position. @defaultValue true */
+  /** Show a genomic-position ruler. @defaultValue true */
   showScale?: boolean;
-  /** Popover content for a clicked exon/CDS. @defaultValue shows all gff3 fields. */
-  exonPopoverFn?: (arg0: SequenceInterval) => JSX.Element;
+  /** Popover content for a clicked exon/CDS. @defaultValue every GFF3 field */
+  exonPopoverFn?: (interval: SequenceInterval) => ReactNode;
+  /** The visible genomic window. @defaultValue the gene plus 10% padding either side */
+  viewport?: Viewport;
+  /** Called with the next window on every pan/zoom. */
+  onViewportChange?: (next: Viewport) => void;
+}
+
+/**
+ * @public
+ * @group Component props
+ */
+export interface GeneModelProps extends SimpleGeneModelProps {
+  /** Seeds the visible window when uncontrolled. */
+  defaultViewport?: Viewport;
+  /** Keeps the visible window in an external store. */
+  viewportStore?: StoreController<Viewport>;
   /**
-   * @deprecated Use `viewport`/`defaultViewport` instead. Percentage (0-100) along the x-axis
-   * where the visualization should start; seeds `defaultViewport` when neither is given.
+   * @deprecated Use `defaultViewport`. Percentage (0–100) of the gene where the view starts; seeds
+   * the window when neither `viewport` nor `defaultViewport` is given.
    */
   panMin?: number;
-  /**
-   * @deprecated Use `viewport`/`defaultViewport` instead. Percentage (0-100) along the x-axis
-   * where the visualization should end; seeds `defaultViewport` when neither is given.
-   */
+  /** @deprecated Use `defaultViewport`. Percentage (0–100) of the gene where the view ends. */
   panMax?: number;
-  /** The visible genomic-coordinate window, fully controlled. */
-  viewport?: Viewport;
-  /** Seeds the visible window when uncontrolled. Defaults to the full padded gene extent. */
-  defaultViewport?: Viewport;
-  /** Called on every pan/zoom, whether user- or programmatically-driven. */
-  onViewportChange?: (next: Viewport) => void;
-  /** Delegates viewport state to an external store instead of local state. */
-  viewportStore?: StoreController<Viewport>;
 }

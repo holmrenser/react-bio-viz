@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { css } from "@emotion/css";
-import { clampToExtent, type Viewport } from "@react-bio-viz/core";
+import { accentAlpha, ACCENT_COLOR, clampToExtent, type SetValue, type Viewport } from "@react-bio-viz/core";
 
 import { MINIMAP_EDGE_ZONE } from "../constants";
 import type { ColorIndex } from "../utils/colorIndex";
@@ -11,15 +10,9 @@ type DragMode = "pan" | "resize-left" | "resize-right";
 const FULL_WINDOW = (columns: number, rows: number) => ({ x0: 0, x1: columns, y0: 0, y1: rows });
 
 /**
- * An interactive overview of the whole alignment: the current viewport is drawn as a box over a
- * fully-zoomed-out render. Clicking outside the box jumps the main view there; dragging inside it
- * pans; dragging near its left/right edge resizes it (zooms). Mirrors acacia's minimap, which is
- * the same canvas pipeline as the main view rather than a separate implementation — see the
- * `bio-viz-conventions` skill for why viewport interactions all go through the same `useViewport`
- * seam regardless of which surface triggers them.
- *
- * The overview is drawn by the same renderer as the main view with the whole alignment as its
- * window, so a large alignment is sampled per pixel instead of rasterised in full.
+ * An overview of the whole alignment with the viewport as a box: click outside the box to jump
+ * there, drag inside it to pan, drag its left or right edge to zoom. Drawn by the main view's
+ * renderer with the whole alignment as its window.
  */
 export function Minimap({
   colorIndex,
@@ -41,7 +34,7 @@ export function Minimap({
   pixelWidth: number;
   pixelHeight: number;
   viewport: Viewport;
-  setViewport: (next: Viewport | ((prev: Viewport) => Viewport)) => void;
+  setViewport: SetValue<Viewport>;
   panBy: (dx: number, dy: number) => void;
 }) {
   const dragRef = useRef<{ mode: DragMode; lastX: number; lastY: number } | null>(null);
@@ -149,7 +142,7 @@ export function Minimap({
 
   return (
     <div
-      className={css({ position: "relative", touchAction: "none" })}
+      className="relative touch-none"
       style={{ width: pixelWidth, height: pixelHeight, cursor }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -168,13 +161,10 @@ export function Minimap({
         letterColor="transparent"
       />
       <div
-        className={css({
-          position: "absolute",
-          border: "2px solid var(--rbv-accent)",
-          backgroundColor: "rgb(var(--rbv-accent-rgb) / 0.18)",
-          pointerEvents: "none",
-        })}
+        className="pointer-events-none absolute"
         style={{
+          border: `2px solid ${ACCENT_COLOR}`,
+          backgroundColor: accentAlpha(0.18),
           left: boxLeft,
           top: boxTop,
           width: Math.max(1, boxRight - boxLeft),

@@ -1,9 +1,6 @@
 import { ACCENT_COLOR } from "@react-bio-viz/core";
-import { css } from "@emotion/css";
 
 import type { HierarchyPointNode, Tree } from "../types";
-
-const MARKER_CSS = css({ "&:hover": { stroke: ACCENT_COLOR, strokeWidth: 2 } });
 
 /**
  * Callbacks shared by every marker, keyed by node id so they stay referentially stable. A press may
@@ -15,14 +12,8 @@ export interface NodeMarkerHandlers {
 }
 
 /**
- * The clickable/draggable dot on a node. Rendered in a separate pass, after every branch, so it's
- * never occluded by a child branch painted on top of it — every child's branch starts exactly at
- * its parent's (x,y), and branches paint later (in document order) than their parent's own
- * content, so a marker drawn inline with the node would sit underneath its children's branches and
- * silently swallow no clicks at all.
- *
- * Internal nodes are hollow (the page background) when expanded and filled when collapsed, so the
- * state reads the same way in either theme; leaves take their own colour.
+ * The clickable, draggable dot on a node. Drawn in a pass after every branch: each child's branch
+ * starts at its parent's position, so a marker drawn with its node would sit under them.
  */
 export function NodeMarker({
   node,
@@ -52,7 +43,7 @@ export function NodeMarker({
       fill={fill}
       stroke={isActive ? ACCENT_COLOR : "currentColor"}
       strokeWidth={isActive ? 2 : 1}
-      className={isInteractive ? MARKER_CSS : undefined}
+      className={isInteractive ? "hover:stroke-2 hover:stroke-(--rbv-accent)" : undefined}
       style={{ cursor: isDraggable ? "grab" : isInteractive ? "pointer" : undefined }}
       data-pan-ignore={isInteractive || isDraggable ? true : undefined}
       data-node-id={node.id}

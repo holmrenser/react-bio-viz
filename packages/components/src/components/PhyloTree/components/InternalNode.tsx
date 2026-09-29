@@ -1,5 +1,3 @@
-import { css } from "@emotion/css";
-
 import type { HierarchyPointNode, Tree } from "../types";
 
 /**
@@ -28,7 +26,7 @@ export function InternalNode({
       fill="currentColor"
       opacity={0.75}
       pointerEvents="none"
-      className={css({ fontSize, fontFamily: "sans-serif" })}
+      style={{ fontSize, fontFamily: "sans-serif" }}
     >
       {name}
     </text>

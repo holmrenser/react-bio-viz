@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { createControllableStore, createZustandStoreController } from "@react-bio-viz/core";
+import { createControllableStore } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
-import { DistanceMatrix } from "./index";
+import { DistanceMatrix, SimpleDistanceMatrix } from "./index";
 
 const labels = ["a", "b", "c"];
 const matrix = [
@@ -45,14 +45,9 @@ describe("DistanceMatrix", () => {
 
   it("shares a row-order store", () => {
     const store = createControllableStore<string[]>(["b", "a", "c"]);
-    const controller = createZustandStoreController(
-      store,
-      (v) => v,
-      (s, next) => s.setState((prev) => (typeof next === "function" ? (next as (p: string[]) => string[])(prev) : next))
-    );
-    render(<DistanceMatrix labels={labels} matrix={matrix} rowOrderStore={controller} />);
+    render(<DistanceMatrix labels={labels} matrix={matrix} rowOrderStore={store} />);
     expect(rowLabels()).toEqual(["b", "a", "c"]);
-    act(() => store.setState(["c", "b", "a"]));
+    act(() => store.setValue(["c", "b", "a"]));
     expect(rowLabels()).toEqual(["c", "b", "a"]);
   });
 
@@ -85,5 +80,23 @@ describe("DistanceMatrix", () => {
     fireEvent.pointerDown(handle, { clientX: 100 });
     fireEvent.pointerMove(handle, { clientX: 60 });
     expect(onPanelSizesChange.mock.calls.at(-1)?.[0]).toEqual({ labelWidth: 120 });
+  });
+});
+
+describe("SimpleDistanceMatrix", () => {
+  it("renders the heatmap without a toolbar", () => {
+    const { container } = render(<SimpleDistanceMatrix labels={labels} matrix={matrix} />);
+    expect(rowLabels()).toEqual(["a", "b", "c"]);
+    expect(container.querySelector("button")).toBeNull();
+  });
+
+  it("only reports a resize: the column keeps its width until panel sizes are passed back", () => {
+    const onPanelSizesChange = vi.fn();
+    render(<SimpleDistanceMatrix labels={labels} matrix={matrix} onPanelSizesChange={onPanelSizesChange} />);
+    const handle = screen.getByLabelText("Resize labels");
+    fireEvent.pointerDown(handle, { clientX: 100 });
+    fireEvent.pointerMove(handle, { clientX: 60 });
+    expect(onPanelSizesChange).toHaveBeenLastCalledWith({ labelWidth: 120 });
+    expect(handle.previousElementSibling?.firstElementChild).toHaveStyle({ width: "160px" });
   });
 });

@@ -21,12 +21,8 @@ export interface UseDragPanHandlers {
 
 /**
  * @public
- * Pointer-event drag-to-pan, generic over any element with a pixel-to-data-unit scale. Spread the
- * returned handlers onto the interactive surface (an `<svg>`, a `<canvas>`, a wrapper `<div>`).
- *
- * If the surface contains nested elements with their own click behavior (a feature marker with a
- * popover, say), mark them with `data-pan-ignore` so a click there opens the popover instead of
- * being captured as the start of a drag.
+ * Drag-to-pan for any surface with a pixel-to-data-unit scale: spread the handlers onto it. Mark
+ * nested elements with their own click behaviour `data-pan-ignore`, so a press there stays a click.
  */
 export function useDragPan({ onPan, scaleX = 1, scaleY = 1, disabled = false }: UseDragPanOptions): UseDragPanHandlers {
   const draggingRef = useRef<{ x: number; y: number } | null>(null);
@@ -34,14 +30,10 @@ export function useDragPan({ onPan, scaleX = 1, scaleY = 1, disabled = false }: 
   const onPointerDown = useCallback(
     (event: ReactPointerEvent) => {
       if (disabled) return;
-      // Skip starting a drag if the pointer went down on a descendant that opted out (e.g. a
-      // feature with its own click/popover behavior) — otherwise capturing the pointer here
-      // would swallow the click that descendant was expecting. Mark such elements with
-      // `data-pan-ignore`.
+      // Capturing the pointer would swallow the click an opted-out descendant expects.
       if ((event.target as Element | null)?.closest?.("[data-pan-ignore]")) return;
       draggingRef.current = { x: event.clientX, y: event.clientY };
-      // Capture can throw (e.g. an already-released or synthetic pointer id); panning still
-      // works without it, it just loses events if the pointer leaves the element.
+      // Capture can throw (a released or synthetic pointer id); panning works without it.
       try {
         event.currentTarget.setPointerCapture?.(event.pointerId);
       } catch {

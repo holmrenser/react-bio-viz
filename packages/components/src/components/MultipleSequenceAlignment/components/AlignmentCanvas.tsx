@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getDevicePixelRatio } from "@react-bio-viz/core";
+import { setupCanvas } from "@react-bio-viz/core";
 
 import { drawAlignment, type DrawAlignmentParams } from "../utils/drawAlignment";
 
@@ -9,10 +9,8 @@ export type AlignmentCanvasProps = Omit<DrawAlignmentParams, "devicePixelRatio">
 };
 
 /**
- * One layer of alignment pixels — the main view, the consensus row, or the minimap, which differ
- * only in `window` and size. Redraws the visible window directly on every change (see
- * `drawAlignment`) instead of cropping a pre-rendered bitmap, so letters are re-rasterised at the
- * current zoom and there is no size limit on the alignment.
+ * One layer of alignment pixels — the main view, the consensus row or the minimap, which differ only
+ * in `window` and size — redrawn from the visible window on every change (see `drawAlignment`).
  */
 export function AlignmentCanvas({ className, style, ...params }: AlignmentCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -21,15 +19,9 @@ export function AlignmentCanvas({ className, style, ...params }: AlignmentCanvas
   const { x0, x1, y0, y1 } = window;
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = getDevicePixelRatio();
-    const deviceWidth = Math.max(1, Math.round(width * dpr));
-    const deviceHeight = Math.max(1, Math.round(height * dpr));
-    if (canvas.width !== deviceWidth) canvas.width = deviceWidth;
-    if (canvas.height !== deviceHeight) canvas.height = deviceHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const frame = canvasRef.current && setupCanvas(canvasRef.current, width, height);
+    if (!frame) return;
+    const { ctx, dpr } = frame;
     drawAlignment(ctx, {
       colorIndex,
       rowOrder,

@@ -1,21 +1,20 @@
 /*
- * Tailwind without its preflight. This stylesheet is loaded into *someone else's* page, so it must
- * never restyle anything outside a react-bio-viz component: no global element resets, no `body`/
- * `html` rules, and design tokens that yield to any the host defines — see the `:where()` token
- * blocks below, and the build step in `vite.config.ts` that does the same for Tailwind's own
- * theme variables. The minimal reset components rely on is scoped to `.rbv` (`ROOT_CLASS`).
+ * Tailwind without its preflight. This stylesheet is loaded into someone else's page, so it must
+ * never restyle anything outside a react-bio-viz component: no global element rules, and tokens
+ * that yield to any the host defines (the `:where()` blocks below; `vite.config.ts` does the same
+ * for Tailwind's own theme variables). The element reset is scoped to `.rbv` (`ROOT_CLASS`).
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
 
+/* The components' classes compile into this stylesheet too: it is the only one that ships. */
+@source "../../components/src";
+
 /*
- * Custom variants mapping Radix's `data-state`/`data-*` attributes to Tailwind variants, so
- * overlay components (Popover, Tooltip, Select) can use `data-open:`/`data-closed:` etc. Trimmed
- * from shadcn's own `tailwind.css` down to what this package's components actually use (no
- * scroll-fade/shimmer utilities, which nothing here needs) so we don't depend on the `shadcn` CLI
- * package at runtime just to get a handful of custom variants.
+ * Radix's `data-state`/`data-*` attributes as Tailwind variants (`data-open:`, `data-closed:`, …),
+ * trimmed from shadcn's `tailwind.css` to what the overlays here use.
  */
 @custom-variant data-open {
   &:where([data-state="open"]),
@@ -145,11 +144,8 @@
     --radius: 0.625rem;
 
     /*
-     * Visualization accent: the blue every interactive affordance on a data surface shares —
-     * hover outlines on exons/features/hits, the MSA cursor cross-hair, selected elements. The
-     * shadcn palette above is deliberately monochrome, so a hover drawn in `--ring` would be
-     * invisible against the data; this is the one saturated colour the library reserves for
-     * "you can interact with this". Lightened in dark mode, where the base blue reads too dark.
+     * The one saturated colour, reserved for interactive affordances on the data (hover outlines,
+     * the MSA cursor, selections): the monochrome palette above would vanish against it.
      */
     --rbv-accent: rgb(48, 92, 222);
     --rbv-accent-rgb: 48, 92, 222;

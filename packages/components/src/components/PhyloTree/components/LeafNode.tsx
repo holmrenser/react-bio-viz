@@ -1,5 +1,3 @@
-import { css } from "@emotion/css";
-
 import { RADIAL_LABEL_GAP, RADIAL_LABEL_MAX_CHARS } from "../constants";
 import { toCartesian, truncate } from "../utils/geometry";
 import type { HierarchyPointNode, LeafFn, Tree } from "../types";
@@ -10,23 +8,15 @@ export function defaultLeafText({
 }: {
   node: HierarchyPointNode<Tree>;
   fontSize?: number;
-}): JSX.Element {
-  const {
-    data: { name },
-  } = node;
+}): React.JSX.Element {
   return (
-    <text x={0} y={0} fill="currentColor" className={css({ fontFamily: "sans-serif", fontSize })}>
-      {name}
+    <text x={0} y={0} fill="currentColor" style={{ fontFamily: "sans-serif", fontSize }}>
+      {node.data.name}
     </text>
   );
 }
 
-const TIP_CONNECTOR_CSS = css({
-  stroke: "currentColor",
-  opacity: 0.4,
-  strokeWidth: 1,
-  strokeDasharray: "1,2",
-});
+const TIP_CONNECTOR_STYLE = { stroke: "currentColor", opacity: 0.4, strokeWidth: 1, strokeDasharray: "1,2" };
 
 /** Radial geometry for one leaf: where its label sits, and which way round it reads. */
 export interface RadialLeafOptions {
@@ -35,14 +25,9 @@ export interface RadialLeafOptions {
 }
 
 /**
- * A leaf/tip: a dashed connector from the branch tip to the label position, and the label itself
- * (the node's marker is drawn separately, above every branch — see `NodeMarker`). When `alignTips`
- * is set, every leaf's label sits at the same `tipColumnY` depth (flush-aligned) instead of
- * immediately after its own (possibly much shorter or longer) branch — matters in `"rectangular"`
- * layout, where branch length varies per leaf.
- *
- * Under `radial`, labels instead sit just outside the outermost radius and are rotated onto their
- * own spoke, flipping on the left half of the circle so no label reads upside down.
+ * A leaf's label, with a dashed connector from the branch tip (its marker is drawn separately — see
+ * `NodeMarker`). With `alignTips` every label sits in one column at `tipColumnY`. In a radial layout
+ * labels sit outside the circle on their own spoke, flipped on the left half so none reads upside down.
  */
 export function LeafNode({
   node,
@@ -94,7 +79,7 @@ export function LeafNode({
     return (
       <g className="tipnode">
         <title>{name}</title>
-        <line x1={y} y1={x} x2={labelPoint.x} y2={labelPoint.y} className={TIP_CONNECTOR_CSS} />
+        <line x1={y} y1={x} x2={labelPoint.x} y2={labelPoint.y} style={TIP_CONNECTOR_STYLE} />
         <g
           transform={`translate(${labelPoint.x},${labelPoint.y}) rotate(${degrees})`}
           style={labelStyle}
@@ -116,7 +101,7 @@ export function LeafNode({
   return (
     <g className="tipnode">
       <title>{name}</title>
-      <line x1={nodeY} x2={textY} y1={x} y2={x} className={TIP_CONNECTOR_CSS} />
+      <line x1={nodeY} x2={textY} y1={x} y2={x} style={TIP_CONNECTOR_STYLE} />
       <g transform={`translate(${textY},${x + fontSize / 3})`} style={labelStyle}>
         <LeafTextComponent node={node} fontSize={fontSize} />
       </g>

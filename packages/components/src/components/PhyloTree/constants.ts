@@ -1,10 +1,9 @@
+import type { TreeSelection } from "./types";
+
 /** Horizontal room reserved for leaf labels beyond the deepest tip, capped at 30% of the width. */
 export const LABEL_WIDTH = 300;
 
-/**
- * Padding around the tree surface. `right` is not used directly — the label allowance replaces it,
- * since that is the side a rectangular layout's tips point at.
- */
+/** Padding around the tree. `right` is replaced by the label allowance, where the tips point. */
 export const MARGIN = { top: 10, right: 10, bottom: 10, left: 20 } as const;
 
 /** Vertical room reserved below the tree for the branch-length scale bar. */
@@ -49,8 +48,8 @@ export const BRANCH_WIDTH = 0.75;
 /** Default leaf label font size, in pixels. */
 export const LABEL_FONT_SIZE = 11;
 
-/**
- * Dragging a node more than this many tip rows past the first or last tip asks to reroot on it
- * (with its clade at that end) rather than to reorder — acacia's drag-to-reroot.
- */
+/** Tip rows past the first or last tip at which a node drag reroots instead of reordering. */
 export const REROOT_DRAG_ZONE = 1.5;
+
+/** No reroot, nothing collapsed, sibling order as passed. */
+export const EMPTY_SELECTION: TreeSelection = { collapsed: [] };

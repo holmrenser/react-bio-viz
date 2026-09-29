@@ -10,18 +10,13 @@ import traitlets
 
 _STATIC = pathlib.Path(__file__).parent / "static"
 
-#: One bundle serves every widget, dispatching on the ``_component`` trait, so React ships once in
-#: the wheel rather than once per widget.
+#: One bundle serves every widget, dispatching on the ``_component`` trait, so React ships once.
 _ESM = _STATIC / "widget.js"
 _CSS = _STATIC / "widget.css"
 
 
 def fit_to_extent(extent: Mapping[str, float]) -> dict[str, float]:
-    """A viewport showing the full extent, i.e. fully zoomed out.
-
-    Mirrors ``fitToExtent`` in ``@react-bio-viz/core``; the ``Viewport`` shape is deliberately
-    plain JSON so it survives the Jupyter comm channel unchanged.
-    """
+    """A viewport showing the full extent, i.e. fully zoomed out — ``fitToExtent`` in the JS core."""
     return {
         "x0": extent["xMin"],
         "x1": extent["xMax"],
@@ -37,15 +32,11 @@ def fit_to_extent(extent: Mapping[str, float]) -> dict[str, float]:
 class BioVizWidget(anywidget.AnyWidget):
     """Base class for the react-bio-viz Jupyter widgets.
 
-    Every interactive piece of state is an ordinary synced trait, so the Python side uses
-    traitlets' own idiom rather than a bespoke callback API::
+    Every piece of interactive state is a synced trait, observable and writable from the kernel::
 
         widget = MSA(msa=records)
         widget.observe(lambda change: print(change["new"]), names="viewport")
         widget.viewport = {...}   # drives the view from the kernel
-
-    On the JavaScript side each of those traits is wrapped as a ``StoreController`` — the same seam
-    a consumer's Zustand store plugs into — so no component contains any Jupyter-specific code.
     """
 
     _esm = _ESM
@@ -72,8 +63,8 @@ class BioVizWidget(anywidget.AnyWidget):
     def _on_event(self, event: str, callback: Callable[..., None], *fields: str) -> None:
         """Calls ``callback`` with ``fields`` of every ``event`` message the component sends.
 
-        User actions that aren't state (a rename, a click) arrive as anywidget custom messages
-        rather than traits: they are one-off events, and a trait would drop two identical ones.
+        One-off user actions (a rename, a click) arrive as custom messages, not traits: a trait would
+        drop the second of two identical events.
         """
 
         def handler(_widget: Any, content: Mapping[str, Any], _buffers: Any) -> None:

@@ -8,11 +8,8 @@ const cache = new Map<string, RGBA>();
 
 /**
  * @public
- * Resolves any CSS colour string the library's colour functions produce (`#rrggbb`, `rgb()`,
- * `hsl()`, named colours like `royalblue`) to 8-bit RGBA, memoised per string. Pixel-level canvas
- * rendering (the MSA's zoomed-out view and minimap, the distance heatmap) writes `ImageData`
- * directly, which needs numbers rather than a `fillStyle` string. An unparseable string resolves
- * to opaque black rather than throwing, so one bad colour can't blank a whole render.
+ * Resolves a CSS colour string (`#rrggbb`, `rgb()`, `hsl()`, a name) to 8-bit RGBA for `ImageData`,
+ * memoised per string. An unparseable string gives opaque black rather than throwing.
  */
 export function toRGBA(color: string): RGBA {
   const cached = cache.get(color);

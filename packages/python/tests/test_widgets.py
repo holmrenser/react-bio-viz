@@ -341,6 +341,34 @@ def test_phylotree_rejects_an_unknown_layout():
         PhyloTree(tree=TREE_DATA, tree_layout="spiral")
 
 
+def test_blast_metric_is_two_way_state_seeded_with_a_value():
+    widget = BlastHitDistribution(hits=HITS, query_length=2000)
+    assert widget.metric == "evalue"
+    assert widget.trait_metadata("metric", "sync") is True
+
+
+def _js_store_traits() -> dict[str, list[str]]:
+    """The ``stores`` list of every component in the JS bridge's spec table."""
+    import re
+
+    source = (pathlib.Path(__file__).parents[1] / "js" / "widget.tsx").read_text()
+    return {
+        name: re.findall(r'"(\w+)"', stores)
+        for name, stores in re.findall(r"(\w+): \{\s*render:.*?stores: \[([^\]]*)\]", source, re.S)
+    }
+
+
+@pytest.mark.parametrize("cls,kwargs", ALL_WIDGETS, ids=lambda v: getattr(v, "__name__", ""))
+def test_every_store_trait_is_seeded(cls, kwargs):
+    """A ``None`` store value would reach the component as a null viewport or selection."""
+    widget = cls(**kwargs)
+    stores = _js_store_traits()[widget._component]
+    assert stores, widget._component
+    for trait in stores:
+        assert getattr(widget, trait) is not None, trait
+        assert widget.trait_metadata(trait, "sync") is True, trait
+
+
 def test_blast_rejects_an_unknown_metric():
     with pytest.raises(Exception):
         BlastHitDistribution(hits=HITS, query_length=2000, metric="pValue")

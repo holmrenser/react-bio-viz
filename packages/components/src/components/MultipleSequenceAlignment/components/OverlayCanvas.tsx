@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ACCENT_LITERAL, getDevicePixelRatio, SELECTION_LITERAL } from "@react-bio-viz/core";
+import { ACCENT_LITERAL, SELECTION_LITERAL, setupCanvas } from "@react-bio-viz/core";
 
 import type { AlignmentWindow } from "../utils/drawAlignment";
 
@@ -48,17 +48,9 @@ export function OverlayCanvas({
   const { ref: interactionRef, style: interactionStyle, ...handlers } = interaction ?? {};
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = getDevicePixelRatio();
-    const deviceWidth = Math.max(1, Math.round(width * dpr));
-    const deviceHeight = Math.max(1, Math.round(height * dpr));
-    if (canvas.width !== deviceWidth) canvas.width = deviceWidth;
-    if (canvas.height !== deviceHeight) canvas.height = deviceHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
+    const frame = canvasRef.current && setupCanvas(canvasRef.current, width, height);
+    if (!frame) return;
+    const { ctx } = frame;
 
     const spanX = window.x1 - window.x0;
     const spanY = window.y1 - window.y0;

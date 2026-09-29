@@ -18,9 +18,8 @@ export interface ViewportToolbarProps {
 
 /**
  * @public
- * Shared pan/zoom toolbar for any {@link useViewport}-backed component (MultipleSequenceAlignment,
- * GeneModel, PhyloTree, GenomeBrowser), built on shadcn/ui's `Button`. `axes` controls which pan
- * directions are shown — a 1D viewport (e.g. GeneModel's genomic coordinate) only needs `"x"`.
+ * Pan/zoom/reset buttons for a {@link Viewport}, as the components' wrappers show above their view.
+ * A one-dimensional viewport (a genomic axis) shows only the `"x"` pan buttons.
  */
 export function ViewportToolbar({ viewport, panBy, zoomBy, reset, axes = "both" }: ViewportToolbarProps) {
   const spanX = viewport.x1 - viewport.x0;

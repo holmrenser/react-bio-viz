@@ -8,18 +8,14 @@ export function computeReordered(order: string[], draggedId: string, targetIndex
 }
 
 /**
- * Returns a new tree with each node's children reordered per `order` (a node id → desired child
- * id sequence map, e.g. from dragging a leaf among its siblings). Ids in a node's own children
- * but missing from its `order` entry keep their original relative order, appended after the ones
- * that were explicitly ordered — so a stale/partial `order` map degrades gracefully instead of
- * dropping nodes.
+ * A new tree with each node's children in the order `order` gives (node id → child ids). Children
+ * it doesn't list follow, in their original order, so a partial or stale `order` never drops nodes.
  */
 export function applyOrder(root: HierarchyPointNode<Tree>, order: Record<string, string[]>): HierarchyPointNode<Tree> {
   if (Object.keys(order).length === 0) return root;
 
-  // Every node is copied with its `parent` pointing at the *copy* above it: layout writes positions
-  // onto the new nodes, and a branch is drawn from `node.parent` — a stale pointer to the original
-  // parent would draw it from wherever that (un-laid-out) object happens to sit.
+  // Point each copy's `parent` at the copy above it: branches are drawn from `node.parent`, and a
+  // stale pointer would draw them from the original, un-laid-out node.
   function reorderNode(node: HierarchyPointNode<Tree>, parent: HierarchyPointNode<Tree> | null): HierarchyPointNode<Tree> {
     const copy: HierarchyPointNode<Tree> = { ...node, parent };
     if (!node.children) return copy;

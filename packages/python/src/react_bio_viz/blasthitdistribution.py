@@ -14,9 +14,9 @@ class BlastHitDistribution(BioVizWidget):
 
     :param hits: ``[{"id", "queryId", "subjectId", "queryStart", "queryEnd", "evalue",
         "bitScore", "percentIdentity"}, ...]``.
-    :param selection: ``{"selectedHitIds": [...]}``. Clicking a hit toggles it, which writes the
-        trait back — this is the widget that shows the controllable-state seam generalizing beyond
-        pan/zoom to arbitrary UI state.
+    :param selection: ``{"selectedHitIds": [...]}``; clicking a hit toggles it and writes this back.
+    :param metric: ``"evalue"``, ``"bitScore"`` or ``"percentIdentity"``; written back when the
+        user picks another in the widget's selector.
 
     >>> w = BlastHitDistribution(hits=hits, query_length=2000)
     >>> w.observe(lambda c: print(c["new"]["selectedHitIds"]), names="selection")
@@ -29,9 +29,7 @@ class BlastHitDistribution(BioVizWidget):
     query_name = traitlets.Unicode("").tag(sync=True)
     width = traitlets.Int(800).tag(sync=True)
     show_scale = traitlets.Bool(True).tag(sync=True)
-    metric = traitlets.Enum(
-        ["evalue", "bitScore", "percentIdentity"], allow_none=True, default_value=None
-    ).tag(sync=True)
+    metric = traitlets.Enum(["evalue", "bitScore", "percentIdentity"], default_value="evalue").tag(sync=True)
 
     selection = traitlets.Dict(allow_none=True, default_value=None).tag(sync=True)
 

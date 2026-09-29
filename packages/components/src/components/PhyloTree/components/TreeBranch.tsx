@@ -1,10 +1,9 @@
-import { css } from "@emotion/css";
-
 import { BRANCH_HIT_WIDTH, DEFAULT_BRANCH_OPACITY } from "../constants";
 import { arcPath, toCartesian } from "../utils/geometry";
 import type { HierarchyPointNode, Tree } from "../types";
 
-const HIT_CSS = css({ cursor: "pointer", "&:hover + path": { stroke: "var(--rbv-accent)" } });
+/** Hovering the hit area highlights the branch drawn right after it. */
+const HIT_CLASS = "cursor-pointer [&:hover+path]:stroke-(--rbv-accent)";
 
 /** The elbow a rectangular/cladogram layout uses: out along the parent's depth, then across. */
 function elbowPath(node: HierarchyPointNode<Tree>): string {
@@ -47,15 +46,12 @@ function ownSegment(node: HierarchyPointNode<Tree>, center?: { cx: number; cy: n
 }
 
 /**
- * How strongly to draw a branch: its parent's support value when shading is on and that value is
- * actually numeric. Internal node names are free text in Newick — they hold a bootstrap value on
- * some trees and a clade name (or nothing) on others — so a non-numeric name falls back to the
- * default rather than producing `opacity="NaN"`.
+ * How strongly to draw a branch: its parent's support, when shading is on and the parent's name is
+ * numeric — Newick internal labels can also be clade names, or empty.
  */
 function branchOpacity(node: HierarchyPointNode<Tree>, shadeBranchBySupport?: boolean): number {
   if (!shadeBranchBySupport) return DEFAULT_BRANCH_OPACITY;
-  // parseFloat, not Number: an unlabelled node (every Newick root, many internal nodes) has name
-  // "", which Number() reads as 0 — a support of zero, i.e. an invisible branch.
+  // parseFloat, not Number: Number("") is 0, which would hide every unlabelled node's branches.
   const support = Number.parseFloat(node.parent!.data.name);
   return Number.isFinite(support) ? Math.min(1, Math.max(0, support)) : DEFAULT_BRANCH_OPACITY;
 }
@@ -83,7 +79,7 @@ export function TreeBranch({
       {onClick && (
         <path
           d={ownSegment(node, center)}
-          className={HIT_CSS}
+          className={HIT_CLASS}
           fill="none"
           stroke="transparent"
           strokeWidth={Math.max(BRANCH_HIT_WIDTH, width + 4)}

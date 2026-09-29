@@ -1,73 +1,67 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
-import type { ControllableStateOptions } from "./types";
-
-const noopSubscribe = () => () => {};
-const EMPTY_SNAPSHOT = null;
-const getEmptySnapshot = () => EMPTY_SNAPSHOT;
+import { createControllableStore } from "./createExternalStoreAdapter";
+import type { ControllableStateOptions, SetValue } from "./types";
 
 /**
  * @public
- * The single state primitive every stateful prop in this library is built on. Supports three
- * modes, chosen by which options are passed, all producing the same `[value, setValue]` shape:
+ * The state primitive behind every stateful prop in this library. The options passed pick the mode,
+ * and every mode returns the same `[value, setValue]`:
  *
- * - `value` present, no `store`: fully controlled — the consumer owns the value; `setValue` only
- *   calls `onChange`, it never updates anything locally.
- * - `value` absent, no `store`: uncontrolled — backed by local React state seeded from
- *   `defaultValue`; `onChange` still fires on every update so an observing-only parent works too.
- * - `store` present: delegates to the external {@link StoreController} via `useSyncExternalStore`
- *   instead of local state. Takes priority over `value`/`defaultValue` when present.
+ * - `store`: the value lives in that {@link StoreController}. Takes priority over `value`.
+ * - `value`: controlled — `setValue` only reports the next value through `onChange`.
+ * - neither: uncontrolled — the value lives in a private Zustand store seeded from `defaultValue`.
  *
- * See the `bio-viz-conventions` project skill for the full contract and the convention every
- * component follows for wrapping this under a domain-specific prop name (e.g. `viewport`/
- * `defaultViewport`/`onViewportChange`/`viewportStore`).
+ * `onChange` fires on every change in every mode. Components expose this under domain-named props
+ * (`viewport`/`defaultViewport`/`onViewportChange`/`viewportStore`).
  */
 export function useControllableState<T>(
-  options: ControllableStateOptions<T>
-): [T, (next: T | ((prev: T) => T)) => void] {
+  options: ControllableStateOptions<T>,
+): [T, SetValue<T>] {
   const { value, defaultValue, onChange, store } = options;
-  const isControlled = value !== undefined;
-
-  const [internalValue, setInternalValue] = useState<T>(() =>
-    isControlled ? (value as T) : (defaultValue as T)
+  const [ownStore] = useState(() =>
+    createControllableStore((value !== undefined ? value : defaultValue) as T),
   );
+  const source = store ?? ownStore;
+  const isControlled = !store && value !== undefined;
 
-  const getSnapshot = store ? store.getValue : getEmptySnapshot;
-  // The same snapshot on the server: a store's current value is as valid there as in the browser,
-  // and React refuses to server-render useSyncExternalStore without one.
-  const storeValue = useSyncExternalStore(store ? store.subscribe : noopSubscribe, getSnapshot, getSnapshot);
+  // The store's snapshot is as valid on the server as in the browser.
+  const stored = useSyncExternalStore(
+    source.subscribe,
+    source.getValue,
+    source.getValue,
+  );
+  const current = isControlled ? (value as T) : stored;
 
-  const currentValue = store ? (storeValue as T) : isControlled ? (value as T) : internalValue;
-
-  const lastEmittedRef = useRef(currentValue);
+  const reportedRef = useRef(current);
   const isOwnUpdateRef = useRef(false);
-
   useEffect(() => {
-    if (!store) return;
-    if (currentValue !== lastEmittedRef.current) {
-      const source = isOwnUpdateRef.current ? "internal" : "external";
-      isOwnUpdateRef.current = false;
-      lastEmittedRef.current = currentValue;
-      onChange?.(currentValue, { source });
-    }
-  }, [store, currentValue, onChange]);
+    if (isControlled || current === reportedRef.current) return;
+    reportedRef.current = current;
+    const isExternal = store !== undefined && !isOwnUpdateRef.current;
+    isOwnUpdateRef.current = false;
+    onChange?.(current, { source: isExternal ? "external" : "internal" });
+  }, [isControlled, current, store, onChange]);
 
-  const setValue = useCallback(
-    (next: T | ((prev: T) => T)) => {
-      if (store) {
+  const setValue = useCallback<SetValue<T>>(
+    (next) => {
+      if (!isControlled) {
         isOwnUpdateRef.current = true;
-        store.setValue(next);
+        source.setValue(next);
         return;
       }
-      const resolved = typeof next === "function" ? (next as (prev: T) => T)(currentValue) : next;
-      if (!isControlled) {
-        setInternalValue(resolved);
-      }
-      lastEmittedRef.current = resolved;
+      const resolved =
+        typeof next === "function" ? (next as (prev: T) => T)(current) : next;
       onChange?.(resolved, { source: "internal" });
     },
-    [store, isControlled, currentValue, onChange]
+    [isControlled, source, current, onChange],
   );
 
-  return [currentValue, setValue];
+  return [current, setValue];
 }

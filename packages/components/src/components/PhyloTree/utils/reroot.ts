@@ -12,15 +12,10 @@ interface Edge {
 }
 
 /**
- * Returns a new tree rooted on the branch above `targetId`: a new bifurcating root (id
- * {@link REROOT_ID}) splits that branch, `position` of the way from the target to its parent
- * (0 = at the target, 1 = at the parent; default the midpoint). Every other node keeps its `id`,
- * so ids in a selection (collapsed clades, child orders, styles) stay valid across reroots.
- *
- * The tree is treated as unrooted and re-hung from the new root, so every edge keeps its length
- * and every leaf stays a leaf. The old root, if it is left with a single child (i.e. it was
- * bifurcating), is dissolved and its two edges merged — so total branch length is preserved exactly.
- * Returns `root` unchanged when `targetId` is unknown or is the root itself.
+ * A new tree rooted on the branch above `targetId`: a new root ({@link REROOT_ID}) splits it,
+ * `position` of the way from the target (0) to its parent (1). The tree is re-hung as if unrooted,
+ * so every edge keeps its length and every other node its `id`; a bifurcating old root dissolves
+ * into one edge. Returns `root` itself when `targetId` is unknown or the root.
  */
 export function rerootOnBranch(root: Node, targetId: string, position = 0.5): Node {
   const target = findById(root, targetId);

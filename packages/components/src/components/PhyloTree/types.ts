@@ -1,21 +1,23 @@
 import type { StoreController, Viewport } from "@react-bio-viz/core";
 
-/** @public */
+/**
+ * @public
+ * A tree node and, through `children`, the tree below it — the shape {@link parseNewick} returns.
+ */
 export type Tree = {
+  /** Stable identity for selections and styles. Defaults to the node's position in the tree. */
   ID?: string | number;
+  /** Leaf name, or an internal node's label (typically its bootstrap support). */
   name: string;
-  color_regex?: string;
+  /** Length of the branch above the node. */
   length: number;
   children: Tree[];
 };
 
 /**
  * @public
- * A node in the laid-out tree: wraps the source `Tree` data with parent/children links, a stable
- * `id` for addressing it from {@link TreeSelection}, and the `x`/`y` pixel position a layout
- * produces. Named to match d3-hierarchy's `HierarchyPointNode` (which this used to be, directly)
- * so the public `LeafFn`/`ColorFn` API shape stays the same even though layout is computed
- * locally instead of via d3.
+ * A node of the laid-out tree: the source {@link Tree} data, parent/children links, a stable `id`
+ * (as used by {@link TreeSelection}) and the pixel position the layout gave it.
  */
 export type HierarchyPointNode<T> = {
   /** `data.ID` when present, else a positional path (stable across renders, not across re-sorts). */
@@ -36,11 +38,7 @@ export type HierarchyPointNode<T> = {
   collapsedLeafCount?: number;
 };
 
-/**
- * What a layout function reports back about the geometry it produced, for the chrome that has to
- * be drawn around it (the scale bar, radial leaf labels). Every field is optional because it only
- * applies to the layouts that have a meaningful value for it.
- */
+/** What a layout reports about its geometry, for what is drawn around it (scale bar, radial labels). */
 export interface LayoutResult {
   /**
    * Pixels per branch-length unit, so the scale bar can label a real distance. Absent for
@@ -53,13 +51,10 @@ export interface LayoutResult {
   maxRadius?: number;
 }
 
-/** @public */
-export type LeafFn = (arg0: {
-  node: HierarchyPointNode<Tree>;
-  fontSize?: number;
-}) => JSX.Element;
+/** @public Renders a leaf's label, drawn at the label position. */
+export type LeafFn = (props: { node: HierarchyPointNode<Tree>; fontSize?: number }) => React.JSX.Element;
 
-/** @public */
+/** @public Maps a leaf to the string that seeds its marker colour (leaves with equal strings share a colour). */
 export type ColorFn = (node: HierarchyPointNode<Tree>) => string;
 
 /**
@@ -72,10 +67,8 @@ export type LayoutMode = "rectangular" | "cladogram" | "radial";
 
 /**
  * @public
- * Where the tree is rooted, which clades are collapsed, and how siblings are ordered. Controllable
- * like every other stateful prop in this library — see `selection`/`defaultSelection`/
- * `onSelectionChange`/`selectionStore`. All ids are those of the tree as passed in (see
- * {@link HierarchyPointNode}), and stay valid across reroots.
+ * Where the tree is rooted, which clades are collapsed, and how siblings are ordered. Ids are those
+ * of the tree as passed in, and stay valid across reroots.
  */
 export interface TreeSelection {
   /**
@@ -140,16 +133,14 @@ export interface TreeBranchStyle {
  * @public
  * @group Component props
  */
-export interface PhyloTreeProps {
-  /** Recursively defined tree object: `children` of a Tree are also a Tree. */
+export interface SimplePhyloTreeProps {
+  /** The tree: a root node with its descendants nested under `children`. */
   tree: Tree;
-  /** Maximum height in pixels. @defaultValue 900 */
+  /** Height in pixels. @defaultValue 900 */
   height?: number;
-  /** Maximum width in pixels. @defaultValue 1000 */
+  /** Width in pixels. @defaultValue 1000 */
   width?: number;
-  /** @deprecated Use `layout="cladogram"` instead. */
-  cladogram?: boolean;
-  /** Tree layout mode — see {@link LayoutMode}. @defaultValue "rectangular" */
+  /** Layout — see {@link LayoutMode}. @defaultValue "rectangular" */
   layout?: LayoutMode;
   /** Label internal nodes with their name (typically bootstrap support). @defaultValue true */
   showSupportValues?: boolean;
@@ -157,46 +148,29 @@ export interface PhyloTreeProps {
   supportThreshold?: number;
   /** Fade branches whose parent's support (a 0–1 value) is low. @defaultValue true */
   shadeBranchBySupport?: boolean;
-  /** Seeds the default colour of each leaf's marker; `nodeStyles` overrides it. */
+  /** Seeds each leaf marker's colour; `nodeStyles` overrides it. @defaultValue the leaf name minus its last word */
   colorFunction?: ColorFn;
-  /**
-   * One colour for every leaf marker (e.g. `"currentColor"` for neutral dots), instead of the
-   * per-leaf colours seeded by `colorFunction`. `nodeStyles` still overrides it.
-   */
+  /** One colour for every leaf marker (e.g. `"currentColor"`) instead of `colorFunction`'s. */
   leafMarkerColor?: string;
   /** Font size of support-value labels, in pixels. @defaultValue 10 */
   fontSize?: number;
-  /** Align leaf labels to a common tip column (using the layout's own tip-alignment position) rather than immediately after each branch. @defaultValue true */
+  /** Align leaf labels in one column rather than right after each branch. @defaultValue true */
   alignTips?: boolean;
+  /** Renders each leaf label. @defaultValue the leaf's name */
   leafTextComponent?: LeafFn;
-  /** The visible pan/zoom window over the rendered tree, fully controlled. */
-  viewport?: Viewport;
-  /** Seeds the visible window when uncontrolled. Defaults to fitting the whole tree. */
-  defaultViewport?: Viewport;
-  /** Called on every pan/zoom, whether user- or programmatically-driven. */
-  onViewportChange?: (next: Viewport) => void;
-  /** Delegates viewport state to an external store instead of local state. */
-  viewportStore?: StoreController<Viewport>;
-  /** The reroot/collapse selection, fully controlled. */
-  selection?: TreeSelection;
-  /** Seeds the selection when uncontrolled. Defaults to no reroot, nothing collapsed. */
-  defaultSelection?: TreeSelection;
-  /** Called on every reroot/collapse change. */
-  onSelectionChange?: (next: TreeSelection) => void;
-  /** Delegates selection state to an external store instead of local state. */
-  selectionStore?: StoreController<TreeSelection>;
   /**
-   * Render a clickable marker on internal nodes that toggles `selection.collapsed` (or calls
-   * `onNodeClick`), and let nodes be dragged vertically among their siblings (writes to
-   * `selection.order`; see `dragEnabled`).
-   * @defaultValue false
+   * Show internal-node markers that toggle `selection.collapsed` (or call `onNodeClick`), and let
+   * nodes be dragged among their siblings (see `dragEnabled`). @defaultValue false
    */
   interactive?: boolean;
-  /** Bold leaves whose name matches this text (case-insensitive substring) or, with `searchUseRegex`, this regular expression; dims non-matches. An invalid regex matches nothing rather than throwing. */
+  /**
+   * Bold the leaves whose name contains this text (case-insensitively) — or, with `searchUseRegex`,
+   * matches this regular expression — and dim the rest. An invalid regex matches nothing.
+   */
   searchQuery?: string;
-  /** Treat `searchQuery` as a regular expression instead of a plain substring. @defaultValue false */
+  /** Treat `searchQuery` as a regular expression. @defaultValue false */
   searchUseRegex?: boolean;
-  /** Show a branch-length scale bar below the tree (only meaningful in `"rectangular"` layout). @defaultValue true */
+  /** Show a branch-length scale bar (not in `"cladogram"` layout). @defaultValue true */
   showScaleBar?: boolean;
   /** Label every branch with its length. @defaultValue false */
   showBranchLengths?: boolean;
@@ -207,30 +181,52 @@ export interface PhyloTreeProps {
   /** Leaf label font size, in pixels. @defaultValue 11 */
   labelFontSize?: number;
   /**
-   * Vertical pixels per leaf. When set, the tree is laid out that tall (instead of fitting
-   * `height`) and the view scrolls through it — a large tree stays readable. Ignored for `"radial"`.
+   * Pixels per leaf. When set, the tree is laid out that tall instead of fitting `height`, and the
+   * view scrolls through it. Ignored for `"radial"`.
    */
   leafSpacing?: number;
-  /** Per-node colour/bold, keyed by node `id` (see {@link TreeNodeInfo.descendantIds} for clades). */
+  /** Per-node colour and bold, keyed by node `id` (see {@link TreeNodeInfo.descendantIds} for clades). */
   nodeStyles?: Record<string, TreeNodeStyle>;
   /** Per-branch colour, keyed by the `id` of the node below the branch. */
   branchStyles?: Record<string, TreeBranchStyle>;
-  /** Node drawn highlighted — e.g. the one whose context panel is open. */
+  /** Node drawn highlighted, e.g. the one whose context menu is open. */
   activeNodeId?: string | null;
   /**
-   * Called when a node marker is clicked (without dragging). When provided, clicking an internal
-   * node's marker calls this instead of toggling collapse, so the caller can offer a menu.
+   * Called when a node marker is clicked (not dragged). When set, clicking an internal node calls
+   * this instead of toggling its collapse, so the caller can offer a menu.
    */
   onNodeClick?: (node: TreeNodeInfo, event: React.MouseEvent) => void;
-  /** Called when a branch is clicked; makes branches clickable. Reports the node below the branch. */
+  /** Called when a branch is clicked, with the node below it; makes branches clickable. */
   onBranchClick?: (node: TreeNodeInfo, event: React.MouseEvent) => void;
-  /**
-   * Let nodes be dragged vertically among their siblings (writes `selection.order`).
-   * @defaultValue the value of `interactive`
-   */
+  /** Let nodes be dragged among their siblings (writes `selection.order`). @defaultValue `interactive` */
   dragEnabled?: boolean;
-  /** Called with the leaf names in display order whenever it changes (e.g. to order alignment rows to match). */
+  /** Called with the leaf names in display order whenever it changes, e.g. to order alignment rows. */
   onLeafOrderChange?: (leafNames: string[]) => void;
-  /** Ref to the rendered `<svg>`, e.g. to export it as SVG or PNG. */
+  /** Ref to the rendered `<svg>`, e.g. to export it. */
   svgRef?: React.Ref<SVGSVGElement>;
+  /** The visible window, in pixels of the laid-out tree. @defaultValue the top of the tree, at full width */
+  viewport?: Viewport;
+  /** Called with the next window on every pan/zoom. */
+  onViewportChange?: (next: Viewport) => void;
+  /** Where the tree is rooted, which clades are collapsed, and sibling order. @defaultValue as passed, nothing collapsed */
+  selection?: TreeSelection;
+  /** Called with the next selection on every collapse, reorder or drag-to-reroot. */
+  onSelectionChange?: (next: TreeSelection) => void;
+}
+
+/**
+ * @public
+ * @group Component props
+ */
+export interface PhyloTreeProps extends SimplePhyloTreeProps {
+  /** Seeds the visible window when uncontrolled. */
+  defaultViewport?: Viewport;
+  /** Keeps the visible window in an external store. */
+  viewportStore?: StoreController<Viewport>;
+  /** Seeds the selection when uncontrolled. */
+  defaultSelection?: TreeSelection;
+  /** Keeps the selection in an external store. */
+  selectionStore?: StoreController<TreeSelection>;
+  /** @deprecated Use `layout="cladogram"`. */
+  cladogram?: boolean;
 }

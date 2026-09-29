@@ -96,4 +96,16 @@ node with its clade at that end. The change is committed once, on release.
 `svgRef` gives you the rendered `<svg>`; `serializeSvg` turns it into a standalone file — see
 [Exporting](../../guides/export/).
 
-[All props →](../../reference/interfaces/phylotreeprops/)
+## SimplePhyloTree
+
+The same view without the toolbar, and fully controlled — for building your own navigation around it. It
+keeps no state: every interaction reports through its `on*Change` callback and shows once you pass
+the value back (see [Simple components](../../concepts/controllable-state/#simple-components)).
+
+```tsx
+const [viewport, setViewport] = useState<Viewport>();
+
+<SimplePhyloTree tree={tree} viewport={viewport} onViewportChange={setViewport} />
+```
+
+[All props →](../../reference/interfaces/phylotreeprops/) · [SimplePhyloTree props →](../../reference/interfaces/simplephylotreeprops/)
