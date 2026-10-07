@@ -1,14 +1,17 @@
 name: Release
 
-# Publishes both distributions of react-bio-viz when a `v*` tag is pushed:
-#   - npm:  `react-bio-viz` (packages/components)
-#   - PyPI: `react-bio-viz` (packages/python, the Jupyter widgets)
+# Releases react-bio-viz when a `v*` tag is pushed:
+#   - npm:    `react-bio-viz` (packages/components)
+#   - PyPI:   `react-bio-viz` (packages/python, the Jupyter widgets)
+#   - GitHub: a release for the tag, once both registries have it
 #
-#   git tag v0.1.0 && git push origin v0.1.0
+#   git tag v0.2.0 && git push origin v0.2.0
 #
 # The tag must match the version in both packages/components/package.json and
-# packages/python/pyproject.toml. Everything is built and tested once, then each registry gets
-# its own job, so neither publishes from an untested build.
+# packages/python/pyproject.toml, and CHANGELOG.md needs a `## X.Y.Z` section for it: that
+# section is the GitHub release's notes. Both are checked before anything is published.
+# Everything is built and tested once, then each registry gets its own job, so neither
+# publishes from an untested build.
 #
 # Both registries use trusted publishing (OIDC), so no tokens are stored in the repo. One-time
 # setup, each with repository holmrenser/react-bio-viz and workflow `release.yml`:
@@ -44,6 +47,8 @@ jobs:
               exit 1
             fi
           done
+      - name: Check CHANGELOG.md has a section for this version
+        run: python3 scripts/release_notes.py "${GITHUB_REF_NAME#v}" > /dev/null
 
       - run: pnpm install --frozen-lockfile
       # Also bundles the widget JavaScript into packages/python, which the wheel ships.
@@ -104,3 +109,17 @@ jobs:
           name: pypi
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    needs: [npm, pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Create the GitHub release from the CHANGELOG section
+        run: |
+          python3 scripts/release_notes.py "${GITHUB_REF_NAME#v}" > notes.md
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ github.token }}
