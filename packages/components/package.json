@@ -16,21 +16,36 @@
   "homepage": "https://github.com/holmrenser/react-bio-viz#readme",
   "exports": {
     ".": {
-      "types": "./dist/main.d.ts",
-      "import": "./dist/main.es.js",
-      "default": "./dist/main.cjs.js"
+      "import": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.es.js"
+      },
+      "require": {
+        "types": "./dist/main.d.cts",
+        "default": "./dist/main.cjs"
+      }
+    },
+    "./utils": {
+      "import": {
+        "types": "./dist/utils.d.ts",
+        "default": "./dist/utils.es.js"
+      },
+      "require": {
+        "types": "./dist/utils.d.cts",
+        "default": "./dist/utils.cjs"
+      }
     },
     "./style.css": "./dist/style.css"
   },
   "module": "./dist/main.es.js",
-  "main": "./dist/main.cjs.js",
+  "main": "./dist/main.cjs",
   "types": "./dist/main.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json && vite build && node scripts/check-ssr.mjs",
+    "build": "tsc -p tsconfig.json && vite build && vite build --mode utils && node scripts/check-ssr.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",

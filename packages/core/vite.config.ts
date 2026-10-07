@@ -25,6 +25,9 @@ function yieldThemeVariablesToHost(): Plugin {
   };
 }
 
+/** `.cjs` for CommonJS: the package is `"type": "module"`, so Node reads every `.js` file as ESM. */
+const libFileName = (format: string, entryAlias: string) => `${entryAlias}.${format === "cjs" ? "cjs" : "es.js"}`;
+
 export default defineConfig({
   plugins: [
     react(),
@@ -45,7 +48,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       formats: ["es", "cjs"],
-      fileName: (format, entryAlias) => `${entryAlias}.${format}.js`,
+      fileName: libFileName,
     },
     cssCodeSplit: false,
     copyPublicDir: false,

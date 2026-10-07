@@ -13,12 +13,12 @@
     ".": {
       "types": "./dist/main.d.ts",
       "import": "./dist/main.es.js",
-      "default": "./dist/main.cjs.js"
+      "default": "./dist/main.cjs"
     },
     "./style.css": "./dist/style.css"
   },
   "module": "./dist/main.es.js",
-  "main": "./dist/main.cjs.js",
+  "main": "./dist/main.cjs",
   "types": "./dist/main.d.ts",
   "files": [
     "dist"
