@@ -4,6 +4,37 @@ The npm package and the PyPI package are released together, from one `vX.Y.Z` ta
 `.github/workflows/release.yml`). The `## X.Y.Z` section for a version is that release's notes on
 GitHub, so a version can't be released without one.
 
+## 0.3.0
+
+react-bio-viz now works out of the box with React Server Components, such as pages in the Next.js App Router. See [Server Components and Next.js](https://holmrenser.github.io/react-bio-viz/guides/server-components/).
+
+```bash
+npm install react-bio-viz@0.3.0
+pip install react-bio-viz==0.3.0
+```
+
+### New
+
+- **The components can be rendered from Server Components.** `react-bio-viz` is now marked `"use client"`, so a Server Component can import a component and render it with server-loaded data. It is server-rendered to HTML and becomes interactive in the browser:
+  ```tsx
+  // app/tree/page.tsx
+  import { PhyloTree } from "react-bio-viz";
+  import { parseNewick } from "react-bio-viz/utils";
+
+  export default async function Page() {
+    return <PhyloTree tree={parseNewick(await fetchNewick())} width={800} height={600} />;
+  }
+  ```
+- **`react-bio-viz/utils`** exports the pure helpers without React, so Server Components can call them: `parseNewick`, `toNewick`, `midpointRoot` and the other tree operations, the alignment analysis functions, `blastHitsFromResult`, `alignmentSequences`, row-order helpers and viewport math. Use them to prepare a component's data or initial state (`defaultSelection`, `defaultViewport`, …) on the server. The same functions are still exported from `react-bio-viz`.
+
+Props passed from a Server Component must be serializable. Data and `default*` props are, but callbacks, function props such as `colorFunction` and external stores are not. Use those from a client component of your own, as the guide shows.
+
+### Fixed
+
+- **`require("react-bio-viz")` works in Node.** The CommonJS build was named `main.cjs.js`, which Node read as an ES module because the package is `"type": "module"`, so `require` threw `exports is not defined`. It is now `main.cjs`, with matching type declarations (`main.d.cts`) for TypeScript projects that compile to CommonJS. Imports through the package name work as before.
+
+**Full changelog:** https://github.com/holmrenser/react-bio-viz/compare/v0.2.0...v0.3.0 (#374)
+
 ## 0.2.0
 
 The components now take the [betula](https://holmrenser.github.io/betula/) schemas as input data. betula is the set of JSON shapes shared with [picea](https://github.com/holmrenser/picea), [acacia](https://github.com/wur-bioinformatics/acacia), [blastserver](https://github.com/holmrenser/blastserver) and [iqtreeserver](https://github.com/holmrenser/iqtreeserver), so their output renders without conversion. See [Data formats](https://holmrenser.github.io/react-bio-viz/concepts/data-formats/) for which schema each component takes.
