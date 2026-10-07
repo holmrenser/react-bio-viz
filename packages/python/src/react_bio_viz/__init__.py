@@ -24,7 +24,7 @@ from .io import blast_hits_from_result, parse_fasta, parse_newick, read_fasta, r
 from .msa import MSA
 from .phylotree import PhyloTree
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "BioVizWidget",
