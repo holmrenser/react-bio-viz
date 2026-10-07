@@ -22,8 +22,8 @@ classifiers = [
 dependencies = ["anywidget>=0.9"]
 
 [project.urls]
-Homepage = "https://github.com/genenotebook/react-bio-viz"
-Repository = "https://github.com/genenotebook/react-bio-viz"
+Homepage = "https://github.com/holmrenser/react-bio-viz"
+Repository = "https://github.com/holmrenser/react-bio-viz"
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "anywidget[dev]>=0.9"]

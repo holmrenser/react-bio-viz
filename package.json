@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/genenotebook/react-bio-viz.git"
+    "url": "git+https://github.com/holmrenser/react-bio-viz.git"
   },
   "scripts": {
     "build": "pnpm -r --filter=./packages/* build",
