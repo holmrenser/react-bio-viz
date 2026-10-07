@@ -5,15 +5,15 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/genenotebook/react-bio-viz.git",
+    "url": "git+https://github.com/holmrenser/react-bio-viz.git",
     "directory": "packages/components"
   },
   "author": "rens holmer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/genenotebook/react-bio-viz/issues"
+    "url": "https://github.com/holmrenser/react-bio-viz/issues"
   },
-  "homepage": "https://github.com/genenotebook/react-bio-viz#readme",
+  "homepage": "https://github.com/holmrenser/react-bio-viz#readme",
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",

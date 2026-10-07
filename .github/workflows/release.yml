@@ -1,0 +1,106 @@
+name: Release
+
+# Publishes both distributions of react-bio-viz when a `v*` tag is pushed:
+#   - npm:  `react-bio-viz` (packages/components)
+#   - PyPI: `react-bio-viz` (packages/python, the Jupyter widgets)
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# The tag must match the version in both packages/components/package.json and
+# packages/python/pyproject.toml. Everything is built and tested once, then each registry gets
+# its own job, so neither publishes from an untested build.
+#
+# Both registries use trusted publishing (OIDC), so no tokens are stored in the repo. One-time
+# setup, each with repository holmrenser/react-bio-viz and workflow `release.yml`:
+#   - npmjs.com → react-bio-viz → Settings → Trusted publishing (environment `npm`)
+#   - pypi.org  → Your projects → Publishing (a "pending publisher" before the first release),
+#     environment `pypi`
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Check the tag matches both package versions
+        run: |
+          npm_version=$(node -p "require('./packages/components/package.json').version")
+          py_version=$(sed -n 's/^version = "\(.*\)"$/\1/p' packages/python/pyproject.toml)
+          for version in "$npm_version" "$py_version"; do
+            if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+              echo "::error::Tag ${GITHUB_REF_NAME} does not match npm ${npm_version} / PyPI ${py_version}"
+              exit 1
+            fi
+          done
+
+      - run: pnpm install --frozen-lockfile
+      # Also bundles the widget JavaScript into packages/python, which the wheel ships.
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm lint
+
+      # `pnpm pack` rewrites `workspace:` ranges, so the tarball is what npm will serve.
+      - name: Pack the npm package
+        working-directory: packages/components
+        run: |
+          cp ../../README.md .
+          pnpm pack --pack-destination ../../dist/npm
+
+      - name: Build the Python package
+        working-directory: packages/python
+        run: uv build --out-dir ../../dist/pypi
+      - name: Test the built wheel
+        working-directory: packages/python
+        run: uv run --isolated --no-project --with "$(ls ../../dist/pypi/*.whl)[dev]" -- python -m pytest -q
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: npm
+          path: dist/npm/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pypi
+          path: dist/pypi/
+
+  npm:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: npm
+      - uses: actions/setup-node@v7
+        with:
+          # Trusted publishing needs npm >= 11.5.1, which ships with Node 24.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Provenance is attached automatically under trusted publishing.
+      - run: npm publish react-bio-viz-*.tgz --access public
+
+  pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: pypi
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

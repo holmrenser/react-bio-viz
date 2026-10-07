@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/genenotebook/react-bio-viz.git",
+    "url": "git+https://github.com/holmrenser/react-bio-viz.git",
     "directory": "packages/core"
   },
   "exports": {
