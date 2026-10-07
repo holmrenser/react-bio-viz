@@ -157,7 +157,11 @@ props. Don't invent another convention; load the `bio-viz-conventions` skill
   (`createControllableStore`, `Viewport`, `ViewportToolbar`, …).
 - Publishing: `react-bio-viz` bundles `@react-bio-viz/core` (JS and, via `rollupTypes`, its
   declarations) and every other library it uses, so its only runtime requirements are its React peer
-  dependencies. Keep bundled libraries in `devDependencies`.
+  dependencies. Keep bundled libraries in `devDependencies`. Releasing: bump the version in
+  `packages/components/package.json` and `packages/python/pyproject.toml` (and the other
+  `package.json`s and `__version__`), add its `## X.Y.Z` section to `CHANGELOG.md` (the GitHub
+  release's notes, so list breaking changes with migration steps), then push a `vX.Y.Z` tag;
+  `.github/workflows/release.yml` publishes npm, PyPI and the GitHub release.
 - `packages/python/`: one `AnyWidget` subclass per component in `src/react_bio_viz/`, all rendering
   the wrapper components from one bundle built from `js/` (`widget.tsx` dispatches on the
   `_component` trait; `_storeAdapter.ts` wraps a synced trait as a `StoreController`). A new prop is
