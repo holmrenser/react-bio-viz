@@ -4,7 +4,7 @@ import { createCategoricalColorScale } from "../color/categoricalScale";
 import { Popover, PopoverBody, PopoverTrigger } from "../overlay/Popover";
 import type { LinearScale } from "../scale/linearScale";
 import { getTranscriptParts, getTranscripts } from "./intervals";
-import type { SequenceInterval } from "./types";
+import type { Annotation } from "../data";
 
 /** @public Vertical space one transcript row occupies, in pixels. */
 export const TRANSCRIPT_HEIGHT = 14;
@@ -16,7 +16,7 @@ const UTR_HEIGHT = 4;
 const HOVER_CLASS = "cursor-pointer stroke-[1.5px] hover:stroke-[3px] hover:stroke-(--rbv-accent)";
 
 /** @public Default popover body for a clicked exon/CDS: every GFF3 field, with column 9 expanded. */
-export function defaultIntervalPopover(interval: SequenceInterval): ReactNode {
+export function defaultIntervalPopover(interval: Annotation): ReactNode {
   return (
     <ul>
       <li>ID: {interval.ID}</li>
@@ -48,13 +48,13 @@ export function defaultIntervalPopover(interval: SequenceInterval): ReactNode {
 
 /** @public */
 export interface TranscriptStackProps {
-  gene: SequenceInterval;
+  gene: Annotation;
   /** Genome coordinate → pixel x. */
   scale: LinearScale;
   /** Seeds the gene's colours. */
   colorSeed: string;
   /** Popover content for a clicked exon/CDS. @defaultValue {@link defaultIntervalPopover} */
-  popoverFn?: (interval: SequenceInterval) => ReactNode;
+  popoverFn?: (interval: Annotation) => ReactNode;
 }
 
 /**
@@ -120,6 +120,6 @@ export function TranscriptStack({ gene, scale, colorSeed, popoverFn = defaultInt
 }
 
 /** @public Pixel height a {@link TranscriptStack} of `gene` needs, including its padding. */
-export function transcriptStackHeight(gene: SequenceInterval): number {
+export function transcriptStackHeight(gene: Annotation): number {
   return TRANSCRIPT_HEIGHT * Math.max(1, getTranscripts(gene).length) + 2 * STACK_TOP;
 }

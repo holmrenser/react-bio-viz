@@ -12,11 +12,11 @@ from ._base import BioVizWidget
 class MSA(BioVizWidget):
     """A multiple sequence alignment, with pan/zoom, a column ruler, a minimap and a consensus row.
 
-    :param msa: The alignment, as ``[{"header": ..., "sequence": ...}, ...]``.
+    :param msa: The alignment, as ``[{"identifier": ..., "sequence": ...}, ...]``.
     :param options: Rendering toggles, mirroring ``MSADrawOptions`` (camelCase keys, e.g.
         ``{"colorStyle": "AA Zappo", "tracks": ["conservation", "logo"]}``). Omitting
         ``colorStyle`` lets the component pick a scheme from the alignment's own alphabet.
-    :param selection: Selected rows (by id — a record's ``id``, else its ``header``) and columns,
+    :param selection: Selected rows (by id — a record's ``id``, else its ``identifier``) and columns,
         ``{"rows": [...], "columns": [...]}``; written back as the user selects.
     :param row_order: Display order of the rows, as ids; written back when labels are dragged.
     :param panel_sizes: ``{"labelWidth", "trackHeight", "minimapHeight"}`` in pixels.
@@ -24,7 +24,7 @@ class MSA(BioVizWidget):
     The widget never edits ``msa`` itself: register :meth:`on_rename_row`,
     :meth:`on_remove_rows` or :meth:`on_remove_columns` to apply edits (which also enables them).
 
-    >>> w = MSA(msa=[{"header": "a", "sequence": "ACGT"}])
+    >>> w = MSA(msa=[{"identifier": "a", "sequence": "ACGT"}])
     >>> w.observe(print, names="viewport")   # fires when the user pans or zooms
     >>> w.observe(print, names="selection")
     """

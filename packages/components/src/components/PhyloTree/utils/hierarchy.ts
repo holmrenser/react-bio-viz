@@ -7,7 +7,7 @@ export function buildHierarchy(
   depth = 0,
   path = "0"
 ): HierarchyPointNode<Tree> {
-  const id = data.ID !== undefined ? String(data.ID) : path;
+  const id = data.id !== undefined ? String(data.id) : path;
   const node: HierarchyPointNode<Tree> = { id, data, parent, depth, x: 0, y: 0 };
   if (data.children && data.children.length > 0) {
     node.children = data.children.map((child, index) => buildHierarchy(child, node, depth + 1, `${path}.${index}`));

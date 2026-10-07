@@ -49,8 +49,8 @@ const CONSENSUS_ROWS = [0];
 const DEFAULT_PANEL_SIZES = resolvePanelSizes(undefined);
 
 /** Stable identity of `msa[index]` — see `id` on {@link Sequence}. */
-function rowIdOf(sequence: { header: string; id?: string }): string {
-  return sequence.id ?? sequence.header;
+function rowIdOf(sequence: { identifier: string; id?: string }): string {
+  return sequence.id ?? sequence.identifier;
 }
 
 function trackLabel(track: MSATrack): string {
@@ -250,7 +250,7 @@ export function SimpleMultipleSequenceAlignment({
       updateHover({
         row,
         rowId: rowIds[msaIndex],
-        label: msa[msaIndex].header,
+        label: msa[msaIndex].identifier,
         col,
         residue: sequences[msaIndex][col] ?? "",
         clientX: position.clientX,
@@ -368,7 +368,7 @@ export function SimpleMultipleSequenceAlignment({
   );
 
   const labelRows = useMemo(
-    () => displayRows.map((msaIndex) => ({ id: rowIds[msaIndex], label: msa[msaIndex].header })),
+    () => displayRows.map((msaIndex) => ({ id: rowIds[msaIndex], label: msa[msaIndex].identifier })),
     [displayRows, rowIds, msa]
   );
 

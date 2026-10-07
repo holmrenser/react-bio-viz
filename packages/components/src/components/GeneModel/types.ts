@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SequenceInterval, StoreController, Viewport } from "@react-bio-viz/core";
+import type { Annotation, StoreController, Viewport } from "@react-bio-viz/core";
 
 /**
  * @public
@@ -7,7 +7,7 @@ import type { SequenceInterval, StoreController, Viewport } from "@react-bio-viz
  */
 export interface SimpleGeneModelProps {
   /** The gene, with its transcripts and their exons/CDSs nested under `children`. */
-  gene: SequenceInterval;
+  gene: Annotation;
   /** Width in pixels. @defaultValue 500 */
   width?: number;
   /** Seeds the gene's colours. @defaultValue "42" */
@@ -15,7 +15,7 @@ export interface SimpleGeneModelProps {
   /** Show a genomic-position ruler. @defaultValue true */
   showScale?: boolean;
   /** Popover content for a clicked exon/CDS. @defaultValue every GFF3 field */
-  exonPopoverFn?: (interval: SequenceInterval) => ReactNode;
+  exonPopoverFn?: (interval: Annotation) => ReactNode;
   /** The visible genomic window. @defaultValue the gene plus 10% padding either side */
   viewport?: Viewport;
   /** Called with the next window on every pan/zoom. */

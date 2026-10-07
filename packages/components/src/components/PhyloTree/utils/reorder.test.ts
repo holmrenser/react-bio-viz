@@ -20,13 +20,13 @@ describe("computeReordered", () => {
 });
 
 const tree: Tree = {
-  ID: "root",
+  id: "root",
   name: "root",
   length: 0,
   children: [
-    { ID: "a", name: "a", length: 1, children: [] },
-    { ID: "b", name: "b", length: 1, children: [] },
-    { ID: "c", name: "c", length: 1, children: [] },
+    { id: "a", name: "a", length: 1, children: [] },
+    { id: "b", name: "b", length: 1, children: [] },
+    { id: "c", name: "c", length: 1, children: [] },
   ],
 };
 
@@ -67,14 +67,14 @@ describe("applyOrder parent links", () => {
       name: "root",
       length: 0,
       children: [
-        { ID: "a", name: "a", length: 1, children: [] },
+        { id: "a", name: "a", length: 1, children: [] },
         {
-          ID: "bc",
+          id: "bc",
           name: "bc",
           length: 1,
           children: [
-            { ID: "b", name: "b", length: 1, children: [] },
-            { ID: "c", name: "c", length: 1, children: [] },
+            { id: "b", name: "b", length: 1, children: [] },
+            { id: "c", name: "c", length: 1, children: [] },
           ],
         },
       ],

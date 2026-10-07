@@ -25,7 +25,7 @@ const gene = {
 };
 
 const props = {
-  MultipleSequenceAlignment: { msa: [{ header: "a", sequence: "ACGT" }, { header: "b", sequence: "ACGA" }] },
+  MultipleSequenceAlignment: { msa: [{ identifier: "a", sequence: "ACGT" }, { identifier: "b", sequence: "ACGA" }] },
   PhyloTree: { tree },
   DistanceMatrix: { labels: ["a", "b"], matrix: [[0, 0.1], [0.1, 0]] },
   GeneModel: { gene },

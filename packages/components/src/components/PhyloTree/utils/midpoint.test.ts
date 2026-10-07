@@ -5,7 +5,7 @@ import { buildHierarchy, descendants } from "./hierarchy";
 import { rerootOnBranch } from "./reroot";
 import type { Tree } from "../types";
 
-const leaf = (name: string, length: number): Tree => ({ ID: name, name, length, children: [] });
+const leaf = (name: string, length: number): Tree => ({ id: name, name, length, children: [] });
 
 function rootToTipDistances(tree: Tree, selection: ReturnType<typeof midpointRoot>): Record<string, number> {
   let root = buildHierarchy(tree);
@@ -22,7 +22,7 @@ function rootToTipDistances(tree: Tree, selection: ReturnType<typeof midpointRoo
 describe("midpointRoot", () => {
   it("roots halfway along the longest leaf-to-leaf path", () => {
     // Longest path: A(10) … B(2) through the root = 12; midpoint is 6 from A, on A's own branch.
-    const tree: Tree = { name: "", length: 0, children: [leaf("A", 10), { ID: "in", name: "", length: 1, children: [leaf("B", 1), leaf("C", 0.5)] }] };
+    const tree: Tree = { name: "", length: 0, children: [leaf("A", 10), { id: "in", name: "", length: 1, children: [leaf("B", 1), leaf("C", 0.5)] }] };
     const selection = midpointRoot(tree);
     expect(selection.rerootedAt).toBe("A");
     expect(selection.rerootPosition).toBeCloseTo(0.6);
@@ -32,7 +32,7 @@ describe("midpointRoot", () => {
   });
 
   it("measures the position from the child end when the midpoint lies on a branch walked downwards", () => {
-    const tree: Tree = { name: "", length: 0, children: [leaf("A", 1), { ID: "in", name: "", length: 1, children: [leaf("B", 10), leaf("C", 1)] }] };
+    const tree: Tree = { name: "", length: 0, children: [leaf("A", 1), { id: "in", name: "", length: 1, children: [leaf("B", 10), leaf("C", 1)] }] };
     const distances = rootToTipDistances(tree, midpointRoot(tree));
     expect(distances.A).toBeCloseTo(distances.B);
   });

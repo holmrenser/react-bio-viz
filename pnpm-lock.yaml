@@ -133,6 +133,9 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.5.0
         version: 3.11.0(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0)(sass@1.104.1))
+      betula-schema:
+        specifier: ^0.6.0
+        version: 0.6.0
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -184,6 +187,9 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.5.0
         version: 3.11.0(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0)(sass@1.104.1))
+      betula-schema:
+        specifier: ^0.6.0
+        version: 0.6.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -2873,6 +2879,9 @@ packages:
 
   bcp-47@2.1.1:
     resolution: {integrity: sha512-KLw+H/gd2p4zly1X7Yh/qziuyae5/w/QFnvTng9eZL5fvszL7Whl3MBoWF8yxL7ksUjBfOD+OxkytiqbBpG+Fw==}
+
+  betula-schema@0.6.0:
+    resolution: {integrity: sha512-RDZyYuevrGRFhPzo6gszU/RkRfiglEIC4iR3kmFOywp7Fgx3d1jxzP/Jo/Z4AZ56iCaK8gG54S7BV4ji7YB6tA==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -7691,6 +7700,10 @@ snapshots:
       is-alphabetical: 2.0.1
       is-alphanumerical: 2.0.1
       is-decimal: 2.0.1
+
+  betula-schema@0.6.0:
+    dependencies:
+      ajv: 8.20.0
 
   boolbase@1.0.0: {}
 

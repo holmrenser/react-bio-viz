@@ -18,6 +18,7 @@ import { metricLabel } from "./utils/metrics";
 import { EMPTY_SELECTION } from "./utils/selection";
 
 export { SimpleBlastHitDistribution } from "./SimpleBlastHitDistribution";
+export { blastHitsFromResult } from "./utils/blastResult";
 export type {
   BlastHit,
   BlastHitDistributionProps,

@@ -14,6 +14,12 @@ import { BlastHitDistribution } from "react-bio-viz";
 
 Each hit is `{ id, subjectId, queryStart, queryEnd, evalue, bitScore, percentIdentity }`. Hits are
 stacked so none overlap and coloured by the chosen metric; click hits to select them.
+`blastHitsFromResult` turns a betula [`BlastResult`](../../concepts/data-formats/) (blastserver's
+output) into these rows, one per HSP:
+
+```tsx
+<BlastHitDistribution hits={blastHitsFromResult(result)} queryLength={result.queryLen} />;
+```
 
 <BlastExample client:only="react" />
 

@@ -15,7 +15,7 @@ const tree = parseNewick(newickText);
 <PhyloTree tree={tree} layout="rectangular" width={900} height={600} />;
 ```
 
-A tree is nested `{ name, length, children }` nodes; internal node names hold support values (as
+A tree is a betula [`Tree`](../../concepts/data-formats/): nested `{ id?, name, length, children }` nodes; internal node names hold support values (as
 in Newick). `parseNewick` and `toNewick` convert, handling quoted labels.
 
 <TreeLayouts client:only="react" />
@@ -36,7 +36,7 @@ interface TreeSelection {
 }
 ```
 
-Node ids come from `ID` on your data, or else a positional path, and they **stay the same across
+Node ids come from `id` on your data, or else a positional path, and they **stay the same across
 reroots** — so collapsed clades, orders and styles survive whatever the user does.
 
 Pure helpers compute new selections:

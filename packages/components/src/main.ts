@@ -90,7 +90,7 @@ export type {
   TrackRenderer,
   TrackRenderProps,
 } from './components/GenomeBrowser';
-export { BlastHitDistribution, SimpleBlastHitDistribution } from './components/BlastHitDistribution';
+export { BlastHitDistribution, SimpleBlastHitDistribution, blastHitsFromResult } from './components/BlastHitDistribution';
 export type {
   BlastHit,
   BlastHitDistributionProps,
@@ -100,6 +100,7 @@ export type {
 } from './components/BlastHitDistribution';
 // From core: what driving a component's state, or building your own chrome around a Simple* view, needs.
 export {
+  alignmentSequences,
   createControllableStore,
   createZustandStoreController,
   moveItem,
@@ -112,6 +113,22 @@ export {
   zoomAt,
   zoomBy,
   ViewportToolbar,
+} from '@react-bio-viz/core';
+// The betula data types the components take in (`Tree` and `Sequence` are exported above).
+export type {
+  Alignment,
+  Annotation,
+  BlastResult,
+  DnaSequence,
+  Hit,
+  HitMember,
+  Hsp,
+  Metadata,
+  ProteinSequence,
+  RnaSequence,
+  TaxonomyNode,
+  UntypedSequence,
+  WrappedAlignment,
 } from '@react-bio-viz/core';
 export type {
   SequenceInterval,

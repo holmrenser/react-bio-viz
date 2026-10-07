@@ -145,7 +145,7 @@ export default function App(): JSX.Element {
 
   // The alignment is edited here, not by the component: it reports renames and removals, and the
   // demo keeps an undo stack of whole alignments.
-  const [history, setHistory] = useState<AlignedSequences[]>([msa.map((s) => ({ ...s, id: s.header }))]);
+  const [history, setHistory] = useState<AlignedSequences[]>([msa.map((s) => ({ ...s, id: s.identifier }))]);
   const alignment = history[history.length - 1];
   const edit = (next: AlignedSequences) => setHistory((h) => [...h, next]);
   const [msaSelection, setMsaSelection] = useState<MSASelection>({ rows: [], columns: [] });
@@ -247,8 +247,8 @@ export default function App(): JSX.Element {
           selection={msaSelection}
           onSelectionChange={setMsaSelection}
           rowOrderStore={rowOrderStore}
-          onRenameRow={(id, name) => edit(alignment.map((s) => (s.id === id ? { ...s, header: name } : s)))}
-          onRemoveRows={(ids) => edit(alignment.filter((s) => !ids.includes(s.id ?? s.header)))}
+          onRenameRow={(id, name) => edit(alignment.map((s) => (s.id === id ? { ...s, identifier: name } : s)))}
+          onRemoveRows={(ids) => edit(alignment.filter((s) => !ids.includes(s.id ?? s.identifier)))}
           onRemoveColumns={(columns) => {
             const removed = new Set(columns);
             edit(
@@ -269,8 +269,8 @@ export default function App(): JSX.Element {
         <h1 className="title">Distance matrix</h1>
         <p>p-distances of the alignment above, sharing its row order.</p>
         <DistanceMatrix
-          labels={alignment.map((s) => s.id ?? s.header)}
-          labelNames={Object.fromEntries(alignment.map((s) => [s.id ?? s.header, s.header]))}
+          labels={alignment.map((s) => s.id ?? s.identifier)}
+          labelNames={Object.fromEntries(alignment.map((s) => [s.id ?? s.identifier, s.identifier]))}
           matrix={distances}
           width={1200}
           height={500}

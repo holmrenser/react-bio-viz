@@ -14,7 +14,9 @@ import { DistanceMatrix } from "react-bio-viz";
 
 `labels` identifies each row/column; `matrix` is the symmetric `labels.length × labels.length`
 distances. Cells shade from white by distance relative to the largest one; the value is written in
-once a cell is large enough. `labelNames` maps ids to display names.
+once a cell is large enough. `labelNames` maps ids to display names. These are the fields of a
+betula [`DistanceMatrix`](../../concepts/data-formats/), so one spreads straight in:
+`<DistanceMatrix {...distances} />`.
 
 Only the visible cells are drawn, so a matrix of thousands of sequences stays responsive. Hover a
 cell, zoom with <kbd>Ctrl</kbd>/<kbd>⌘</kbd>-scroll, drag a name to reorder:

@@ -25,9 +25,9 @@ from react_bio_viz import (
 )
 
 MSA_DATA = [
-    {"header": "seq1", "sequence": "ACGTACGT"},
-    {"header": "seq2", "sequence": "ACGTACGA"},
-    {"header": "seq3", "sequence": "ACGT--GA"},
+    {"identifier": "seq1", "sequence": "ACGTACGT"},
+    {"identifier": "seq2", "sequence": "ACGTACGA"},
+    {"identifier": "seq3", "sequence": "ACGT--GA"},
 ]
 
 TREE_DATA = {

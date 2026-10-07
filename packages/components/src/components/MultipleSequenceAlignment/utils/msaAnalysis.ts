@@ -60,7 +60,7 @@ export function computeColumnStats(msa: AlignedSequences): ColumnStat[] {
 
 /** @public The majority-vote consensus row, as a `Sequence` that can be rendered like any other. */
 export function computeConsensus(msa: AlignedSequences, stats = computeColumnStats(msa)): Sequence {
-  return { header: "Consensus", sequence: stats.map((stat) => stat.dominantChar).join("") };
+  return { identifier: "Consensus", sequence: stats.map((stat) => stat.dominantChar).join("") };
 }
 
 /** @public Per-column conservation score (fraction of non-gap residues matching the dominant one). */

@@ -11,19 +11,19 @@ const tree: Tree = {
   name: "root",
   length: 0,
   children: [
-    { ID: "shallow", name: "shallow-leaf", length: 1, children: [] },
+    { id: "shallow", name: "shallow-leaf", length: 1, children: [] },
     {
-      ID: "clade",
+      id: "clade",
       name: "clade",
       length: 1,
       children: [
         {
-          ID: "nested",
+          id: "nested",
           name: "nested",
           length: 1,
           children: [
-            { ID: "deep-a", name: "deep-leaf-a", length: 1, children: [] },
-            { ID: "deep-b", name: "deep-leaf-b", length: 1, children: [] },
+            { id: "deep-a", name: "deep-leaf-a", length: 1, children: [] },
+            { id: "deep-b", name: "deep-leaf-b", length: 1, children: [] },
           ],
         },
       ],
@@ -137,7 +137,7 @@ describe("PhyloTree selection", () => {
   });
 
   it("reorders siblings given a controlled selection.order", () => {
-    // The fixture tree's root has no `ID` field, so its hierarchy `id` is the positional path "0"
+    // The fixture tree's root has no `id` field, so its hierarchy `id` is the positional path "0"
     // (buildHierarchy's fallback), not the string "root".
     const selection: TreeSelection = { collapsed: [], order: { "0": ["clade", "shallow"] } };
     const { container } = render(<PhyloTree tree={tree} selection={selection} onSelectionChange={() => {}} />);

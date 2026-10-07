@@ -14,6 +14,7 @@ export * from "./overlay";
 export * from "./layout";
 export * from "./labels";
 export * from "./export";
+export * from "./data";
 export * from "./gene";
 export * from "./theme";
 export * from "./components/ui";

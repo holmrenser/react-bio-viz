@@ -7,9 +7,9 @@ import { MultipleSequenceAlignment, SimpleMultipleSequenceAlignment } from "./in
 import type { AlignedSequences, MSASelection } from "./types";
 
 const msa: AlignedSequences = [
-  { header: "seq1", sequence: "ACDEFGHIKL" },
-  { header: "seq2", sequence: "ACDEFGHIKL" },
-  { header: "seq3", sequence: "ACDEFGHIKM" },
+  { identifier: "seq1", sequence: "ACDEFGHIKL" },
+  { identifier: "seq2", sequence: "ACDEFGHIKL" },
+  { identifier: "seq3", sequence: "ACDEFGHIKM" },
 ];
 
 describe("MultipleSequenceAlignment", () => {
@@ -114,27 +114,27 @@ function withBox(element: Element, width: number, height: number) {
 }
 
 const plain: AlignedSequences = [
-  { header: "a", sequence: "ACGTACGTAC" },
-  { header: "b", sequence: "ACGTACGTAA" },
-  { header: "c", sequence: "ACGAACGTAC" },
-  { header: "d", sequence: "TCGAACGTAC" },
+  { identifier: "a", sequence: "ACGTACGTAC" },
+  { identifier: "b", sequence: "ACGTACGTAA" },
+  { identifier: "c", sequence: "ACGAACGTAC" },
+  { identifier: "d", sequence: "TCGAACGTAC" },
 ];
 const compact = { showToolbar: false, showCursorBadge: false, showMinimap: false, showScalebar: false, showConsensus: false, showCursorTooltip: false };
 
 describe("MultipleSequenceAlignment rendering", () => {
   it("never allocates a canvas larger than the widget, however large the alignment", () => {
-    const rows = Array.from({ length: 1000 }, (_, i) => ({ header: `s${i}`, sequence: "ACDEFGHIKLMNPQRSTVWY".repeat(60) }));
+    const rows = Array.from({ length: 1000 }, (_, i) => ({ identifier: `s${i}`, sequence: "ACDEFGHIKLMNPQRSTVWY".repeat(60) }));
     const { container } = render(<MultipleSequenceAlignment msa={rows} width={600} height={400} />);
     for (const canvas of Array.from(container.querySelectorAll("canvas"))) {
       expect(canvas.width * canvas.height).toBeLessThanOrEqual(600 * 400 * 4);
     }
   });
 
-  it("labels every row even when headers repeat, without React key warnings", () => {
+  it("labels every row even when identifiers repeat, without React key warnings", () => {
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
     const dup = [
-      { header: "dup", sequence: "ACGT" },
-      { header: "dup", sequence: "ACGA" },
+      { identifier: "dup", sequence: "ACGT" },
+      { identifier: "dup", sequence: "ACGA" },
     ];
     render(<MultipleSequenceAlignment msa={dup} options={compact} height={200} />);
     expect(screen.getAllByText("dup")).toHaveLength(2);
@@ -319,7 +319,7 @@ describe("MultipleSequenceAlignment row order", () => {
 describe("MultipleSequenceAlignment editing and panels", () => {
   it("reports renames by row id", () => {
     const onRenameRow = vi.fn();
-    render(<MultipleSequenceAlignment msa={[{ header: "shown", id: "orig", sequence: "ACGT" }]} options={compact} onRenameRow={onRenameRow} />);
+    render(<MultipleSequenceAlignment msa={[{ identifier: "shown", id: "orig", sequence: "ACGT" }]} options={compact} onRenameRow={onRenameRow} />);
     fireEvent.doubleClick(screen.getByText("shown"));
     const input = screen.getByLabelText("New name");
     fireEvent.change(input, { target: { value: "renamed" } });

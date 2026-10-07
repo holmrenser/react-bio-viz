@@ -1,18 +1,8 @@
-import type { StoreController, Viewport } from "@react-bio-viz/core";
+import type { StoreController, Tree, Viewport } from "@react-bio-viz/core";
 
-/**
- * @public
- * A tree node and, through `children`, the tree below it — the shape {@link parseNewick} returns.
- */
-export type Tree = {
-  /** Stable identity for selections and styles. Defaults to the node's position in the tree. */
-  ID?: string | number;
-  /** Leaf name, or an internal node's label (typically its bootstrap support). */
-  name: string;
-  /** Length of the branch above the node. */
-  length: number;
-  children: Tree[];
-};
+// The betula `Tree`, which is also what `parseNewick` returns. Its optional `id` is the node's stable
+// identity for selections and styles; without one, a node is identified by its position in the tree.
+export type { Tree };
 
 /**
  * @public
@@ -20,7 +10,7 @@ export type Tree = {
  * (as used by {@link TreeSelection}) and the pixel position the layout gave it.
  */
 export type HierarchyPointNode<T> = {
-  /** `data.ID` when present, else a positional path (stable across renders, not across re-sorts). */
+  /** `data.id` when present, else a positional path (stable across renders, not across re-sorts). */
   id: string;
   data: T;
   parent: HierarchyPointNode<T> | null;
