@@ -5,20 +5,20 @@ import { pruneCollapsed } from "./collapse";
 import type { Tree } from "../types";
 
 const tree: Tree = {
-  ID: "root",
+  id: "root",
   name: "root",
   length: 0,
   children: [
     {
-      ID: "clade",
+      id: "clade",
       name: "clade",
       length: 1,
       children: [
-        { ID: "a", name: "a", length: 1, children: [] },
-        { ID: "b", name: "b", length: 1, children: [] },
+        { id: "a", name: "a", length: 1, children: [] },
+        { id: "b", name: "b", length: 1, children: [] },
       ],
     },
-    { ID: "c", name: "c", length: 1, children: [] },
+    { id: "c", name: "c", length: 1, children: [] },
   ],
 };
 

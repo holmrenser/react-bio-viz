@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { createControllableStore, type SequenceInterval, type Viewport } from "@react-bio-viz/core";
+import { createControllableStore, type Annotation, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { GenomeBrowser, SimpleGenomeBrowser } from "./index";
@@ -27,7 +27,7 @@ const coverageTrack: CoverageTrack = {
   ],
 };
 
-const gene: SequenceInterval = {
+const gene: Annotation = {
   ID: "gene1",
   seqid: "chr1",
   source: "test",
@@ -39,9 +39,9 @@ const gene: SequenceInterval = {
   phase: ".",
   attributes: {},
   children: [
-    { ID: "mrna1", seqid: "chr1", source: "test", interval_type: "mRNA", start: 100, end: 900, score: ".", strand: "+", phase: ".", attributes: { parent: ["gene1"] } },
-    { ID: "exon1", seqid: "chr1", source: "test", interval_type: "exon", start: 100, end: 400, score: ".", strand: "+", phase: ".", attributes: { parent: ["mrna1"] } },
-    { ID: "cds1", seqid: "chr1", source: "test", interval_type: "CDS", start: 150, end: 350, score: ".", strand: "+", phase: 0, attributes: { parent: ["mrna1"] } },
+    { ID: "mrna1", seqid: "chr1", source: "test", interval_type: "mRNA", start: 100, end: 900, score: ".", strand: "+", phase: ".", attributes: { parent: ["gene1"] }, children: [] },
+    { ID: "exon1", seqid: "chr1", source: "test", interval_type: "exon", start: 100, end: 400, score: ".", strand: "+", phase: ".", attributes: { parent: ["mrna1"] }, children: [] },
+    { ID: "cds1", seqid: "chr1", source: "test", interval_type: "CDS", start: 150, end: 350, score: ".", strand: "+", phase: 0, attributes: { parent: ["mrna1"] }, children: [] },
   ],
 };
 const geneModelTrack: GeneModelTrack = { id: "gene-track", label: "Gene", kind: "genemodel", data: gene };

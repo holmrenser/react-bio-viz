@@ -6,7 +6,7 @@ import { msa, shortName } from "../lib/data";
 const CELL = 16;
 /** The alignment's most densely aligned stretch — its first columns are nearly all gaps. */
 const FIRST_COLUMN = 443;
-const alignment = msa.map((s) => ({ ...s, header: shortName(s.header) }));
+const alignment = msa.map((s) => ({ ...s, identifier: shortName(s.identifier) }));
 /**
  * The canvas area at these settings: 440 minus toolbar (40), cursor readout (16), minimap and its
  * divider (56), ruler (22), consensus row (16) and one track with its divider (54); the label

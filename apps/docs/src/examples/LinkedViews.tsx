@@ -15,7 +15,7 @@ import { subset } from "../lib/data";
 import { neighborJoining, pDistances } from "../lib/phylo";
 
 const alignment = subset(24);
-const labels = alignment.map((s) => s.header);
+const labels = alignment.map((s) => s.identifier);
 
 /** One row order for all three views, bound through each view's `rowOrderStore`. */
 const rowOrder = createControllableStore<string[]>([]);

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { LinearScale, SequenceInterval, StoreController, Viewport } from "@react-bio-viz/core";
+import type { Annotation, LinearScale, StoreController, Viewport } from "@react-bio-viz/core";
 
 /** @public A single interval feature on a `"feature"` track (e.g. a BED/GFF-style annotation). */
 export interface GenomeFeature {
@@ -39,7 +39,7 @@ export interface CoverageTrack extends BaseTrack {
 /** @public A gene model, drawn like `GeneModel`. */
 export interface GeneModelTrack extends BaseTrack {
   kind: "genemodel";
-  data: SequenceInterval;
+  data: Annotation;
 }
 
 /** @public One track of a {@link GenomeBrowser}. */

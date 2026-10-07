@@ -1,0 +1,52 @@
+---
+title: Data formats
+description: The components take betula's JSON schemas as input, shared with picea, acacia, blastserver and iqtreeserver.
+sidebar:
+  order: 0
+---
+
+The data every component takes in is a [betula](https://holmrenser.github.io/betula/) schema: JSON
+shapes for sequences, alignments, trees, gene annotations, distance matrices and BLAST results,
+shared with [picea](https://github.com/holmrenser/picea),
+[acacia](https://github.com/wur-bioinformatics/acacia),
+[blastserver](https://github.com/holmrenser/blastserver) and
+[iqtreeserver](https://github.com/holmrenser/iqtreeserver). Their output renders without
+conversion.
+
+| Component | Prop | betula schema |
+| --- | --- | --- |
+| `MultipleSequenceAlignment` | `msa` | [`Alignment`](https://holmrenser.github.io/betula/alignment): `{ identifier, sequence }` rows |
+| `PhyloTree` | `tree` | [`Tree`](https://holmrenser.github.io/betula/tree): nested `{ id?, name, length, children }` |
+| `DistanceMatrix` | `labels`, `matrix`, `labelNames` | [`DistanceMatrix`](https://holmrenser.github.io/betula/distance-matrix): spread it, `<DistanceMatrix {...matrix} />` |
+| `GeneModel` | `gene` | [`Annotation`](https://holmrenser.github.io/betula/annotation): a GFF3 feature tree |
+| `GenomeBrowser` | `genemodel` track `data` | `Annotation` |
+| `BlastHitDistribution` | `hits` | [`BlastResult`](https://holmrenser.github.io/betula/blast-result), through `blastHitsFromResult` |
+
+The types are exported from `react-bio-viz` (`Tree`, `Sequence`, `Annotation`, `BlastResult`, …),
+so there is nothing else to install. Two shapes need a small step:
+
+- A betula `Alignment` is either a bare array of sequences or `{ type: "alignment", sequences }`;
+  `alignmentSequences(alignment)` returns the rows either way.
+- `BlastHitDistribution` draws one bar per HSP, so `blastHitsFromResult(result)` flattens a
+  `BlastResult`'s hits and their HSPs into rows. Pass `result.queryLen` as `queryLength`.
+
+```tsx
+import { BlastHitDistribution, blastHitsFromResult } from "react-bio-viz";
+
+<BlastHitDistribution hits={blastHitsFromResult(result)} queryLength={result.queryLen} />;
+```
+
+react-bio-viz adds one optional field: an alignment row's `id`, its stable identity when
+identifiers repeat or rows get renamed (see [Editing](../../guides/editing/)).
+
+## Validating input
+
+The components trust their input and don't validate it. For JSON from outside your app, validate
+it with [`betula-schema`](https://www.npmjs.com/package/betula-schema), which rejects exactly what
+the schema rejects:
+
+```ts
+import { parse } from "betula-schema";
+
+const tree = parse("Tree", await response.json()); // throws BetulaValidationError if invalid
+```

@@ -49,6 +49,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "betula-schema": "^0.6.0",
     "jsdom": "^25.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

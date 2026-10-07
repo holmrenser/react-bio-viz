@@ -1,20 +1,8 @@
-import type { StoreController, Viewport } from "@react-bio-viz/core";
+import type { Sequence, StoreController, Viewport } from "@react-bio-viz/core";
 
 import type { ColorStyle } from "./utils/colorStyle";
 
-/** @public */
-export type Sequence = {
-  /** Sequence identifier (e.g. from a FASTA header). */
-  header: string;
-  /** Arbitrary biological sequence (nucleotide, amino acid, etc.). */
-  sequence: string;
-  /**
-   * Stable row identity used by `selection`, `rowOrder` and the editing callbacks. Defaults to
-   * `header`; set it when headers can repeat, or when a row is renamed but should keep its identity
-   * (e.g. an edit log keyed by the original header).
-   */
-  id?: string;
-};
+export type { Sequence };
 
 /** @public */
 export type AlignedSequences = Sequence[];

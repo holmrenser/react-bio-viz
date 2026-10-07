@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { getTranscriptParts, getTranscripts } from "./intervals";
-import type { SequenceInterval } from "./types";
+import type { Annotation } from "../data";
 
-function feature(ID: string, interval_type: string, parent?: string[] | string): SequenceInterval {
+function feature(ID: string, interval_type: string, parent?: string[] | string): Annotation {
   return {
     ID,
     seqid: "chr1",
@@ -15,10 +15,11 @@ function feature(ID: string, interval_type: string, parent?: string[] | string):
     strand: "+",
     phase: ".",
     attributes: parent === undefined ? {} : { parent },
+    children: [],
   };
 }
 
-const gene: SequenceInterval = {
+const gene: Annotation = {
   ...feature("gene1", "gene"),
   children: [
     feature("mrna1", "mRNA", ["gene1"]),
@@ -35,7 +36,7 @@ describe("getTranscripts", () => {
     expect(getTranscripts(gene).map((t) => t.ID)).toEqual(["mrna1", "mrna10"]);
   });
 
-  it("returns nothing for a gene without children", () => {
+  it("returns nothing for a gene with no children", () => {
     expect(getTranscripts(feature("g", "gene"))).toEqual([]);
   });
 });

@@ -81,7 +81,7 @@ so you apply the edit and assign the new data back:
 
 ```python
 def remove_rows(row_ids):
-    msa.msa = [r for r in msa.msa if r.get("id", r["header"]) not in row_ids]
+    msa.msa = [r for r in msa.msa if r.get("id", r["identifier"]) not in row_ids]
 
 msa.on_remove_rows(remove_rows)
 ```
@@ -93,10 +93,12 @@ Registering a handler also turns on the matching control, such as the × on a la
 
 | Function | Returns |
 | --- | --- |
-| `read_fasta(path)`, `parse_fasta(text)` | `[{"header", "sequence"}, …]` |
+| `read_fasta(path)`, `parse_fasta(text)` | `[{"identifier", "sequence"}, …]` |
 | `read_newick(path)`, `parse_newick(text)` | `{"name", "length", "children"}` |
 | `to_newick(tree)` | a Newick string (names quoted where needed) |
+| `blast_hits_from_result(result)` | `BlastHitDistribution` rows from a betula `BlastResult` (blastserver's output) |
 
-Any other parser works too, as long as it produces these plain structures. Biopython records, for
+These are the [betula](../../concepts/data-formats/) shapes, so JSON from picea, acacia or
+blastserver works as is, and any other parser does too as long as it produces them. Biopython records, for
 example, convert in one line:
-`[{"header": r.id, "sequence": str(r.seq)} for r in AlignIO.read(path, "fasta")]`.
+`[{"identifier": r.id, "sequence": str(r.seq)} for r in AlignIO.read(path, "fasta")]`.

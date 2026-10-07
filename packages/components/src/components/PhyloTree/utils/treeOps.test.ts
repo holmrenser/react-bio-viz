@@ -55,10 +55,10 @@ describe("tree operations", () => {
 describe("drag and reroot planning", () => {
   // ((A:1,B:1)AB:2,(C:1,D:1)CD:2)root; with explicit ids.
   const ids = parseNewick("((A:1,B:1)AB:2,(C:1,D:1)CD:2);");
-  ids.children[0].ID = "AB";
-  ids.children[1].ID = "CD";
-  ids.children[0].children[0].ID = "A";
-  ids.children[1].children[1].ID = "D";
+  ids.children[0].id = "AB";
+  ids.children[1].id = "CD";
+  ids.children[0].children[0].id = "A";
+  ids.children[1].children[1].id = "D";
 
   it("roots halfway along the displayed branch above a node", () => {
     expect(rerootAbove(ids, {}, "A")).toEqual({ rerootedAt: "A", rerootPosition: 0.5 });
@@ -76,7 +76,7 @@ describe("drag and reroot planning", () => {
 
   it("lands a clade's last tip on the target when dragged down, and ignores targets inside it", () => {
     const flat = parseNewick("(A,(B,C,D),E);");
-    flat.children[1].ID = "BCD";
+    flat.children[1].id = "BCD";
     expect(planTipMove(flat, { collapsed: [] }, "BCD", 3)).toBeNull();
     expect(leafOrder(flat, { order: planTipMove(flat, { collapsed: [] }, "BCD", 4)! })).toEqual(["A", "E", "B", "C", "D"]);
     expect(leafOrder(flat, { order: planTipMove(flat, { collapsed: [] }, "BCD", 0)! })).toEqual(["B", "C", "D", "A", "E"]);

@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { createControllableStore, type SequenceInterval, type Viewport } from "@react-bio-viz/core";
+import { createControllableStore, type Annotation, type Viewport } from "@react-bio-viz/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { GeneModel, SimpleGeneModel } from "./index";
 
-const gene: SequenceInterval = {
+const gene: Annotation = {
   ID: "gene1",
   seqid: "chr1",
   source: "test",
@@ -27,6 +27,7 @@ const gene: SequenceInterval = {
       strand: "+",
       phase: ".",
       attributes: { parent: ["gene1"] },
+      children: [],
     },
     {
       ID: "exon1",
@@ -39,6 +40,7 @@ const gene: SequenceInterval = {
       strand: "+",
       phase: ".",
       attributes: { parent: ["mrna1"] },
+      children: [],
     },
     {
       ID: "cds1",
@@ -51,6 +53,7 @@ const gene: SequenceInterval = {
       strand: "+",
       phase: 0,
       attributes: { parent: ["mrna1"] },
+      children: [],
     },
   ],
 };

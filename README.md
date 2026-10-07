@@ -92,7 +92,7 @@ pip install react-bio-viz
 ```python
 from react_bio_viz import MSA
 
-widget = MSA(msa=[{"header": "seq1", "sequence": "MKTAYIAKQRQISFVK"}])
+widget = MSA(msa=[{"identifier": "seq1", "sequence": "MKTAYIAKQRQISFVK"}])
 widget.observe(lambda change: print(change["new"]), names="viewport")
 widget
 ```

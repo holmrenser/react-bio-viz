@@ -19,7 +19,11 @@ Python/Jupyter wrapper published to PyPI under the same name.
   adds UI such as the pan/zoom toolbar. It manages the state itself: controlled through props, in an
   external store the caller passes in, or — when neither is given — in its own Zustand store.
 - **Consistent data structures** for passing in data, and **consistent, intuitive interfaces**,
-  across components.
+  across components. Input data are the [betula](https://holmrenser.github.io/betula/) schemas
+  (`Tree`, `Sequence`/`Alignment`, `Annotation`, `DistanceMatrix`, `BlastResult`), shared with
+  picea, acacia, blastserver and iqtreeserver: re-exported type-only from `betula-schema` in
+  `core/src/data/`, never redefined. Don't rename or add required fields to them here; a shape
+  change belongs in betula. Component-only extras (an alignment row's `id`) must stay optional.
 - **Performance.** Draw only what is on screen; for large data, render to canvas through a viewport,
   in a web worker when needed — see [Viewports and performance](#viewports-and-performance).
 - **DRY.** Components are built from the same primitives in `packages/core`, so learning one
@@ -146,7 +150,7 @@ props. Don't invent another convention; load the `bio-viz-conventions` skill
 
 - `packages/core/src/`: state (`useControllableState`, `createControllableStore`), viewport, color,
   scales and rulers, canvas setup, row labels and layout, SVG export, theme, shared data types and
-  their rendering (`gene/`: `SequenceInterval`, `TranscriptStack`), and the shadcn/ui chrome.
+  their rendering (`data/`: the betula types; `gene/`: `TranscriptStack`), and the shadcn/ui chrome.
 - `packages/components/src/components/`: `MultipleSequenceAlignment`, `PhyloTree`, `DistanceMatrix`,
   `GeneModel`, `GenomeBrowser` and `BlastHitDistribution`, each with its `Simple*` view. All are
   exported from `packages/components/src/main.ts`, with the core pieces consumers need

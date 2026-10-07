@@ -1,8 +1,8 @@
 """Reading alignments and trees into the plain structures the widgets take.
 
-The widgets take plain JSON-able data — a list of ``{"header", "sequence"}`` records for
-:class:`~react_bio_viz.MSA`, nested ``{"name", "length", "children"}`` dicts for
-:class:`~react_bio_viz.PhyloTree` — so any parser works. These cover the common formats without
+The widgets take plain JSON-able data in the `betula <https://holmrenser.github.io/betula/>`_ schemas
+— a list of ``{"identifier", "sequence"}`` records for :class:`~react_bio_viz.MSA`, nested
+``{"name", "length", "children"}`` dicts for :class:`~react_bio_viz.PhyloTree` — so any parser works. These cover the common formats without
 extra dependencies, and parse Newick the same way the JavaScript ``parseNewick`` does.
 """
 
@@ -19,9 +19,9 @@ TreeNode = dict[str, Any]
 
 
 def parse_fasta(text: str) -> list[Record]:
-    """Parses FASTA text into ``[{"header": ..., "sequence": ...}, ...]``.
+    """Parses FASTA text into ``[{"identifier": ..., "sequence": ...}, ...]``.
 
-    The header is the whole line after ``>``; sequence lines are joined with whitespace removed.
+    The identifier is the whole header line after ``>``; sequence lines are joined with whitespace removed.
     """
     records: list[Record] = []
     for line in text.splitlines():
@@ -29,7 +29,7 @@ def parse_fasta(text: str) -> list[Record]:
         if not line:
             continue
         if line.startswith(">"):
-            records.append({"header": line[1:].strip(), "sequence": ""})
+            records.append({"identifier": line[1:].strip(), "sequence": ""})
         elif records:
             records[-1]["sequence"] += re.sub(r"\s+", "", line)
         else:
@@ -131,3 +131,28 @@ def to_newick(tree: TreeNode) -> str:
         return f"{inner}{_quote(node.get('name', ''))}{suffix}"
 
     return write(tree, True) + ";"
+
+
+def blast_hits_from_result(result: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flattens a betula ``BlastResult`` (blastserver's output: hits with nested HSPs) into the rows
+    :class:`~react_bio_viz.BlastHitDistribution` draws, one per HSP, as the JavaScript
+    ``blastHitsFromResult`` does. Pass ``result["queryLen"]`` as its ``query_length``.
+
+    >>> w = BlastHitDistribution(hits=blast_hits_from_result(result), query_length=result["queryLen"])
+    """
+    return [
+        {
+            "id": f"{hit['accession']}-{hsp['num']}",
+            "queryId": result["queryId"],
+            "subjectId": hit["accession"],
+            "queryStart": hsp["queryFrom"],
+            "queryEnd": hsp["queryTo"],
+            "subjectStart": hsp["hitFrom"],
+            "subjectEnd": hsp["hitTo"],
+            "evalue": hsp["evalue"],
+            "bitScore": hsp["bitScore"],
+            "percentIdentity": 100 * hsp["identity"] / hsp["alignLen"],
+        }
+        for hit in result["hits"]
+        for hsp in hit["hsps"]
+    ]

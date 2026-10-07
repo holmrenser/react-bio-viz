@@ -10,9 +10,9 @@ import {
 import type { AlignedSequences } from "../types";
 
 const msa: AlignedSequences = [
-  { header: "a", sequence: "AAGT" },
-  { header: "b", sequence: "ACGT" },
-  { header: "c", sequence: "AC-T" },
+  { identifier: "a", sequence: "AAGT" },
+  { identifier: "b", sequence: "ACGT" },
+  { identifier: "c", sequence: "AC-T" },
 ];
 
 describe("computeColumnStats", () => {
@@ -30,8 +30,8 @@ describe("computeColumnStats", () => {
 
   it("counts residues case-insensitively", () => {
     const [first] = computeColumnStats([
-      { header: "a", sequence: "a" },
-      { header: "b", sequence: "A" },
+      { identifier: "a", sequence: "a" },
+      { identifier: "b", sequence: "A" },
     ]);
     expect(first.dominantChar).toBe("A");
     expect(first.counts.A).toBe(2);
@@ -39,8 +39,8 @@ describe("computeColumnStats", () => {
 
   it("returns an all-gap column as a gap with a zero score", () => {
     const [only] = computeColumnStats([
-      { header: "a", sequence: "-" },
-      { header: "b", sequence: "-" },
+      { identifier: "a", sequence: "-" },
+      { identifier: "b", sequence: "-" },
     ]);
     expect(only.dominantChar).toBe("-");
     expect(only.score).toBe(0);
@@ -57,7 +57,7 @@ describe("computeConsensus", () => {
   });
 
   it("is labelled Consensus so it renders like any other row", () => {
-    expect(computeConsensus(msa).header).toBe("Consensus");
+    expect(computeConsensus(msa).identifier).toBe("Consensus");
   });
 });
 
@@ -83,20 +83,20 @@ describe("analyseColumns", () => {
   it("requires two states seen at least twice to call a column parsimony-informative", () => {
     // A appears 2x and T appears 2x — informative. The singleton G must not disqualify it.
     const informative: AlignedSequences = [
-      { header: "a", sequence: "A" },
-      { header: "b", sequence: "A" },
-      { header: "c", sequence: "T" },
-      { header: "d", sequence: "T" },
-      { header: "e", sequence: "G" },
+      { identifier: "a", sequence: "A" },
+      { identifier: "b", sequence: "A" },
+      { identifier: "c", sequence: "T" },
+      { identifier: "d", sequence: "T" },
+      { identifier: "e", sequence: "G" },
     ];
     expect(analyseColumns(informative).parsimonyInformativeSites).toEqual([0]);
   });
 
   it("does not call a column with a single repeated state informative", () => {
     const singleton: AlignedSequences = [
-      { header: "a", sequence: "A" },
-      { header: "b", sequence: "A" },
-      { header: "c", sequence: "T" },
+      { identifier: "a", sequence: "A" },
+      { identifier: "b", sequence: "A" },
+      { identifier: "c", sequence: "T" },
     ];
     expect(analyseColumns(singleton).parsimonyInformativeSites).toEqual([]);
   });

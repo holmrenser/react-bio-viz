@@ -10,21 +10,21 @@ const binary: Tree = {
   length: 0,
   children: [
     {
-      ID: "AB",
+      id: "AB",
       name: "AB",
       length: 3,
       children: [
-        { ID: "A", name: "A", length: 1, children: [] },
-        { ID: "B", name: "B", length: 2, children: [] },
+        { id: "A", name: "A", length: 1, children: [] },
+        { id: "B", name: "B", length: 2, children: [] },
       ],
     },
     {
-      ID: "CD",
+      id: "CD",
       name: "CD",
       length: 6,
       children: [
-        { ID: "C", name: "C", length: 4, children: [] },
-        { ID: "D", name: "D", length: 5, children: [] },
+        { id: "C", name: "C", length: 4, children: [] },
+        { id: "D", name: "D", length: 5, children: [] },
       ],
     },
   ],
@@ -32,21 +32,21 @@ const binary: Tree = {
 
 // root -> (X(leaf1, leaf2), Y, Z): a multifurcating root.
 const multifurcating: Tree = {
-  ID: "root",
+  id: "root",
   name: "root",
   length: 0,
   children: [
     {
-      ID: "X",
+      id: "X",
       name: "X",
       length: 2,
       children: [
-        { ID: "leaf1", name: "leaf1", length: 1, children: [] },
-        { ID: "leaf2", name: "leaf2", length: 1, children: [] },
+        { id: "leaf1", name: "leaf1", length: 1, children: [] },
+        { id: "leaf2", name: "leaf2", length: 1, children: [] },
       ],
     },
-    { ID: "Y", name: "Y", length: 3, children: [] },
-    { ID: "Z", name: "Z", length: 4, children: [] },
+    { id: "Y", name: "Y", length: 3, children: [] },
+    { id: "Z", name: "Z", length: 4, children: [] },
   ],
 };
 

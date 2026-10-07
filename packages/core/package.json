@@ -44,6 +44,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "betula-schema": "^0.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cn": "^0.3.3",

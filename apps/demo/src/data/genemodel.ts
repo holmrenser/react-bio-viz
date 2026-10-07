@@ -1,5 +1,5 @@
-import type { SequenceInterval } from "react-bio-viz";
-export const genemodel: SequenceInterval = {
+import type { Annotation } from "react-bio-viz";
+export const genemodel: Annotation = {
   ID: "gene:MtrunA17Chr1g0184451",
   seqid: "MtrunA17Chr1",
   source: "EuGene",
@@ -33,6 +33,7 @@ export const genemodel: SequenceInterval = {
           "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35",
         ],
       },
+      children: [],
     },
     {
       ID: "mRNA:MtrunA17Chr1g0184451.2",
@@ -53,6 +54,7 @@ export const genemodel: SequenceInterval = {
           "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35",
         ],
       },
+      children: [],
     },
     {
       ID: "five_prime_UTR:MtrunA17Chr1g0184451.0",
@@ -69,6 +71,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.1",
@@ -83,6 +86,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.1",
@@ -99,6 +103,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.2",
@@ -113,6 +118,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.2",
@@ -129,6 +135,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.3",
@@ -143,6 +150,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.3",
@@ -159,6 +167,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.4",
@@ -173,6 +182,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.4",
@@ -189,6 +199,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.5",
@@ -203,6 +214,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.5",
@@ -219,6 +231,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.6",
@@ -233,6 +246,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.6",
@@ -249,6 +263,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.7",
@@ -263,6 +278,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.7",
@@ -279,6 +295,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "CDS:MtrunA17Chr1g0184451.8",
@@ -295,6 +312,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
     {
       ID: "exon:MtrunA17Chr1g0184451.8",
@@ -309,6 +327,7 @@ export const genemodel: SequenceInterval = {
       attributes: {
         parent: ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"],
       },
+      children: [],
     },
     {
       ID: "three_prime_UTR:MtrunA17Chr1g0184451.16",
@@ -325,6 +344,7 @@ export const genemodel: SequenceInterval = {
         est_cons: ["100.0"],
         est_incons: ["0.0"],
       },
+      children: [],
     },
   ],
 };

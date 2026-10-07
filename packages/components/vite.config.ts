@@ -11,9 +11,10 @@ export default defineConfig({
       exclude: ["src/**/*.test.ts", "src/**/*.test.tsx"],
       tsconfigPath: "./tsconfig.json",
       // One self-contained `main.d.ts`: `@react-bio-viz/core` is bundled into the JS, so its types
-      // are inlined too — consumers never install it.
+      // are inlined too — consumers never install it. The same goes for the betula data types,
+      // which are type-only: `betula-schema`'s validators never reach the bundle.
       rollupTypes: true,
-      bundledPackages: ["@react-bio-viz/core"],
+      bundledPackages: ["@react-bio-viz/core", "betula-schema"],
     }),
   ],
   build: {

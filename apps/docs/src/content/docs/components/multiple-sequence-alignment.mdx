@@ -13,7 +13,8 @@ import { MultipleSequenceAlignment } from "react-bio-viz";
 <MultipleSequenceAlignment msa={msa} width={900} height={500} />;
 ```
 
-`msa` is an array of `{ header, sequence, id? }`, all sequences the same length. The view draws only
+`msa` is a betula [alignment](../../concepts/data-formats/): an array of `{ identifier, sequence, id? }`, all
+sequences the same length. The view draws only
 the visible window, so alignment size doesn't matter — thousands of sequences or columns render
 as quickly as ten — and residue letters are redrawn at every zoom level, so they stay sharp.
 
@@ -86,7 +87,7 @@ options={{
 | `panelSizes` | `{ labelWidth, trackHeight, minimapHeight }` | drags a divider |
 
 Each has its `default*` / `on*Change` / `*Store` companions ([Controllable state](../../concepts/controllable-state/)).
-Rows are identified by `id` when given, else by `header` — set `id` when headers can repeat, or to
+Rows are identified by `id` when given, else by `identifier` — set `id` when identifiers can repeat, or to
 keep a row's identity through renames.
 
 `rowOrder` tolerates ids it doesn't know and appends rows it doesn't mention, so a tree's leaf

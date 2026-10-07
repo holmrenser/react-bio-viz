@@ -31,7 +31,8 @@
         "product": [
           "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35"
         ]
-      }
+      },
+      "children": []
     },
     {
       "ID": "mRNA:MtrunA17Chr1g0184451.2",
@@ -51,7 +52,8 @@
         "product": [
           "Putative%20flagellum%20site-determining%20protein%20YlxH%2F%20Fe-S%20cluster%20assembling%20factor%20NBP35"
         ]
-      }
+      },
+      "children": []
     },
     {
       "ID": "five_prime_UTR:MtrunA17Chr1g0184451.0",
@@ -70,7 +72,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.1",
@@ -84,7 +87,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.1",
@@ -103,7 +107,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.2",
@@ -117,7 +122,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.2",
@@ -133,7 +139,8 @@
         "parent": ["mRNA:MtrunA17Chr1g0184451.1"],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.3",
@@ -147,7 +154,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.3",
@@ -163,7 +171,8 @@
         "parent": ["mRNA:MtrunA17Chr1g0184451.1"],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.4",
@@ -177,7 +186,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.4",
@@ -196,7 +206,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.5",
@@ -210,7 +221,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.5",
@@ -229,7 +241,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.6",
@@ -243,7 +256,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.6",
@@ -262,7 +276,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.7",
@@ -276,7 +291,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.7",
@@ -295,7 +311,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "CDS:MtrunA17Chr1g0184451.8",
@@ -314,7 +331,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "exon:MtrunA17Chr1g0184451.8",
@@ -328,7 +346,8 @@
       "phase": ".",
       "attributes": {
         "parent": ["mRNA:MtrunA17Chr1g0184451.1", "mRNA:MtrunA17Chr1g0184451.2"]
-      }
+      },
+      "children": []
     },
     {
       "ID": "three_prime_UTR:MtrunA17Chr1g0184451.16",
@@ -347,7 +366,8 @@
         ],
         "est_cons": ["100.0"],
         "est_incons": ["0.0"]
-      }
+      },
+      "children": []
     }
   ]
 }

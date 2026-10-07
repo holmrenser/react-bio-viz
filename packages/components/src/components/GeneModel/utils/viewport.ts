@@ -1,11 +1,11 @@
-import { fitToExtent, type SequenceInterval, type Viewport } from "@react-bio-viz/core";
+import { fitToExtent, type Annotation, type Viewport } from "@react-bio-viz/core";
 
 import { VIEWPORT_PADDING_RATIO } from "../constants";
 
 type Extent = Pick<Viewport, "xMin" | "xMax" | "yMin" | "yMax">;
 
 /** The pannable extent: the gene plus {@link VIEWPORT_PADDING_RATIO} of its length on each side. */
-export function geneExtent(gene: Pick<SequenceInterval, "start" | "end">): Extent {
+export function geneExtent(gene: Pick<Annotation, "start" | "end">): Extent {
   const padding = Math.round(VIEWPORT_PADDING_RATIO * (gene.end - gene.start));
   return { xMin: Math.max(0, gene.start - padding), xMax: gene.end + padding, yMin: 0, yMax: 1 };
 }

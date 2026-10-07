@@ -30,7 +30,7 @@ export default function DistanceMatrixBasic() {
             </label>
           </div>
           <DistanceMatrix
-            labels={alignment.map((s) => s.header)}
+            labels={alignment.map((s) => s.identifier)}
             matrix={matrix}
             width={width}
             height={520}

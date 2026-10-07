@@ -5,7 +5,7 @@ Every piece of interactive state is a synced traitlet, so the kernel can both dr
 
     from react_bio_viz import MSA
 
-    widget = MSA(msa=[{"header": "seq1", "sequence": "ACGT"}])
+    widget = MSA(msa=[{"identifier": "seq1", "sequence": "ACGT"}])
     widget.observe(lambda change: print(change["new"]), names="viewport")
     widget                      # renders in the notebook
     widget.viewport = {...}     # drives the view from Python
@@ -20,7 +20,7 @@ from .blasthitdistribution import BlastHitDistribution
 from .distancematrix import DistanceMatrix
 from .genemodel import GeneModel
 from .genomebrowser import GenomeBrowser
-from .io import parse_fasta, parse_newick, read_fasta, read_newick, to_newick
+from .io import blast_hits_from_result, parse_fasta, parse_newick, read_fasta, read_newick, to_newick
 from .msa import MSA
 from .phylotree import PhyloTree
 
@@ -34,6 +34,7 @@ __all__ = [
     "GenomeBrowser",
     "MSA",
     "PhyloTree",
+    "blast_hits_from_result",
     "fit_to_extent",
     "parse_fasta",
     "parse_newick",

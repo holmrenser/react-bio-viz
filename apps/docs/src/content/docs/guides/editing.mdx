@@ -22,7 +22,7 @@ const undo = () => setHistory((h) => h.slice(0, -1));
 
 <MultipleSequenceAlignment
   msa={alignment}
-  onRenameRow={(id, name) => apply(alignment.map((s) => (s.id === id ? { ...s, header: name } : s)))}
+  onRenameRow={(id, name) => apply(alignment.map((s) => (s.id === id ? { ...s, identifier: name } : s)))}
   onRemoveRows={(ids) => apply(alignment.filter((s) => !ids.includes(s.id)))}
   onRemoveColumns={(cols) => {
     const removed = new Set(cols);
@@ -31,7 +31,7 @@ const undo = () => setHistory((h) => h.slice(0, -1));
 />;
 ```
 
-Give every row an `id` (e.g. its original header) so a renamed row keeps its identity — selection
+Give every row an `id` (e.g. its original identifier) so a renamed row keeps its identity — selection
 and row order are keyed by it.
 
 ## An edit log

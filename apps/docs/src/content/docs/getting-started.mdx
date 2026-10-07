@@ -41,15 +41,16 @@ Importing it as well is harmless: both copies hold the same rules.
 
 <Steps>
 
-1. **An alignment** is an array of `{ header, sequence }` records, all of the same length:
+1. **An alignment** is an array of `{ identifier, sequence }` records, all of the same length
+   (see [Data formats](../concepts/data-formats/) for every component's input):
 
    ```tsx
    import { MultipleSequenceAlignment } from "react-bio-viz";
 
    const msa = [
-     { header: "seq1", sequence: "MKTAYIAKQR-QISFVKSHFSRQ" },
-     { header: "seq2", sequence: "MKTAYIAKQRQQISFVKSHFSRQ" },
-     { header: "seq3", sequence: "MKSAYIAKQR-QLSFVKSHFS-Q" },
+     { identifier: "seq1", sequence: "MKTAYIAKQR-QISFVKSHFSRQ" },
+     { identifier: "seq2", sequence: "MKTAYIAKQRQQISFVKSHFSRQ" },
+     { identifier: "seq3", sequence: "MKSAYIAKQR-QLSFVKSHFS-Q" },
    ];
 
    <MultipleSequenceAlignment msa={msa} width={800} height={300} />;

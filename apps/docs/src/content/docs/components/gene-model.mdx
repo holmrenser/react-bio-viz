@@ -12,8 +12,9 @@ import { GeneModel } from "react-bio-viz";
 <GeneModel gene={gene} width={900} />;
 ```
 
-`gene` is a GFF-like interval tree: a gene with `children` transcripts, each with exon and CDS
-children (`start`, `end`, `strand`, `interval_type`, `attributes`). Click an exon for its details;
+`gene` is a betula [`Annotation`](../../concepts/data-formats/), a GFF3 feature tree: a gene with
+`children` transcripts, each with exon and CDS children (`start`, `end`, `strand`, `interval_type`,
+`attributes`). Click an exon for its details;
 pan and zoom along the gene.
 
 <GeneModelExample client:only="react" />

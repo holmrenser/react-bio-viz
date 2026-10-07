@@ -9,7 +9,7 @@ import { subset } from "../lib/data";
  * them to its own state — keeping a history, so undo is just popping it.
  */
 export default function MsaEditing() {
-  const [history, setHistory] = useState<AlignedSequences[]>([subset(12).map((s) => ({ ...s, id: s.header }))]);
+  const [history, setHistory] = useState<AlignedSequences[]>([subset(12).map((s) => ({ ...s, id: s.identifier }))]);
   const alignment = history[history.length - 1];
   const apply = (next: AlignedSequences) => setHistory((h) => [...h, next]);
 
@@ -30,7 +30,7 @@ export default function MsaEditing() {
             width={width}
             height={360}
             options={{ showMinimap: false }}
-            onRenameRow={(id, name) => apply(alignment.map((s) => (s.id === id ? { ...s, header: name } : s)))}
+            onRenameRow={(id, name) => apply(alignment.map((s) => (s.id === id ? { ...s, identifier: name } : s)))}
             onRemoveRows={(ids) => apply(alignment.filter((s) => !ids.includes(s.id!)))}
             onRemoveColumns={(columns) => {
               const removed = new Set(columns);

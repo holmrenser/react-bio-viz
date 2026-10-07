@@ -18,8 +18,8 @@ pip install react-bio-viz
 from react_bio_viz import MSA
 
 widget = MSA(msa=[
-    {"header": "seq1", "sequence": "MKTAYIAKQRQISFVK"},
-    {"header": "seq2", "sequence": "MKTAYIAKQRQISFVR"},
+    {"identifier": "seq1", "sequence": "MKTAYIAKQRQISFVK"},
+    {"identifier": "seq2", "sequence": "MKTAYIAKQRQISFVR"},
 ])
 widget
 ```
