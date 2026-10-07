@@ -1,0 +1,90 @@
+---
+title: Server Components and Next.js
+description: Render the components from React Server Components, and run the pure helpers on the server with react-bio-viz/utils.
+sidebar:
+  order: 4
+---
+import { Aside } from "@astrojs/starlight/components";
+
+Every component pans, zooms, hovers and draws to a canvas, so they are all **client components**.
+`react-bio-viz` is marked `"use client"`, so you can render them straight from a React Server
+Component, such as a page in the Next.js App Router. They are server-rendered to HTML like any
+client component, then become interactive in the browser.
+
+```tsx
+// app/tree/page.tsx — a Server Component
+import { PhyloTree } from "react-bio-viz";
+import { parseNewick, midpointRoot } from "react-bio-viz/utils";
+
+export default async function Page() {
+  const tree = parseNewick(await fetchNewick());
+  const { rerootedAt, rerootPosition } = midpointRoot(tree);
+  return (
+    <PhyloTree
+      tree={tree}
+      width={800}
+      height={600}
+      defaultSelection={{ rerootedAt, rerootPosition, collapsed: [], order: {} }}
+    />
+  );
+}
+```
+
+## Helpers on the server: `react-bio-viz/utils`
+
+Everything exported from a `"use client"` module becomes a *client reference* inside a Server
+Component. You can render it or pass it along, but you can't call it. So `parseNewick` imported
+from `react-bio-viz` can't run in a Server Component. The pure helpers are therefore also exported
+from `react-bio-viz/utils`, which has no `"use client"` and doesn't import React, so they run on
+the server:
+
+| | |
+| --- | --- |
+| Trees | `parseNewick`, `toNewick`, `midpointRoot`, `ladderizeOrder`, `rotateOrder`, `orderForLeafNames`, `collapseBySupport`, `applyTreeSelection`, `leafOrder`, `rerootAbove`, `REROOT_ID` |
+| Alignments | `alignmentSequences`, `analyseColumns`, `computeColumnStats`, `computeConsensus`, `computeConservationScores`, `COLOR_STYLES`, `COLOR_STYLE_GROUPS` |
+| Other data | `blastHitsFromResult`, `distanceColor`, `resolveRowOrder`, `moveItem` |
+| Viewports | `fitToExtent`, `clampToExtent`, `panBy`, `zoomAt`, `zoomBy` |
+
+Use them to prepare a component's data or its initial state (`defaultSelection`,
+`defaultViewport`, `defaultRowOrder`, …) where the data is loaded. In client code, importing them
+from either entry gives the same functions.
+
+## What can cross the boundary
+
+Props passed from a Server Component to a client component must be serializable. Data and `default*`
+props are plain objects and arrays, so they can be passed directly. Functions can't be passed, so
+these props need a client component of your own:
+
+- change callbacks (`onViewportChange`, `onSelectionChange`, …) and events (`onNodeClick`, …),
+- function props such as `colorFunction`, `leafTextComponent` or `trackRenderers`,
+- external stores (`selectionStore`, …).
+
+Move the part of the page that uses them into a component marked `"use client"`, and give it the
+server-loaded data as props:
+
+```tsx
+// app/tree/TreeView.tsx
+"use client";
+import { useState } from "react";
+import { PhyloTree, type Tree, type TreeSelection } from "react-bio-viz";
+
+export function TreeView({ tree }: { tree: Tree }) {
+  const [selection, setSelection] = useState<TreeSelection>();
+  return <PhyloTree tree={tree} width={800} height={600} selection={selection} onSelectionChange={setSelection} />;
+}
+```
+
+```tsx
+// app/tree/page.tsx
+import { parseNewick } from "react-bio-viz/utils";
+import { TreeView } from "./TreeView";
+
+export default async function Page() {
+  return <TreeView tree={parseNewick(await fetchNewick())} />;
+}
+```
+
+<Aside>
+  Props passed from a Server Component to a client component are serialized into the page's RSC
+  payload. For a large alignment it can be cheaper to fetch the data in the browser.
+</Aside>

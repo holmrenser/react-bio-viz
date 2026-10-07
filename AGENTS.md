@@ -145,6 +145,10 @@ props. Don't invent another convention; load the `bio-viz-conventions` skill
 - A new component, prop or behaviour gets its page or section updated along with the code.
 - `packages/components` fails its build if the bundle can't be imported and server-rendered in Node
   (`scripts/check-ssr.mjs`): the site pre-renders every page, and so do consumers' SSR apps.
+- `packages/components` builds two bundles. `main` starts with `"use client"`, so React Server
+  Components import it as a client reference. `utils` (`react-bio-viz/utils`, `src/utils.ts`) holds
+  the pure helpers, with no directive and no React, so Server Components can call them. Export a new
+  pure helper from both. The SSR check imports `utils` under the `react-server` condition.
 
 ## Where things live
 

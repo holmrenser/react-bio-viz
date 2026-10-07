@@ -12,7 +12,10 @@ npm install react-bio-viz
 
 `react-bio-viz` works with **React 18 and 19** and has no other runtime dependencies — everything
 it uses is bundled. It is safe to import in server-rendered apps (Next.js, Remix, Astro); the
-visualizations themselves draw in the browser.
+visualizations themselves draw in the browser. The components are marked `"use client"`, so they can
+be rendered from React Server Components, and the pure helpers (`parseNewick`, …) are also exported
+from `react-bio-viz/utils` to run on the server — see
+[Server Components and Next.js](../guides/server-components/).
 
 ## Styling
 

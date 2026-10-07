@@ -1,7 +1,17 @@
 /**
- * Server-rendering smoke test for the built bundle: import it in plain Node (no DOM) and render every
- * component to a string, so nothing touches `document`/`window` at import or render time.
+ * Server-rendering smoke test for the built bundles:
+ *
+ * - import `main` in plain Node (no DOM) and render every component to a string, so nothing touches
+ *   `document`/`window` at import or render time;
+ * - check that `main` is marked `"use client"`, so React Server Components (the Next.js App Router)
+ *   import it as a client reference instead of evaluating it on the server;
+ * - import `utils` the way a Server Component does — under the `react-server` condition, where React
+ *   has no hooks — and call a helper, so the pure helpers stay usable on the server;
+ * - `require` both CommonJS builds, which Node reads as CommonJS only by their `.cjs` extension.
  */
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 
@@ -41,14 +51,46 @@ const cases = Object.fromEntries(
 );
 
 let failed = false;
+function fail(message) {
+  failed = true;
+  console.error(message);
+}
+
+for (const file of ["main.es.js", "main.cjs"]) {
+  const source = readFileSync(new URL(`../dist/${file}`, import.meta.url), "utf8");
+  if (!/^["']use client["'];/.test(source)) fail(`dist/${file} does not start with "use client".`);
+}
+
+const require = createRequire(import.meta.url);
+for (const [file, name] of [["main.cjs", "PhyloTree"], ["utils.cjs", "parseNewick"]]) {
+  try {
+    if (typeof require(`../dist/${file}`)[name] !== "function") throw new Error(`no ${name} export`);
+  } catch (error) {
+    fail(`Requiring dist/${file} failed: ${error instanceof Error ? error.message : error}`);
+  }
+}
+
+const serverImport = `
+  const utils = await import(process.argv[1]);
+  if (utils.toNewick(utils.parseNewick("(A:1,B:2);")) !== "(A:1,B:2);") throw new Error("wrong result");
+`;
+const server = spawnSync(
+  process.execPath,
+  ["--conditions=react-server", "--input-type=module", "-e", serverImport, new URL("../dist/utils.es.js", import.meta.url).href],
+  { encoding: "utf8" }
+);
+if (server.status !== 0) fail(`Importing react-bio-viz/utils under the react-server condition failed:\n${server.stderr}`);
+
 for (const [name, props] of Object.entries(cases)) {
   try {
     const html = renderToString(createElement(bundle[name], props));
     if (!html) throw new Error("rendered nothing");
   } catch (error) {
-    failed = true;
-    console.error(`SSR render of ${name} failed: ${error instanceof Error ? error.message : error}`);
+    fail(`SSR render of ${name} failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 if (failed) process.exit(1);
-console.log(`SSR check: bundle imports and ${Object.keys(cases).length} components render on the server.`);
+console.log(
+  `SSR check: ${Object.keys(cases).length} components render on the server, main is "use client", ` +
+    "utils runs under react-server, and the CommonJS builds load."
+);
