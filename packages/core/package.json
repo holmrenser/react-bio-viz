@@ -1,6 +1,6 @@
 {
   "name": "@react-bio-viz/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared primitives for react-bio-viz: controllable state, viewport pan/zoom, color palettes, coordinate scales, and shadcn/ui-based UI chrome",
   "type": "module",
   "license": "MIT",

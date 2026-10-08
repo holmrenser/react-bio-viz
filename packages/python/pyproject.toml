@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "react-bio-viz"
-version = "0.2.0"
+version = "0.3.0"
 description = "Jupyter widgets for biological data visualization: multiple sequence alignments, phylogenetic trees, gene models, genome browser tracks, and BLAST hit distributions"
 readme = "README.md"
 requires-python = ">=3.9"
