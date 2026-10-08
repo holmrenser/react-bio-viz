@@ -72,6 +72,6 @@
     "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^2.1.4",
-    "vitest-canvas-mock": "^0.3.3"
+    "vitest-canvas-mock": "^1.2.0"
   }
 }
